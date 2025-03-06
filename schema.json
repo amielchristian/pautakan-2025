@@ -1,0 +1,15 @@
+{
+  "college": {
+    "score": "int",
+    "imagePath": "string",
+    "name": "string",
+    "shortHand": "string"
+  },
+
+  "session": {
+    "start": "timestamp",
+    "end": "timestamp",
+    "id": "int",
+    "category": "boolean"
+  }
+}
