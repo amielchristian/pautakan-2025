@@ -1,42 +1,129 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Starter';
+  src: url('./public/fonts/STARTER.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Starter';
+  src: url('./public/fonts/STARTER Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'DS-Digital';
+  src: url('./public/fonts/DS-DIGI.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'DS-Digital';
+  src: url('./public/fonts/DS-DIGIB.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'DS-Digital';
+  src: url('./public/fonts/DS-DIGII.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
+
 #root {
+  font-family: 'Starter', 'DS-Digital', sans-serif;
   max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  --grid-pattern: repeating-linear-gradient(
+      to right,
+      #f00 0,
+      #f00 1px,
+      transparent 1px,
+      transparent 25px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      #f00 0,
+      #f00 1px,
+      transparent 1px,
+      transparent 25px
+    );
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+@layer components {
+  /*
+    The sharp-edge-box class creates a box with sharp edges.
+    Use variables --bottom-left, --bottom-right, --top-left, --top-right to determine which edge to sharpen.
+    Use --img to define the background image.
+    Use --all to set the width of all edges at once.
+  */
+  .sharp-edge-box {
+    --all: 0px;
+    --border-width: 0px;
+    --border-color: #000;
+    --img: #000;
+    color: var(--border-color);
+    background: linear-gradient(
+          45deg,
+          var(--border-color) 0
+            calc(var(--bottom-left, var(--all)) + var(--border-width)),
+          transparent 0
+        )
+        bottom left / 50% 50%,
+      linear-gradient(
+          -45deg,
+          var(--border-color) 0
+            calc(var(--bottom-right, var(--all)) + var(--border-width)),
+          transparent 0
+        )
+        bottom right/50% 50%,
+      linear-gradient(
+          135deg,
+          var(--border-color) 0
+            calc(var(--top-left, var(--all)) + var(--border-width)),
+          transparent 0
+        )
+        top left / 50% 50%,
+      linear-gradient(
+          -135deg,
+          var(--border-color) 0
+            calc(var(--top-right, var(--all)) + var(--border-width)),
+          transparent 0
+        )
+        top right / 50% 50%,
+      var(--img);
+    background-origin: border-box;
+    background-repeat: no-repeat;
+    mask: linear-gradient(
+          45deg,
+          transparent 0 var(--bottom-left, var(--all)),
+          #fff 0
+        )
+        bottom left,
+      linear-gradient(
+          -45deg,
+          transparent 0 var(--bottom-right, var(--all)),
+          #fff 0
+        )
+        bottom right,
+      linear-gradient(135deg, transparent 0 var(--top-left, var(--all)), #fff 0)
+        top left,
+      linear-gradient(
+          -135deg,
+          transparent 0 var(--top-right, var(--all)),
+          #fff 0
+        )
+        top right;
+    mask-size: 50.5% 50.5%;
+    mask-repeat: no-repeat;
   }
-  to {
-    transform: rotate(360deg);
+
+  .grid-pattern {
+    background-color: #232333;
+    --img: var(--grid-pattern);
   }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }
