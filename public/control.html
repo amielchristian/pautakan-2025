@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pautakan 2025 Control Panel</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f0f0;
+      color: #333;
+    }
+    
+    header {
+      background-color: #000;
+      color: #fff;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    
+    #reset-btn {
+      background-color: #d9534f;
+      color: white;
+    }
+    
+    #reset-btn:hover {
+      background-color: #c9302c;
+    }
+    
+    #refresh-btn {
+      background-color: #5bc0de;
+      color: white;
+    }
+    
+    #refresh-btn:hover {
+      background-color: #46b8da;
+    }
+    
+    .college-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .college-card {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .college-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .college-logo {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      margin-right: 15px;
+    }
+    
+    .college-info h3 {
+      margin: 0 0 5px 0;
+      font-size: 18px;
+    }
+    
+    .college-shorthand {
+      color: #777;
+      font-size: 14px;
+    }
+    
+    .college-score {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 5px 0;
+      color: #333;
+    }
+    
+    .score-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    
+    .score-btn-group {
+      display: flex;
+      gap: 5px;
+    }
+    
+    .score-btn {
+      padding: 5px 10px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .decrease {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    
+    .decrease:hover {
+      background-color: #f5c6cb;
+    }
+    
+    .increase {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    
+    .increase:hover {
+      background-color: #c3e6cb;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 20px;
+      font-style: italic;
+      color: #777;
+    }
+    
+    .error {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Pautakan 2025 Control Panel</h1>
+    <div class="actions">
+      <button id="refresh-btn">Refresh Data</button>
+      <button id="reset-btn">Reset All Scores</button>
+    </div>
+  </header>
+  
+  <main>
+    <div id="colleges-container" class="college-grid">
+      <div class="loading">Loading colleges...</div>
+    </div>
+  </main>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const collegesContainer = document.getElementById('colleges-container');
+      const resetBtn = document.getElementById('reset-btn');
+      const refreshBtn = document.getElementById('refresh-btn');
+      
+      // Track college data
+      let colleges = [];
+      
+      // Load colleges from the database
+      async function loadColleges() {
+        try {
+          collegesContainer.innerHTML = '<div class="loading">Loading colleges...</div>';
+          colleges = await window.electronAPI.getAllColleges();
+          renderColleges();
+        } catch (error) {
+          console.error('Error loading colleges:', error);
+          collegesContainer.innerHTML = `<div class="error">Failed to load colleges: ${error.message || 'Unknown error'}</div>`;
+        }
+      }
+      
+      // Render college cards
+      function renderColleges() {
+        // Sort by score (highest first)
+        colleges.sort((a, b) => b.score - a.score);
+        
+        collegesContainer.innerHTML = '';
+        
+        colleges.forEach(college => {
+          const collegeCard = document.createElement('div');
+          collegeCard.className = 'college-card';
+          
+          collegeCard.innerHTML = `
+            <div class="college-header">
+              <img src="${college.imagePath}" alt="${college.name}" class="college-logo">
+              <div class="college-info">
+                <h3>${college.name}</h3>
+                <div class="college-shorthand">${college.shortHand}</div>
+              </div>
+            </div>
+            <div class="college-score" data-shorthand="${college.shortHand}">${college.score}</div>
+            <div class="score-controls">
+              <div class="score-btn-group">
+                <button class="score-btn decrease" data-shorthand="${college.shortHand}" data-value="-5">-5</button>
+                <button class="score-btn decrease" data-shorthand="${college.shortHand}" data-value="-1">-1</button>
+              </div>
+              <div class="score-btn-group">
+                <button class="score-btn increase" data-shorthand="${college.shortHand}" data-value="1">+1</button>
+                <button class="score-btn increase" data-shorthand="${college.shortHand}" data-value="5">+5</button>
+                <button class="score-btn increase" data-shorthand="${college.shortHand}" data-value="10">+10</button>
+              </div>
+            </div>
+          `;
+          
+          collegesContainer.appendChild(collegeCard);
+        });
+        
+        // Add event listeners to buttons
+        document.querySelectorAll('.score-btn').forEach(btn => {
+          btn.addEventListener('click', handleScoreUpdate);
+        });
+      }
+      
+      // Handle score updates
+      async function handleScoreUpdate(event) {
+        const shortHand = event.target.dataset.shorthand;
+        const value = parseInt(event.target.dataset.value);
+        
+        try {
+          await window.electronAPI.incrementScore(shortHand, value);
+          // The UI will update via the event listener
+        } catch (error) {
+          console.error(`Error updating score for ${shortHand}:`, error);
+          alert(`Failed to update score: ${error.message || 'Unknown error'}`);
+        }
+      }
+      
+      // Reset all scores
+      async function handleResetScores() {
+        if (confirm('Are you sure you want to reset all scores to zero?')) {
+          try {
+            await window.electronAPI.resetScores();
+            // The UI will update via the event listener
+          } catch (error) {
+            console.error('Error resetting scores:', error);
+            alert(`Failed to reset scores: ${error.message || 'Unknown error'}`);
+          }
+        }
+      }
+      
+      // Set up event listeners
+      const unsubscribeScoreUpdated = window.electronAPI.onScoreUpdated((shortHand, newScore) => {
+        // Update the score in our local data
+        const college = colleges.find(c => c.shortHand === shortHand);
+        if (college) {
+          college.score = newScore;
+          
+          // Update the displayed score
+          const scoreElement = document.querySelector(`.college-score[data-shorthand="${shortHand}"]`);
+          if (scoreElement) {
+            scoreElement.textContent = newScore;
+          }
+          
+          // Re-render to maintain sort order
+          renderColleges();
+        }
+      });
+      
+      const unsubscribeScoresReset = window.electronAPI.onScoresReset(() => {
+        loadColleges();
+      });
+      
+      resetBtn.addEventListener('click', handleResetScores);
+      refreshBtn.addEventListener('click', loadColleges);
+      
+      // Initial load
+      loadColleges();
+      
+      // Clean up event listeners
+      window.addEventListener('beforeunload', () => {
+        unsubscribeScoreUpdated();
+        unsubscribeScoresReset();
+      });
+    });
+  </script>
+</body>
+</html>

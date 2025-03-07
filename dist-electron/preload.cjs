@@ -1,8 +1,8 @@
-// preload.js - ES Module version
-import { contextBridge, ipcRenderer } from 'electron';
+// preload.cjs - Place this file directly in dist-electron folder
+const { contextBridge, ipcRenderer } = require('electron');
 
 // Log preload execution
-console.log('Preload script executing');
+console.log('Preload script executing from dist-electron folder');
 
 // Expose APIs to renderer process
 contextBridge.exposeInMainWorld('electronAPI', {
