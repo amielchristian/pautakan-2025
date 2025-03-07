@@ -14,7 +14,8 @@ function createWindow() {
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
     webPreferences: {
       preload: path.join(__dirname, "preload.mjs")
-    }
+    },
+    alwaysOnTop: true
   });
   techView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
@@ -28,6 +29,7 @@ function createWindow() {
       (/* @__PURE__ */ new Date()).toLocaleString()
     );
   });
+  mainView.setFullScreen(true);
   if (VITE_DEV_SERVER_URL) {
     mainView.loadURL(VITE_DEV_SERVER_URL);
     techView.loadURL(VITE_DEV_SERVER_URL + "/control.html");

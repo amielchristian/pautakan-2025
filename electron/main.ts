@@ -33,6 +33,8 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
     },
+
+    alwaysOnTop: true,
   });
 
   techView = new BrowserWindow({
@@ -49,6 +51,8 @@ function createWindow() {
       new Date().toLocaleString()
     );
   });
+
+  mainView.setFullScreen(true);
 
   if (VITE_DEV_SERVER_URL) {
     mainView.loadURL(VITE_DEV_SERVER_URL);
