@@ -15,14 +15,14 @@ let db: Database | null = null;
 
 export async function initializeDatabase(appRoot: string): Promise<Database> {
   if (db) return db;
-  
+
   const dbPath = path.join(appRoot, 'database.sqlite');
-  
+
   db = await open({
     filename: dbPath,
-    driver: sqlite3.Database
+    driver: sqlite3.Database,
   });
-  
+
   // Create tables if they don't exist
   await db.exec(`
     CREATE TABLE IF NOT EXISTS colleges (
@@ -33,109 +33,109 @@ export async function initializeDatabase(appRoot: string): Promise<Database> {
       shortHand TEXT NOT NULL UNIQUE
     )
   `);
-  
+
   // Initialize with college data if the table is empty
   const count = await db.get('SELECT COUNT(*) as count FROM colleges');
   if (count.count === 0) {
     const colleges: College[] = [
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/CRS.png',
+        imagePath: 'public/icons/CRS.png',
         name: 'College of Rehabilitation Sciences',
-        shortHand: 'CRS'
+        shortHand: 'CRS',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/ACC.png',
+        imagePath: 'public/icons/ACC.png',
         name: 'College of Accountancy',
-        shortHand: 'ACC'
+        shortHand: 'ACC',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/ARKI.png',
+        imagePath: 'public/icons/ARKI.png',
         name: 'College of Architecture',
-        shortHand: 'ARKI'
+        shortHand: 'ARKI',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/AB.png',
+        imagePath: 'public/icons/AB.png',
         name: 'Faculty of Arts and Letters',
-        shortHand: 'AB'
+        shortHand: 'AB',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/LAW.png',
+        imagePath: 'public/icons/LAW.png',
         name: 'Faculty of Civil Law',
-        shortHand: 'LAW'
+        shortHand: 'LAW',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/COMM.png',
+        imagePath: 'public/icons/COMM.png',
         name: 'College of Commerce and Business Administration',
-        shortHand: 'COMM'
+        shortHand: 'COMM',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/EDUC.png',
+        imagePath: 'public/icons/EDUC.png',
         name: 'College of Education',
-        shortHand: 'EDUC'
+        shortHand: 'EDUC',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/ENGG.png',
+        imagePath: 'public/icons/ENGG.png',
         name: 'Faculty of Engineering',
-        shortHand: 'ENGG'
+        shortHand: 'ENGG',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/CICS.png',
+        imagePath: 'public/icons/CICS.png',
         name: 'College of Information and Computing Sciences',
-        shortHand: 'CICS'
+        shortHand: 'CICS',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/MED.png',
+        imagePath: 'public/icons/MED.png',
         name: 'Faculty of Medicine and Surgery',
-        shortHand: 'MED'
+        shortHand: 'MED',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/MUSIC.png',
+        imagePath: 'public/icons/MUSIC.png',
         name: 'Conservatory of Music',
-        shortHand: 'MUSIC'
+        shortHand: 'MUSIC',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/NURSING.png',
+        imagePath: 'public/icons/NURSING.png',
         name: 'College of Nursing',
-        shortHand: 'NUR'
+        shortHand: 'NUR',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/PHARMA.png',
+        imagePath: 'public/icons/PHARMA.png',
         name: 'Faculty of Pharmacy',
-        shortHand: 'PHARMA'
+        shortHand: 'PHARMA',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/IPEA.png',
+        imagePath: 'public/icons/IPEA.png',
         name: 'Institute of Physical Education and Athletics',
-        shortHand: 'IPEA'
+        shortHand: 'IPEA',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/COS.png',
+        imagePath: 'public/icons/COS.png',
         name: 'College of Science',
-        shortHand: 'COS'
+        shortHand: 'COS',
       },
       {
         score: 0,
-        imagePath: 'public/ICONS FOR RANKING/CTHM.png',
+        imagePath: 'public/icons/CTHM.png',
         name: 'College of Tourism and Hospitality Management',
-        shortHand: 'CTHM'
-      }
+        shortHand: 'CTHM',
+      },
     ];
-    
+
     for (const college of colleges) {
       await db.run(
         'INSERT INTO colleges (score, imagePath, name, shortHand) VALUES (?, ?, ?, ?)',
@@ -143,7 +143,7 @@ export async function initializeDatabase(appRoot: string): Promise<Database> {
       );
     }
   }
-  
+
   return db;
 }
 
@@ -152,19 +152,33 @@ export async function getAllColleges(): Promise<College[]> {
   return db.all('SELECT * FROM colleges ORDER BY score DESC');
 }
 
-export async function getCollegeByShortHand(shortHand: string): Promise<College | undefined> {
+export async function getCollegeByShortHand(
+  shortHand: string
+): Promise<College | undefined> {
   if (!db) throw new Error('Database not initialized');
   return db.get('SELECT * FROM colleges WHERE shortHand = ?', shortHand);
 }
 
-export async function updateCollegeScore(shortHand: string, score: number): Promise<void> {
+export async function updateCollegeScore(
+  shortHand: string,
+  score: number
+): Promise<void> {
   if (!db) throw new Error('Database not initialized');
-  await db.run('UPDATE colleges SET score = ? WHERE shortHand = ?', [score, shortHand]);
+  await db.run('UPDATE colleges SET score = ? WHERE shortHand = ?', [
+    score,
+    shortHand,
+  ]);
 }
 
-export async function incrementCollegeScore(shortHand: string, increment: number = 1): Promise<void> {
+export async function incrementCollegeScore(
+  shortHand: string,
+  increment: number = 1
+): Promise<void> {
   if (!db) throw new Error('Database not initialized');
-  await db.run('UPDATE colleges SET score = score + ? WHERE shortHand = ?', [increment, shortHand]);
+  await db.run('UPDATE colleges SET score = score + ? WHERE shortHand = ?', [
+    increment,
+    shortHand,
+  ]);
 }
 
 export async function resetAllScores(): Promise<void> {

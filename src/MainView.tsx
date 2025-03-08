@@ -1,57 +1,8 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/electron-vite.animate.svg';
 import './App.css';
 import ScoreBox from './components/ScoreBox';
 import Sidebar from './components/Sidebar';
 
-interface College {
-  name: string;
-  nickname: string;
-  iconPath: string;
-  score: number;
-}
-
 function MainView() {
-  const colleges = [
-    {
-      name: 'College of Science',
-      nickname: 'COS',
-      iconPath: '/path/to/icon',
-      score: 1,
-    },
-    {
-      name: 'College of Science',
-      nickname: 'COS',
-      iconPath: '/path/to/icon',
-      score: 1,
-    },
-    {
-      name: 'College of Science',
-      nickname: 'COS',
-      iconPath: '/path/to/icon',
-      score: 1,
-    },
-    {
-      name: 'College of Science',
-      nickname: 'COS',
-      iconPath: '/path/to/icon',
-      score: 1,
-    },
-    {
-      name: 'College of Science',
-      nickname: 'COS',
-      iconPath: '/path/to/icon',
-      score: 1,
-    },
-    {
-      name: 'College of Science',
-      nickname: 'COS',
-      iconPath: '/path/to/icon',
-      score: 1,
-    },
-  ];
-
   return (
     <>
       {/* Body - flex row */}
