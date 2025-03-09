@@ -15,9 +15,9 @@ function CategoryDisplay(props: any) {
 
 export default function Sidebar(props: any) {
   const colleges: string[] = props.colleges || [
-    './icons/AB.png',
-    './icons/ACC.png',
-    './icons/ARKI.png',
+    './images/AB.png',
+    './images/ACC.png',
+    './images/ARKI.png',
   ];
   const difficulty: string = props.difficulty || 'Easy';
   const category: string = props.category || 'Individual';

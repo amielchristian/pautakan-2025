@@ -2,7 +2,15 @@ import './App.css';
 import ScoreBox from './components/ScoreBox';
 import Sidebar from './components/Sidebar';
 
+async function getColleges() {
+  console.log('Attempting to get colleges...');
+  return await window.ipcRenderer.invoke('getColleges');
+}
+
 function MainView() {
+  getColleges().then((colleges) => {
+    console.log(colleges);
+  });
   return (
     <>
       {/* Body - flex row */}

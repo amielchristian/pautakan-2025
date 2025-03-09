@@ -13,6 +13,30 @@ export default defineConfig({
       main: {
         // Shortcut of `build.lib.entry`.
         entry: 'electron/main.ts',
+        vite: {
+          build: {
+            outDir: 'dist-electron',
+            minify: false,
+            sourcemap: true,
+            rollupOptions: {
+              input: {
+                main: path.resolve(__dirname, 'electron/main.ts'),
+                index: path.resolve(__dirname, 'index.html'),
+                control: path.resolve(__dirname, 'control.html'),
+              },
+              external: [
+                'electron',
+                'node:path',
+                'node:url',
+                'node:fs',
+                'path',
+                'url',
+                'fs',
+                'sqlite3',
+              ],
+            },
+          },
+        },
       },
       preload: {
         // Shortcut of `build.rollupOptions.input`.

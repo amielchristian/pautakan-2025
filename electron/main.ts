@@ -1,6 +1,7 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import sqlite3 from 'sqlite3';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -26,6 +27,40 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL
 
 let mainView: BrowserWindow | null;
 let techView: BrowserWindow | null;
+
+// DB
+const db = new sqlite3.Database('./db.sqlite3', (err) => {
+  if (err) {
+    console.error(err.message);
+  }
+});
+db.serialize(() => {
+  db.run(
+    'CREATE TABLE IF NOT EXISTS colleges (id INTEGER PRIMARY KEY, name TEXT, shorthand TEXT, imagePath TEXT)'
+  );
+
+  db.run('INSERT INTO colleges (name, shorthand, imagePath) VALUES (?, ?, ?)', [
+    'College of Science',
+    'COS',
+    'cos.png',
+  ]);
+});
+
+function initializeIPC() {
+  ipcMain.handle('getColleges', () => {
+    return new Promise((resolve, reject) => {
+      db.all('SELECT * FROM colleges', (err, rows) => {
+        if (err) {
+          console.error("Couldn't get colleges");
+          reject(err);
+        }
+        resolve(rows);
+      });
+    });
+  });
+}
+
+// View
 
 function createWindow() {
   mainView = new BrowserWindow({
@@ -78,4 +113,7 @@ app.on('activate', () => {
   }
 });
 
-app.whenReady().then(createWindow);
+app.whenReady().then(async () => {
+  initializeIPC();
+  createWindow();
+});

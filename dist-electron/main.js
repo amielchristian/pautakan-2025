@@ -1,6 +1,7 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import sqlite3 from "sqlite3";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 process.env.APP_ROOT = path.join(__dirname, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
@@ -9,6 +10,34 @@ const RENDERER_DIST = path.join(process.env.APP_ROOT, "dist");
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, "public") : RENDERER_DIST;
 let mainView;
 let techView;
+const db = new sqlite3.Database("./db.sqlite3", (err) => {
+  if (err) {
+    console.error(err.message);
+  }
+});
+db.serialize(() => {
+  db.run(
+    "CREATE TABLE IF NOT EXISTS colleges (id INTEGER PRIMARY KEY, name TEXT, shorthand TEXT, imagePath TEXT)"
+  );
+  db.run("INSERT INTO colleges (name, shorthand, imagePath) VALUES (?, ?, ?)", [
+    "College of Science",
+    "COS",
+    "cos.png"
+  ]);
+});
+function initializeIPC() {
+  ipcMain.handle("getColleges", () => {
+    return new Promise((resolve, reject) => {
+      db.all("SELECT * FROM colleges", (err, rows) => {
+        if (err) {
+          console.error("Couldn't get colleges");
+          reject(err);
+        }
+        resolve(rows);
+      });
+    });
+  });
+}
 function createWindow() {
   mainView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
@@ -48,9 +77,13 @@ app.on("activate", () => {
     createWindow();
   }
 });
-app.whenReady().then(createWindow);
+app.whenReady().then(async () => {
+  initializeIPC();
+  createWindow();
+});
 export {
   MAIN_DIST,
   RENDERER_DIST,
   VITE_DEV_SERVER_URL
 };
+//# sourceMappingURL=main.js.map
