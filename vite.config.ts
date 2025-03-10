@@ -23,7 +23,6 @@ export default defineConfig({
                 main: path.resolve(__dirname, 'electron/main.ts'),
                 index: path.resolve(__dirname, 'index.html'),
                 control: path.resolve(__dirname, 'control.html'),
-                images: path.resolve(__dirname, './images'),
               },
               external: [
                 'electron',

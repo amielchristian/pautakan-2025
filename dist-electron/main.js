@@ -16,7 +16,12 @@ const db = new sqlite3.Database("./db.sqlite3", (err) => {
     console.error(err.message);
   }
 });
-const colleges = JSON.parse(fs.readFileSync("./colleges.json", "utf-8"));
+const colleges = JSON.parse(
+  fs.readFileSync(
+    path.join(process.env.VITE_PUBLIC, "./colleges.json"),
+    "utf-8"
+  )
+);
 db.serialize(() => {
   db.run("DROP TABLE IF EXISTS colleges");
   db.run(
@@ -44,7 +49,7 @@ function initializeIPC() {
 }
 function createWindow() {
   mainView = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+    icon: path.join(process.env.VITE_PUBLIC, "icon.png"),
     width: 1920,
     height: 1080,
     webPreferences: {
@@ -56,7 +61,7 @@ function createWindow() {
   });
   mainView.setFullScreen(true);
   techView = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+    icon: path.join(process.env.VITE_PUBLIC, "icon.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.mjs")
     }
