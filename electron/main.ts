@@ -30,34 +30,38 @@ let mainView: BrowserWindow | null;
 let techView: BrowserWindow | null;
 
 // DB
-const db = new sqlite3.Database('./db.sqlite3', (err) => {
-  if (err) {
-    console.error(err.message);
-  }
-});
-const colleges = JSON.parse(
-  fs.readFileSync(
-    path.join(process.env.VITE_PUBLIC, './colleges.json'),
-    'utf-8'
-  )
-);
-
-db.serialize(() => {
-  db.run('DROP TABLE IF EXISTS colleges');
-  db.run(
-    'CREATE TABLE IF NOT EXISTS colleges (id INTEGER PRIMARY KEY, name TEXT, shorthand TEXT, imagePath TEXT)'
+function initializeDB(): sqlite3.Database {
+  const db = new sqlite3.Database('./db.sqlite3', (err) => {
+    if (err) {
+      console.error(err.message);
+    }
+  });
+  const colleges = JSON.parse(
+    fs.readFileSync(
+      path.join(process.env.VITE_PUBLIC, './colleges.json'),
+      'utf-8'
+    )
   );
-  for (const college of colleges) {
+
+  db.serialize(() => {
+    db.run('DROP TABLE IF EXISTS colleges');
     db.run(
-      'INSERT INTO colleges (name, shorthand, imagePath) VALUES (?, ?, ?)',
-      [college.name, college.shortHand, college.imagePath]
+      'CREATE TABLE IF NOT EXISTS colleges (id INTEGER PRIMARY KEY, name TEXT, shorthand TEXT, imagePath TEXT, score NUMBER)'
     );
-  }
-});
+    for (const college of colleges) {
+      db.run(
+        'INSERT INTO colleges (name, shorthand, imagePath, score) VALUES (?, ?, ?, ?)',
+        [college.name, college.shortHand, college.imagePath, 0]
+      );
+    }
+  });
+
+  return db;
+}
 
 // IPC handlers
-function initializeIPC() {
-  ipcMain.handle('getColleges', () => {
+function initializeIPC(db: sqlite3.Database) {
+  ipcMain.handle('get-colleges', () => {
     return new Promise((resolve, reject) => {
       db.all('SELECT * FROM colleges', (err, rows) => {
         if (err) {
@@ -68,23 +72,122 @@ function initializeIPC() {
       });
     });
   });
+
+  // Get college by shortHand
+  ipcMain.handle('get-college', (_, shortHand) => {
+    return new Promise((resolve, reject) => {
+      db.get(
+        'SELECT * FROM college WHERE shortHand = ?',
+        [shortHand],
+        (err, row) => {
+          if (err) {
+            console.error(`Error getting college ${shortHand}:`, err);
+            reject(err);
+          } else {
+            resolve(row);
+          }
+        }
+      );
+    });
+  });
+
+  // Update college score
+  ipcMain.handle('update-score', (_, shortHand, newScore) => {
+    return new Promise((resolve, reject) => {
+      db.run(
+        'UPDATE colleges SET score = ? WHERE shortHand = ?',
+        [newScore, shortHand],
+        function (err) {
+          if (err) {
+            console.error(`Error updating score for ${shortHand}:`, err);
+            reject(err);
+          } else {
+            // Notify all windows about the update
+            BrowserWindow.getAllWindows().forEach((window) => {
+              window.webContents.send('score-updated', shortHand, newScore);
+            });
+            resolve({ success: true, changes: this.changes });
+          }
+        }
+      );
+    });
+  });
+
+  // Increment college score
+  ipcMain.handle('increment-score', (_, shortHand, increment = 1) => {
+    return new Promise((resolve, reject) => {
+      db.run(
+        'UPDATE college SET score = score + ? WHERE shortHand = ?',
+        [increment, shortHand],
+        function (err) {
+          if (err) {
+            console.error(`Error incrementing score for ${shortHand}:`, err);
+            reject(err);
+          } else {
+            // Get the updated score
+            db.get(
+              'SELECT * FROM college WHERE shortHand = ?',
+              [shortHand],
+              (err, row) => {
+                if (err) {
+                  console.error(
+                    `Error getting updated college ${shortHand}:`,
+                    err
+                  );
+                  reject(err);
+                } else {
+                  // Notify all windows about the update
+                  BrowserWindow.getAllWindows().forEach((window) => {
+                    window.webContents.send(
+                      'score-updated',
+                      shortHand,
+                      row.score
+                    );
+                  });
+                  resolve(row);
+                }
+              }
+            );
+          }
+        }
+      );
+    });
+  });
+
+  // Reset all scores
+  ipcMain.handle('reset-scores', () => {
+    return new Promise((resolve, reject) => {
+      db.run('UPDATE college SET score = 0', function (err) {
+        if (err) {
+          console.error('Error resetting scores:', err);
+          reject(err);
+        } else {
+          // Notify all windows about the reset
+          BrowserWindow.getAllWindows().forEach((window) => {
+            window.webContents.send('scores-reset');
+          });
+          resolve({ success: true, changes: this.changes });
+        }
+      });
+    });
+  });
 }
 
 // Views
 function createWindow() {
   mainView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
-    width: 1920,
-    height: 1080,
+    // width: 1920,
+    // height: 1080,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.mjs'), // Changed to .cjs
+      preload: path.join(__dirname, 'preload.mjs'),
     },
-    frame: false,
-    alwaysOnTop: true,
+    // frame: false,
+    // alwaysOnTop: true,
   });
 
   // Set fullscreen mode
-  mainView.setFullScreen(true);
+  // mainView.setFullScreen(true);
 
   techView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
@@ -92,13 +195,8 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.mjs'),
     },
   });
-
-  // Test active push message to Renderer-process.
-  mainView.webContents.on('did-finish-load', () => {
-    mainView?.webContents.send(
-      'main-process-message',
-      new Date().toLocaleString()
-    );
+  techView.on('close', () => {
+    app.quit();
   });
 
   if (VITE_DEV_SERVER_URL) {
@@ -130,6 +228,7 @@ app.on('activate', () => {
 });
 
 app.whenReady().then(async () => {
-  initializeIPC();
+  const db = initializeDB();
+  initializeIPC(db);
   createWindow();
 });

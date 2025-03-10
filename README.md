@@ -1,30 +1,23 @@
-# React + TypeScript + Vite
+# Pautakan 2025
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Quickstart
 
-Currently, two official plugins are available:
+1. Install packages with `npm install`.
+2. Start the development environment with `npm run dev`.
+3. To package the app, run `npm run build`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project uses Electron, React, TailwindCSS, and SQLite3.
 
-## Expanding the ESLint configuration
+### Guide
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+The backend of this application can be found in the `electron` folder. This is home to the main process, where operations such as database initialization and interprocess communication is defined. Everything else is part of the renderer process, or the frontend. Frontend files can be found in the `src` folder.
 
-- Configure the top-level `parserOptions` property like this:
+### Ramblings by Amiel
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+Right now, I'm working on linking the two processes together. I had overhauled the backend as Rob's original work had issues with building. However, that's all in order now. Much of Rob's code is still intact, but the DB and IPC functions might need some work in order to facilitate efficient communication between the two windows.
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+### Existing issues
+
+- The control window's HTML isn't rendered in the packaged version of the app.
+- Fonts don't render in the packaged version of the app.
+- The DS-Digital font isn't rendering in any version.

@@ -36,8 +36,9 @@
 }
 
 #root {
-  font-family: 'Starter', 'DS-Digital', sans-serif;
-  max-width: 1280px;
+  /* Colors */
+
+  font-family: sans-serif;
   --grid-pattern: repeating-linear-gradient(
       to right,
       #f00 0,
