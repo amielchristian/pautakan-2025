@@ -1,16 +1,27 @@
 import './App.css';
 import ScoreBox from './components/ScoreBox';
 import Sidebar from './components/Sidebar';
+import { useEffect, useState } from 'react';
 
-async function getColleges() {
-  console.log('Attempting to get colleges...');
-  return await window.ipcRenderer.invoke('getColleges');
+interface College {
+  id: number;
+  name: string;
+  shorthand: string;
+  imagePath: string;
 }
 
 function MainView() {
-  getColleges().then((colleges) => {
-    console.log(colleges);
-  });
+  const [colleges, setColleges] = useState([]);
+
+  useEffect(() => {
+    const getColleges = async () => {
+      console.log('Attempting to get colleges...');
+      setColleges(await window.ipcRenderer.invoke('getColleges'));
+      console.log(colleges);
+    };
+    getColleges();
+  }, [colleges]);
+
   return (
     <>
       {/* Body - flex row */}
@@ -24,15 +35,17 @@ function MainView() {
           {/* Scores */}
           <div
             className='sharp-edge-box p-5
-            flex flex-col
+            flex flex-col justify-evenly
             [--all:10px]
             [--border-width:2px] border-[2px]
             [--border-color:#f00] border-[#f00]'
           >
-            <div className='flex flex-row space-x-4'>
-              <ScoreBox />
-              <span>COS</span>
-            </div>
+            {colleges.map((college: College) => (
+              <div className='flex flex-row space-x-4'>
+                <ScoreBox />
+                <span className='text-4xl'>{college.shorthand}</span>
+              </div>
+            ))}
           </div>
           {/* Main */}
           <div

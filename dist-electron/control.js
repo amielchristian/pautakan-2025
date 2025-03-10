@@ -1,4 +1,4 @@
-import { j as jsxRuntimeExports, c as client, R as React } from "./index-DcKrYOvl.js";
+import { j as jsxRuntimeExports, c as client, R as React } from "./index-Bgro7GNA.js";
 function ControlView() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "Welcome to the control view!" });
 }

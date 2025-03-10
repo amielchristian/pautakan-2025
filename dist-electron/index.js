@@ -1,4 +1,4 @@
-import { j as jsxRuntimeExports, c as client, R as React } from "./index-DcKrYOvl.js";
+import { j as jsxRuntimeExports, r as reactExports, c as client, R as React } from "./index-Bgro7GNA.js";
 function ScoreBox(props) {
   const score = props.score || 0;
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -35,19 +35,21 @@ function Sidebar(props) {
         children: "Pautakan 2025"
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sharp-edge-box w-auto h-460/1280 [--all:20px] grid-pattern", children: colleges.map((x) => /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: x })) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "sharp-edge-box w-auto h-460/1280 [--all:20px] grid-pattern justify-evenly", children: colleges.map((x) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "object-scale-down", children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { className: "object-cover", src: x }) })) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(CategoryDisplay, { content: category }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(CategoryDisplay, { content: difficulty })
   ] });
 }
-async function getColleges() {
-  console.log("Attempting to get colleges...");
-  return await window.ipcRenderer.invoke("getColleges");
-}
 function MainView() {
-  getColleges().then((colleges) => {
-    console.log(colleges);
-  });
+  const [colleges, setColleges] = reactExports.useState([]);
+  reactExports.useEffect(() => {
+    const getColleges = async () => {
+      console.log("Attempting to get colleges...");
+      setColleges(await window.ipcRenderer.invoke("getColleges"));
+      console.log(colleges);
+    };
+    getColleges();
+  }, [colleges]);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-gray-300 flex flex-row h-screen w-screen p-4 space-x-[1%]", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
@@ -57,11 +59,11 @@ function MainView() {
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "div",
             {
-              className: "sharp-edge-box p-5\r\n            flex flex-col\r\n            [--all:10px]\r\n            [--border-width:2px] border-[2px]\r\n            [--border-color:#f00] border-[#f00]",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-row space-x-4", children: [
+              className: "sharp-edge-box p-5\r\n            flex flex-col justify-evenly\r\n            [--all:10px]\r\n            [--border-width:2px] border-[2px]\r\n            [--border-color:#f00] border-[#f00]",
+              children: colleges.map((college) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-row space-x-4", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(ScoreBox, {}),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "COS" })
-              ] })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-4xl", children: college.shorthand })
+              ] }))
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(

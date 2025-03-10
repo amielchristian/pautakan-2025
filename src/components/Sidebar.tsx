@@ -30,9 +30,11 @@ export default function Sidebar(props: any) {
       >
         Pautakan 2025
       </div>
-      <div className='sharp-edge-box w-auto h-460/1280 [--all:20px] grid-pattern'>
+      <div className='sharp-edge-box w-auto h-460/1280 [--all:20px] grid-pattern justify-evenly'>
         {colleges.map((x) => (
-          <img src={x} />
+          <div className='object-scale-down'>
+            <img className='object-cover' src={x} />
+          </div>
         ))}
       </div>
       <CategoryDisplay content={category} />

@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import sqlite3 from 'sqlite3';
+import fs from 'node:fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -34,18 +35,22 @@ const db = new sqlite3.Database('./db.sqlite3', (err) => {
     console.error(err.message);
   }
 });
+const colleges = JSON.parse(fs.readFileSync('./colleges.json', 'utf-8'));
+
 db.serialize(() => {
+  db.run('DROP TABLE IF EXISTS colleges');
   db.run(
     'CREATE TABLE IF NOT EXISTS colleges (id INTEGER PRIMARY KEY, name TEXT, shorthand TEXT, imagePath TEXT)'
   );
-
-  db.run('INSERT INTO colleges (name, shorthand, imagePath) VALUES (?, ?, ?)', [
-    'College of Science',
-    'COS',
-    'cos.png',
-  ]);
+  for (const college of colleges) {
+    db.run(
+      'INSERT INTO colleges (name, shorthand, imagePath) VALUES (?, ?, ?)',
+      [college.name, college.shortHand, college.imagePath]
+    );
+  }
 });
 
+// IPC handlers
 function initializeIPC() {
   ipcMain.handle('getColleges', () => {
     return new Promise((resolve, reject) => {
@@ -60,15 +65,21 @@ function initializeIPC() {
   });
 }
 
-// View
-
+// Views
 function createWindow() {
   mainView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
+    width: 1920,
+    height: 1080,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.mjs'),
+      preload: path.join(__dirname, 'preload.mjs'), // Changed to .cjs
     },
+    frame: false,
+    alwaysOnTop: true,
   });
+
+  // Set fullscreen mode
+  mainView.setFullScreen(true);
 
   techView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
