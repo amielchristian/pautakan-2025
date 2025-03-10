@@ -15,12 +15,11 @@ function MainView() {
 
   useEffect(() => {
     const getColleges = async () => {
-      console.log('Attempting to get colleges...');
       setColleges(await window.ipcRenderer.invoke('getColleges'));
-      console.log(colleges);
     };
+    console.log('Getting colleges...');
     getColleges();
-  }, [colleges]);
+  }, []);
 
   return (
     <>
