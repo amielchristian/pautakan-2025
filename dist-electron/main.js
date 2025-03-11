@@ -49,23 +49,7 @@ function initializeIPC(db) {
       });
     });
   });
-  ipcMain.handle("get-college", (_, shortHand) => {
-    return new Promise((resolve, reject) => {
-      db.get(
-        "SELECT * FROM college WHERE shortHand = ?",
-        [shortHand],
-        (err, row) => {
-          if (err) {
-            console.error(`Error getting college ${shortHand}:`, err);
-            reject(err);
-          } else {
-            resolve(row);
-          }
-        }
-      );
-    });
-  });
-  ipcMain.handle("update-score", (_, shortHand, newScore) => {
+  ipcMain.handle("update-college-score", (_, shortHand, newScore) => {
     return new Promise((resolve, reject) => {
       db.run(
         "UPDATE colleges SET score = ? WHERE shortHand = ?",
@@ -77,45 +61,9 @@ function initializeIPC(db) {
           } else {
             BrowserWindow.getAllWindows().forEach((window) => {
               window.webContents.send("score-updated", shortHand, newScore);
+              window.webContents.send("db-updated");
             });
             resolve({ success: true, changes: this.changes });
-          }
-        }
-      );
-    });
-  });
-  ipcMain.handle("increment-score", (_, shortHand, increment = 1) => {
-    return new Promise((resolve, reject) => {
-      db.run(
-        "UPDATE college SET score = score + ? WHERE shortHand = ?",
-        [increment, shortHand],
-        function(err) {
-          if (err) {
-            console.error(`Error incrementing score for ${shortHand}:`, err);
-            reject(err);
-          } else {
-            db.get(
-              "SELECT * FROM college WHERE shortHand = ?",
-              [shortHand],
-              (err2, row) => {
-                if (err2) {
-                  console.error(
-                    `Error getting updated college ${shortHand}:`,
-                    err2
-                  );
-                  reject(err2);
-                } else {
-                  BrowserWindow.getAllWindows().forEach((window) => {
-                    window.webContents.send(
-                      "score-updated",
-                      shortHand,
-                      row.score
-                    );
-                  });
-                  resolve(row);
-                }
-              }
-            );
           }
         }
       );

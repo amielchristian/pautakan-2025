@@ -2,51 +2,9 @@ import './App.css';
 import { useEffect, useState } from 'react';
 import { College } from './types';
 
-interface ScoreButtonProps {
-  college: College;
-  add: boolean;
-  difficulty: string;
-  updateScore: (college: College, offset: number) => void;
-}
-function ScoreButton(props: ScoreButtonProps) {
-  const college: College = props.college;
-  const add: boolean = props.add;
-  const difficulty: string = props.difficulty;
-  const updateScore = props.updateScore;
-
-  const changeScore = () => {
-    let offset: number;
-    switch (difficulty) {
-      case 'Easy':
-        offset = 5;
-        break;
-      case 'Average':
-        offset = 10;
-        break;
-      case 'Difficult':
-        offset = 15;
-        break;
-      default:
-        offset = 1;
-        break;
-    }
-    offset *= add ? 1 : -1;
-    updateScore(college, offset);
-  };
-
-  const styles = `p-2 ${
-    add ? 'bg-green-500 hover:bg-green-700' : 'bg-red-500 hover:bg-red-700'
-  }`;
-  return (
-    <button className={styles} onClick={changeScore}>
-      {add ? '+' : '-'}
-    </button>
-  );
-}
-
-function ControlView() {
-  const [college, setCollege] = useState<College | null>(null);
-  const [colleges, setColleges] = useState([]);
+export default function ControlView() {
+  const [colleges, setColleges] = useState<College[]>([]);
+  // const [leaderboard, setLeaderboard] = useState<College[]>([]);
   const [difficulty, setDifficulty] = useState('Easy');
   const [category, setCategory] = useState('Eliminations');
 
@@ -61,15 +19,18 @@ function ControlView() {
 
   // Update colleges on change
   // ...then sync to DB
-  useEffect(() => {
-    const updateColleges = async () => {
-      await window.ipcRenderer.invoke('update-colleges', colleges);
-    };
-  }, [colleges]);
-
-  function updateScore(college: College, offset: number) {
-    college.score += offset;
-    setColleges([...colleges]);
+  async function updateScore(college: College, offset: number) {
+    const collegeUpdated = { ...college, score: college.score + offset };
+    setColleges(
+      colleges.map((x: College) =>
+        x.name === collegeUpdated.name ? collegeUpdated : x
+      )
+    );
+    await window.ipcRenderer.invoke(
+      'update-college-score',
+      collegeUpdated.shorthand,
+      collegeUpdated.score
+    );
   }
 
   return (
@@ -142,4 +103,44 @@ function ControlView() {
   );
 }
 
-export default ControlView;
+interface ScoreButtonProps {
+  college: College;
+  add: boolean;
+  difficulty: string;
+  updateScore: (college: College, offset: number) => void;
+}
+function ScoreButton(props: ScoreButtonProps) {
+  const college: College = props.college;
+  const add: boolean = props.add;
+  const difficulty: string = props.difficulty;
+  const updateScore = props.updateScore;
+
+  const changeScore = () => {
+    let offset: number;
+    switch (difficulty) {
+      case 'Easy':
+        offset = 5;
+        break;
+      case 'Average':
+        offset = 10;
+        break;
+      case 'Difficult':
+        offset = 15;
+        break;
+      default:
+        offset = 1;
+        break;
+    }
+    offset *= add ? 1 : -1;
+    updateScore(college, offset);
+  };
+
+  const styles = `p-2 ${
+    add ? 'bg-green-500 hover:bg-green-700' : 'bg-red-500 hover:bg-red-700'
+  }`;
+  return (
+    <button className={styles} onClick={changeScore}>
+      {add ? '+' : '-'}
+    </button>
+  );
+}

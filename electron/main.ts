@@ -73,26 +73,8 @@ function initializeIPC(db: sqlite3.Database) {
     });
   });
 
-  // Get college by shortHand
-  ipcMain.handle('get-college', (_, shortHand) => {
-    return new Promise((resolve, reject) => {
-      db.get(
-        'SELECT * FROM college WHERE shortHand = ?',
-        [shortHand],
-        (err, row) => {
-          if (err) {
-            console.error(`Error getting college ${shortHand}:`, err);
-            reject(err);
-          } else {
-            resolve(row);
-          }
-        }
-      );
-    });
-  });
-
   // Update college score
-  ipcMain.handle('update-score', (_, shortHand, newScore) => {
+  ipcMain.handle('update-college-score', (_, shortHand, newScore) => {
     return new Promise((resolve, reject) => {
       db.run(
         'UPDATE colleges SET score = ? WHERE shortHand = ?',
@@ -105,49 +87,9 @@ function initializeIPC(db: sqlite3.Database) {
             // Notify all windows about the update
             BrowserWindow.getAllWindows().forEach((window) => {
               window.webContents.send('score-updated', shortHand, newScore);
+              window.webContents.send('db-updated');
             });
             resolve({ success: true, changes: this.changes });
-          }
-        }
-      );
-    });
-  });
-
-  // Increment college score
-  ipcMain.handle('increment-score', (_, shortHand, increment = 1) => {
-    return new Promise((resolve, reject) => {
-      db.run(
-        'UPDATE college SET score = score + ? WHERE shortHand = ?',
-        [increment, shortHand],
-        function (err) {
-          if (err) {
-            console.error(`Error incrementing score for ${shortHand}:`, err);
-            reject(err);
-          } else {
-            // Get the updated score
-            db.get(
-              'SELECT * FROM college WHERE shortHand = ?',
-              [shortHand],
-              (err, row) => {
-                if (err) {
-                  console.error(
-                    `Error getting updated college ${shortHand}:`,
-                    err
-                  );
-                  reject(err);
-                } else {
-                  // Notify all windows about the update
-                  BrowserWindow.getAllWindows().forEach((window) => {
-                    window.webContents.send(
-                      'score-updated',
-                      shortHand,
-                      row.score
-                    );
-                  });
-                  resolve(row);
-                }
-              }
-            );
           }
         }
       );

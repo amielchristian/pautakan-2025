@@ -4,6 +4,7 @@ import { College } from './types';
 
 function MainView() {
   const [colleges, setColleges] = useState([]);
+  const [update, setUpdate] = useState(0);
 
   useEffect(() => {
     const getColleges = async () => {
@@ -11,9 +12,11 @@ function MainView() {
     };
     console.log('Getting colleges...');
     getColleges();
-  }, []);
+  }, [update]);
 
-  useEffect(() => {});
+  window.ipcRenderer.on('db-updated', () => {
+    setUpdate(update + 1);
+  });
 
   return (
     <>
