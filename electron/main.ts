@@ -61,6 +61,18 @@ function initializeDB(): sqlite3.Database {
 
 // IPC handlers
 function initializeIPC(db: sqlite3.Database) {
+  ipcMain.handle('change-category', (_, category) => {
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.webContents.send('category-changed', category);
+    });
+  });
+
+  ipcMain.handle('change-difficulty', (_, difficulty) => {
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.webContents.send('difficulty-changed', difficulty);
+    });
+  });
+
   ipcMain.handle('get-colleges', () => {
     return new Promise((resolve, reject) => {
       db.all('SELECT * FROM colleges', (err, rows) => {

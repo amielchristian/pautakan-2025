@@ -5,6 +5,19 @@ import { College } from './types';
 function MainView() {
   const [colleges, setColleges] = useState([]);
   const [update, setUpdate] = useState(0);
+  const [difficulty, setDifficulty] = useState<string>('Easy');
+  const [category, setCategory] = useState<string>('Eliminations');
+
+  // IPC listeners
+  window.ipcRenderer.on('db-updated', () => {
+    setUpdate(update + 1);
+  });
+  window.ipcRenderer.on('category-changed', (_, category) => {
+    setCategory(category);
+  });
+  window.ipcRenderer.on('difficulty-changed', (_, difficulty) => {
+    setDifficulty(difficulty);
+  });
 
   useEffect(() => {
     const getColleges = async () => {
@@ -13,10 +26,6 @@ function MainView() {
     console.log('Getting colleges...');
     getColleges();
   }, [update]);
-
-  window.ipcRenderer.on('db-updated', () => {
-    setUpdate(update + 1);
-  });
 
   return (
     <>
@@ -63,15 +72,18 @@ function MainView() {
           ></div>
         </div>
         <div className='flex flex-col w-3/20 space-y-[5%]'>
-          <Sidebar />
+          <Sidebar
+            difficulty={difficulty}
+            category={category}
+            colleges={colleges}
+          />
         </div>
       </div>
     </>
   );
 }
 
-function CategoryDisplay(props: any) {
-  const content: string = props.content;
+function CategoryDisplay({ content }: { content: string }) {
   return (
     <div
       className='sharp-edge-box bg-black w-auto h-111/1280 [--bottom-left:20px] [--top-right:20px]
@@ -85,14 +97,15 @@ function CategoryDisplay(props: any) {
   );
 }
 
-function Sidebar(props: any) {
-  const colleges: string[] = props.colleges || [
-    './images/AB.png',
-    './images/ACC.png',
-    './images/ARKI.png',
-  ];
-  const difficulty: string = props.difficulty || 'Easy';
-  const category: string = props.category || 'Individual';
+function Sidebar({
+  colleges,
+  difficulty,
+  category,
+}: {
+  colleges: College[];
+  difficulty: string;
+  category: string;
+}) {
   return (
     <>
       <div
@@ -105,7 +118,7 @@ function Sidebar(props: any) {
       <div className='sharp-edge-box w-auto h-460/1280 [--all:20px] grid-pattern justify-evenly'>
         {colleges.map((x) => (
           <div className='object-scale-down'>
-            <img className='object-cover' src={x} />
+            <img className='object-cover' src={x.imagePath} />
           </div>
         ))}
       </div>

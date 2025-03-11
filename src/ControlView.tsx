@@ -17,6 +17,20 @@ export default function ControlView() {
     getColleges();
   }, []);
 
+  useEffect(() => {
+    const changeCategory = async () => {
+      await window.ipcRenderer.invoke('change-category', category);
+    };
+    changeCategory();
+  }, [category]);
+
+  useEffect(() => {
+    const changeDifficulty = async () => {
+      await window.ipcRenderer.invoke('change-difficulty', difficulty);
+    };
+    changeDifficulty();
+  }, [difficulty]);
+
   // Update colleges on change
   // ...then sync to DB
   async function updateScore(college: College, offset: number) {
@@ -103,18 +117,17 @@ export default function ControlView() {
   );
 }
 
-interface ScoreButtonProps {
+function ScoreButton({
+  college,
+  add,
+  difficulty,
+  updateScore,
+}: {
   college: College;
   add: boolean;
   difficulty: string;
   updateScore: (college: College, offset: number) => void;
-}
-function ScoreButton(props: ScoreButtonProps) {
-  const college: College = props.college;
-  const add: boolean = props.add;
-  const difficulty: string = props.difficulty;
-  const updateScore = props.updateScore;
-
+}) {
   const changeScore = () => {
     let offset: number;
     switch (difficulty) {

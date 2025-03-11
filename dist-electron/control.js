@@ -10,6 +10,18 @@ function ControlView() {
     console.log("Getting colleges...");
     getColleges();
   }, []);
+  reactExports.useEffect(() => {
+    const changeCategory = async () => {
+      await window.ipcRenderer.invoke("change-category", category);
+    };
+    changeCategory();
+  }, [category]);
+  reactExports.useEffect(() => {
+    const changeDifficulty = async () => {
+      await window.ipcRenderer.invoke("change-difficulty", difficulty);
+    };
+    changeDifficulty();
+  }, [difficulty]);
   async function updateScore(college, offset) {
     const collegeUpdated = { ...college, score: college.score + offset };
     setColleges(
@@ -34,12 +46,12 @@ function ControlView() {
           children: [
             /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("option", { value: "Eliminations", children: "Eliminations" }, void 0, false, {
               fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-              lineNumber: 44,
+              lineNumber: 58,
               columnNumber: 11
             }, this),
             /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("option", { value: "Finals", children: "Finals" }, void 0, false, {
               fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-              lineNumber: 45,
+              lineNumber: 59,
               columnNumber: 11
             }, this)
           ]
@@ -48,7 +60,7 @@ function ControlView() {
         true,
         {
           fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 39,
+          lineNumber: 53,
           columnNumber: 9
         },
         this
@@ -62,27 +74,27 @@ function ControlView() {
           children: [
             /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("option", { value: "Easy", children: "Easy" }, void 0, false, {
               fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-              lineNumber: 52,
+              lineNumber: 66,
               columnNumber: 11
             }, this),
             /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("option", { value: "Average", children: "Average" }, void 0, false, {
               fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-              lineNumber: 53,
+              lineNumber: 67,
               columnNumber: 11
             }, this),
             /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("option", { value: "Difficult", children: "Difficult" }, void 0, false, {
               fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-              lineNumber: 54,
+              lineNumber: 68,
               columnNumber: 11
             }, this),
             /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("option", { value: "Clincher", children: "Clincher" }, void 0, false, {
               fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-              lineNumber: 55,
+              lineNumber: 69,
               columnNumber: 11
             }, this),
             /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("option", { value: "Sudden Death", children: "Sudden Death" }, void 0, false, {
               fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-              lineNumber: 56,
+              lineNumber: 70,
               columnNumber: 11
             }, this)
           ]
@@ -91,67 +103,67 @@ function ControlView() {
         true,
         {
           fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 47,
+          lineNumber: 61,
           columnNumber: 9
         },
         this
       ),
       /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("button", { children: "Reset Scores" }, void 0, false, {
         fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-        lineNumber: 58,
+        lineNumber: 72,
         columnNumber: 9
       }, this),
       /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("button", { children: "Refresh" }, void 0, false, {
         fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-        lineNumber: 59,
+        lineNumber: 73,
         columnNumber: 9
       }, this)
     ] }, void 0, true, {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-      lineNumber: 38,
+      lineNumber: 52,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "h-4/5 w-3/5 mx-[20%]", children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("table", { className: "w-full h-full", children: [
       /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("thead", { children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("tr", { children: [
         /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("th", { children: "Rank" }, void 0, false, {
           fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 66,
+          lineNumber: 80,
           columnNumber: 15
         }, this),
         /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("th", { children: "College" }, void 0, false, {
           fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 67,
+          lineNumber: 81,
           columnNumber: 15
         }, this),
         /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("th", { children: "Score" }, void 0, false, {
           fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 68,
+          lineNumber: 82,
           columnNumber: 15
         }, this)
       ] }, void 0, true, {
         fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-        lineNumber: 65,
+        lineNumber: 79,
         columnNumber: 13
       }, this) }, void 0, false, {
         fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-        lineNumber: 64,
+        lineNumber: 78,
         columnNumber: 11
       }, this),
       /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("tbody", { children: colleges.map((college, index) => /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("tr", { children: [
         /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("td", { children: index + 1 }, void 0, false, {
           fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 74,
+          lineNumber: 88,
           columnNumber: 17
         }, this),
         /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("td", { children: college.name }, void 0, false, {
           fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 75,
+          lineNumber: 89,
           columnNumber: 17
         }, this),
         /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("td", { children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "flex flex-row space-x-4", children: [
           /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("span", { children: college.score }, void 0, false, {
             fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-            lineNumber: 78,
+            lineNumber: 92,
             columnNumber: 21
           }, this),
           /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(
@@ -166,7 +178,7 @@ function ControlView() {
             false,
             {
               fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-              lineNumber: 79,
+              lineNumber: 93,
               columnNumber: 21
             },
             this
@@ -183,58 +195,59 @@ function ControlView() {
             false,
             {
               fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-              lineNumber: 85,
+              lineNumber: 99,
               columnNumber: 21
             },
             this
           )
         ] }, void 0, true, {
           fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 77,
+          lineNumber: 91,
           columnNumber: 19
         }, this) }, void 0, false, {
           fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 76,
+          lineNumber: 90,
           columnNumber: 17
         }, this)
       ] }, void 0, true, {
         fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-        lineNumber: 73,
+        lineNumber: 87,
         columnNumber: 15
       }, this)) }, void 0, false, {
         fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-        lineNumber: 71,
+        lineNumber: 85,
         columnNumber: 11
       }, this)
     ] }, void 0, true, {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-      lineNumber: 63,
+      lineNumber: 77,
       columnNumber: 9
     }, this) }, void 0, false, {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-      lineNumber: 62,
+      lineNumber: 76,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "h-1/10 bg-gray-300 flex flex-row p-4 space-x-[1%]", children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("button", { children: "Show Leaderboard" }, void 0, false, {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-      lineNumber: 100,
+      lineNumber: 114,
       columnNumber: 9
     }, this) }, void 0, false, {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-      lineNumber: 99,
+      lineNumber: 113,
       columnNumber: 7
     }, this)
   ] }, void 0, true, {
     fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-    lineNumber: 37,
+    lineNumber: 51,
     columnNumber: 5
   }, this);
 }
-function ScoreButton(props) {
-  const college = props.college;
-  const add = props.add;
-  const difficulty = props.difficulty;
-  const updateScore = props.updateScore;
+function ScoreButton({
+  college,
+  add,
+  difficulty,
+  updateScore
+}) {
   const changeScore = () => {
     let offset;
     switch (difficulty) {
@@ -257,7 +270,7 @@ function ScoreButton(props) {
   const styles = `p-2 ${add ? "bg-green-500 hover:bg-green-700" : "bg-red-500 hover:bg-red-700"}`;
   return /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("button", { className: styles, onClick: changeScore, children: add ? "+" : "-" }, void 0, false, {
     fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-    lineNumber: 142,
+    lineNumber: 155,
     columnNumber: 5
   }, this);
 }
