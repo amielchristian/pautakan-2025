@@ -8,14 +8,16 @@ function MainView() {
   const [difficulty, setDifficulty] = useState<string>('Easy');
   const [category, setCategory] = useState<string>('Eliminations');
 
-  // IPC listeners
-  window.ipcRenderer.on('db-updated', () => {
+  window.ipcRenderer.once('db-updated', () => {
     setUpdate(update + 1);
   });
-  window.ipcRenderer.on('category-changed', (_, category) => {
+  window.ipcRenderer.once('category-changed', (_, category) => {
+    console.time('category');
+    console.log(category);
     setCategory(category);
+    console.timeEnd('category');
   });
-  window.ipcRenderer.on('difficulty-changed', (_, difficulty) => {
+  window.ipcRenderer.once('difficulty-changed', (_, difficulty) => {
     setDifficulty(difficulty);
   });
 

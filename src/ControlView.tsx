@@ -49,28 +49,30 @@ export default function ControlView() {
 
   return (
     <div className='w-screen h-screen justify-center items-center flex flex-col'>
-      <div className='h-1/10 w-4/5 bg-gray-300 flex flex-row p-4 space-x-[1%] sharp-edge-box [--bottom-right:20px] [--bottom-left:20px]'>
-        <select
-          id='category'
-          onChange={(e) => setCategory(e.target.value)}
-          defaultValue={category}
-        >
-          <option value='Eliminations'>Eliminations</option>
-          <option value='Finals'>Finals</option>
-        </select>
-        <select
-          id='difficulty'
-          onChange={(e) => setDifficulty(e.target.value)}
-          defaultValue={difficulty}
-        >
-          <option value='Easy'>Easy</option>
-          <option value='Average'>Average</option>
-          <option value='Difficult'>Difficult</option>
-          <option value='Clincher'>Clincher</option>
-          <option value='Sudden Death'>Sudden Death</option>
-        </select>
-        <button>Reset Scores</button>
-        <button>Refresh</button>
+      <div className='h-1/10 w-4/5 flex flex-col'>
+        <div className='flex flex-row bg-gray-300 w-full justify-evenly'>
+          <Dropdown
+            options={['Eliminations', 'Finals']}
+            onChange={(selected) => {
+              setCategory(selected);
+            }}
+          />
+          <Dropdown
+            options={[
+              'Easy',
+              'Average',
+              'Difficult',
+              'Clincher',
+              'Sudden Death',
+            ]}
+            onChange={(selected) => {
+              setDifficulty(selected);
+            }}
+          />
+          <button>Reset Scores</button>
+          <button>Refresh</button>
+        </div>
+        <div className='bg-red-300 h-1/4 sharp-edge-box [--bottom-left:5px] [--bottom-right:5px]'></div>
       </div>
 
       <div className='h-4/5 w-3/5 mx-[20%]'>
@@ -155,5 +157,51 @@ function ScoreButton({
     <button className={styles} onClick={changeScore}>
       {add ? '+' : '-'}
     </button>
+  );
+}
+
+function Dropdown({
+  options,
+  onChange,
+}: {
+  options: string[];
+  onChange?: (value: string) => void;
+}) {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [selected, setSelected] = useState<string>(options[0]);
+
+  const handleSelect = (option: string) => {
+    setSelected(option);
+    setIsOpen(false);
+    if (onChange) onChange(option);
+  };
+
+  return (
+    <div className='relative w-64'>
+      {/* Dropdown button */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className='w-full p-2 bg-white border rounded flex justify-between items-center'
+      >
+        <span>{selected}</span>
+      </button>
+
+      {/* Dropdown menu */}
+      {isOpen && (
+        <div className='overflow-visible absolute z-50 w-full mt-1 bg-white border rounded shadow'>
+          <ul>
+            {options.map((option) => (
+              <li
+                key={option}
+                className='p-2 hover:bg-gray-100 cursor-pointer'
+                onClick={() => handleSelect(option)}
+              >
+                {option}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }

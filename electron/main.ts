@@ -44,15 +44,23 @@ function initializeDB(): sqlite3.Database {
   );
 
   db.serialize(() => {
-    db.run('DROP TABLE IF EXISTS colleges');
+    // db.run('DROP TABLE IF EXISTS colleges');
+
+    // Checks if table exists - if so, no insert is done
+    let isEmpty: boolean = true;
     db.run(
-      'CREATE TABLE IF NOT EXISTS colleges (id INTEGER PRIMARY KEY, name TEXT, shorthand TEXT, imagePath TEXT, score NUMBER)'
+      'CREATE TABLE colleges (id INTEGER PRIMARY KEY, name TEXT, shorthand TEXT, imagePath TEXT, score NUMBER)',
+      () => {
+        isEmpty = false;
+      }
     );
-    for (const college of colleges) {
-      db.run(
-        'INSERT INTO colleges (name, shorthand, imagePath, score) VALUES (?, ?, ?, ?)',
-        [college.name, college.shortHand, college.imagePath, 0]
-      );
+    if (isEmpty) {
+      for (const college of colleges) {
+        db.run(
+          'INSERT INTO colleges (name, shorthand, imagePath, score) VALUES (?, ?, ?, ?)',
+          [college.name, college.shortHand, college.imagePath, 0]
+        );
+      }
     }
   });
 
@@ -62,15 +70,12 @@ function initializeDB(): sqlite3.Database {
 // IPC handlers
 function initializeIPC(db: sqlite3.Database) {
   ipcMain.handle('change-category', (_, category) => {
-    BrowserWindow.getAllWindows().forEach((window) => {
-      window.webContents.send('category-changed', category);
-    });
+    console.log('Category change invoked.');
+    mainView?.webContents.send('category-changed', category);
   });
 
   ipcMain.handle('change-difficulty', (_, difficulty) => {
-    BrowserWindow.getAllWindows().forEach((window) => {
-      window.webContents.send('difficulty-changed', difficulty);
-    });
+    mainView?.webContents.send('difficulty-changed', difficulty);
   });
 
   ipcMain.handle('get-colleges', () => {
@@ -87,6 +92,7 @@ function initializeIPC(db: sqlite3.Database) {
 
   // Update college score
   ipcMain.handle('update-college-score', (_, shortHand, newScore) => {
+    console.log('Score update invoked.');
     return new Promise((resolve, reject) => {
       db.run(
         'UPDATE colleges SET score = ? WHERE shortHand = ?',
@@ -108,23 +114,23 @@ function initializeIPC(db: sqlite3.Database) {
     });
   });
 
-  // Reset all scores
-  ipcMain.handle('reset-scores', () => {
-    return new Promise((resolve, reject) => {
-      db.run('UPDATE college SET score = 0', function (err) {
-        if (err) {
-          console.error('Error resetting scores:', err);
-          reject(err);
-        } else {
-          // Notify all windows about the reset
-          BrowserWindow.getAllWindows().forEach((window) => {
-            window.webContents.send('scores-reset');
-          });
-          resolve({ success: true, changes: this.changes });
-        }
-      });
-    });
-  });
+  // // Reset all scores
+  // ipcMain.handle('reset-scores', () => {
+  //   return new Promise((resolve, reject) => {
+  //     db.run('UPDATE college SET score = 0', function (err) {
+  //       if (err) {
+  //         console.error('Error resetting scores:', err);
+  //         reject(err);
+  //       } else {
+  //         // Notify all windows about the reset
+  //         BrowserWindow.getAllWindows().forEach((window) => {
+  //           window.webContents.send('scores-reset');
+  //         });
+  //         resolve({ success: true, changes: this.changes });
+  //       }
+  //     });
+  //   });
+  // });
 }
 
 // Views

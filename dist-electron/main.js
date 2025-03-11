@@ -24,29 +24,31 @@ function initializeDB() {
     )
   );
   db.serialize(() => {
-    db.run("DROP TABLE IF EXISTS colleges");
+    let isEmpty = true;
     db.run(
-      "CREATE TABLE IF NOT EXISTS colleges (id INTEGER PRIMARY KEY, name TEXT, shorthand TEXT, imagePath TEXT, score NUMBER)"
+      "CREATE TABLE colleges (id INTEGER PRIMARY KEY, name TEXT, shorthand TEXT, imagePath TEXT, score NUMBER)",
+      () => {
+        isEmpty = false;
+      }
     );
-    for (const college of colleges) {
-      db.run(
-        "INSERT INTO colleges (name, shorthand, imagePath, score) VALUES (?, ?, ?, ?)",
-        [college.name, college.shortHand, college.imagePath, 0]
-      );
+    if (isEmpty) {
+      for (const college of colleges) {
+        db.run(
+          "INSERT INTO colleges (name, shorthand, imagePath, score) VALUES (?, ?, ?, ?)",
+          [college.name, college.shortHand, college.imagePath, 0]
+        );
+      }
     }
   });
   return db;
 }
 function initializeIPC(db) {
   ipcMain.handle("change-category", (_, category) => {
-    BrowserWindow.getAllWindows().forEach((window) => {
-      window.webContents.send("category-changed", category);
-    });
+    console.log("Category change invoked.");
+    mainView == null ? void 0 : mainView.webContents.send("category-changed", category);
   });
   ipcMain.handle("change-difficulty", (_, difficulty) => {
-    BrowserWindow.getAllWindows().forEach((window) => {
-      window.webContents.send("difficulty-changed", difficulty);
-    });
+    mainView == null ? void 0 : mainView.webContents.send("difficulty-changed", difficulty);
   });
   ipcMain.handle("get-colleges", () => {
     return new Promise((resolve, reject) => {
@@ -60,6 +62,7 @@ function initializeIPC(db) {
     });
   });
   ipcMain.handle("update-college-score", (_, shortHand, newScore) => {
+    console.log("Score update invoked.");
     return new Promise((resolve, reject) => {
       db.run(
         "UPDATE colleges SET score = ? WHERE shortHand = ?",
@@ -77,21 +80,6 @@ function initializeIPC(db) {
           }
         }
       );
-    });
-  });
-  ipcMain.handle("reset-scores", () => {
-    return new Promise((resolve, reject) => {
-      db.run("UPDATE college SET score = 0", function(err) {
-        if (err) {
-          console.error("Error resetting scores:", err);
-          reject(err);
-        } else {
-          BrowserWindow.getAllWindows().forEach((window) => {
-            window.webContents.send("scores-reset");
-          });
-          resolve({ success: true, changes: this.changes });
-        }
-      });
     });
   });
 }
