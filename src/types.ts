@@ -6,4 +6,4 @@ interface College {
   score: number;
 }
 
-export { College };
+export type { College };

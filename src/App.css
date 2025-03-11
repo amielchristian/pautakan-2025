@@ -2,35 +2,35 @@
 
 @font-face {
   font-family: 'Starter';
-  src: url('./fonts/STARTER.ttf') format('truetype');
+  src: url('./public/fonts/STARTER.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Starter';
-  src: url('./fonts/STARTER Bold.ttf') format('truetype');
+  src: url('./public/fonts/STARTER Bold.ttf') format('truetype');
   font-weight: bold;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'DS-Digital';
-  src: url('./fonts/DS-DIGI.ttf') format('truetype');
+  src: url('./public/fonts/DS-DIGI.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'DS-Digital';
-  src: url('./fonts/DS-DIGIB.ttf') format('truetype');
+  src: url('./public/fonts/DS-DIGIB.ttf') format('truetype');
   font-weight: bold;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'DS-Digital';
-  src: url('./fonts/DS-DIGII.ttf') format('truetype');
+  src: url('./public/fonts/DS-DIGII.ttf') format('truetype');
   font-weight: normal;
   font-style: italic;
 }
