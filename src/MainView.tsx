@@ -3,36 +3,40 @@ import { useEffect, useState } from 'react';
 import { College } from './types';
 
 function MainView() {
-  const [colleges, setColleges] = useState([]);
-  const [update, setUpdate] = useState(0);
+  const [colleges, setColleges] = useState<College[]>([]);
   const [difficulty, setDifficulty] = useState<string>('Easy');
   const [category, setCategory] = useState<string>('Eliminations');
 
-  window.ipcRenderer.once('db-updated', () => {
-    setUpdate(update + 1);
-  });
-  window.ipcRenderer.once('category-changed', (_, category) => {
-    console.time('category');
-    console.log(category);
-    setCategory(category);
-    console.timeEnd('category');
-  });
-  window.ipcRenderer.once('difficulty-changed', (_, difficulty) => {
-    setDifficulty(difficulty);
-  });
+  const getColleges = async () => {
+    return await window.ipcRenderer.invoke('get-colleges');
+  };
 
   useEffect(() => {
-    const getColleges = async () => {
-      setColleges(await window.ipcRenderer.invoke('get-colleges'));
-    };
-    console.log('Getting colleges...');
-    getColleges();
-  }, [update]);
+    window.ipcRenderer.removeAllListeners('db-updated');
+    window.ipcRenderer.removeAllListeners('category-changed');
+    window.ipcRenderer.removeAllListeners('difficulty-changed');
+
+    window.ipcRenderer.once('db-updated', () => {
+      getColleges().then((colleges) => {
+        setColleges(colleges);
+      });
+    });
+    window.ipcRenderer.once('category-changed', (_, category) => {
+      setCategory(category);
+    });
+    window.ipcRenderer.once('difficulty-changed', (_, difficulty) => {
+      setDifficulty(difficulty);
+    });
+  }, [colleges, category, difficulty]);
+
+  useEffect(() => {
+    getColleges().then((colleges) => setColleges(colleges));
+  }, []);
 
   return (
     <>
       {/* Body - flex row */}
-      <div className='bg-gray-300 flex flex-row h-screen w-screen p-4 space-x-[1%]'>
+      <div className='overflow-hidden bg-gray-300 flex flex-row h-screen w-screen p-4 space-x-[1%]'>
         {/* Main */}
         <div
           className='sharp-edge-box flex flex-row w-full p-5 space-x-4

@@ -93,7 +93,7 @@ function ControlView() {
         lineNumber: 53,
         columnNumber: 9
       }, this),
-      /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "bg-red-300 h-1/4 sharp-edge-box [--bottom-left:5px] [--bottom-right:5px]" }, void 0, false, {
+      /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "bg-gray-300 h-1/4 sharp-edge-box [--bottom-left:2.5px] [--bottom-right:2.5px]" }, void 0, false, {
         fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
         lineNumber: 75,
         columnNumber: 9

@@ -1,29 +1,31 @@
 import { r as reactExports, j as jsxDevRuntimeExports, c as client, R as React } from "./index-C0KKN3Gf.js";
 function MainView() {
   const [colleges, setColleges] = reactExports.useState([]);
-  const [update, setUpdate] = reactExports.useState(0);
   const [difficulty, setDifficulty] = reactExports.useState("Easy");
   const [category, setCategory] = reactExports.useState("Eliminations");
-  window.ipcRenderer.once("db-updated", () => {
-    setUpdate(update + 1);
-  });
-  window.ipcRenderer.once("category-changed", (_, category2) => {
-    console.time("category");
-    console.log(category2);
-    setCategory(category2);
-    console.timeEnd("category");
-  });
-  window.ipcRenderer.once("difficulty-changed", (_, difficulty2) => {
-    setDifficulty(difficulty2);
-  });
+  const getColleges = async () => {
+    return await window.ipcRenderer.invoke("get-colleges");
+  };
   reactExports.useEffect(() => {
-    const getColleges = async () => {
-      setColleges(await window.ipcRenderer.invoke("get-colleges"));
-    };
-    console.log("Getting colleges...");
-    getColleges();
-  }, [update]);
-  return /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(jsxDevRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "bg-gray-300 flex flex-row h-screen w-screen p-4 space-x-[1%]", children: [
+    window.ipcRenderer.removeAllListeners("db-updated");
+    window.ipcRenderer.removeAllListeners("category-changed");
+    window.ipcRenderer.removeAllListeners("difficulty-changed");
+    window.ipcRenderer.once("db-updated", () => {
+      getColleges().then((colleges2) => {
+        setColleges(colleges2);
+      });
+    });
+    window.ipcRenderer.once("category-changed", (_, category2) => {
+      setCategory(category2);
+    });
+    window.ipcRenderer.once("difficulty-changed", (_, difficulty2) => {
+      setDifficulty(difficulty2);
+    });
+  }, [colleges, category, difficulty]);
+  reactExports.useEffect(() => {
+    getColleges().then((colleges2) => setColleges(colleges2));
+  }, []);
+  return /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(jsxDevRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "overflow-hidden bg-gray-300 flex flex-row h-screen w-screen p-4 space-x-[1%]", children: [
     /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(
       "div",
       {
@@ -44,19 +46,19 @@ function MainView() {
                   false,
                   {
                     fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-                    lineNumber: 52,
+                    lineNumber: 56,
                     columnNumber: 17
                   },
                   this
                 ),
                 /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("span", { className: "text-4xl font-[Starter]", children: college.shorthand }, void 0, false, {
                   fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-                  lineNumber: 61,
+                  lineNumber: 65,
                   columnNumber: 17
                 }, this)
               ] }, void 0, true, {
                 fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-                lineNumber: 51,
+                lineNumber: 55,
                 columnNumber: 15
               }, this))
             },
@@ -64,7 +66,7 @@ function MainView() {
             false,
             {
               fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-              lineNumber: 43,
+              lineNumber: 47,
               columnNumber: 11
             },
             this
@@ -78,7 +80,7 @@ function MainView() {
             false,
             {
               fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-              lineNumber: 68,
+              lineNumber: 72,
               columnNumber: 11
             },
             this
@@ -89,7 +91,7 @@ function MainView() {
       true,
       {
         fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-        lineNumber: 37,
+        lineNumber: 41,
         columnNumber: 9
       },
       this
@@ -105,22 +107,22 @@ function MainView() {
       false,
       {
         fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-        lineNumber: 77,
+        lineNumber: 81,
         columnNumber: 11
       },
       this
     ) }, void 0, false, {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-      lineNumber: 76,
+      lineNumber: 80,
       columnNumber: 9
     }, this)
   ] }, void 0, true, {
     fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-    lineNumber: 35,
+    lineNumber: 39,
     columnNumber: 7
   }, this) }, void 0, false, {
     fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-    lineNumber: 33,
+    lineNumber: 37,
     columnNumber: 5
   }, this);
 }
@@ -135,7 +137,7 @@ function CategoryDisplay({ content }) {
     false,
     {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-      lineNumber: 90,
+      lineNumber: 94,
       columnNumber: 5
     },
     this
@@ -157,37 +159,37 @@ function Sidebar({
       false,
       {
         fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-        lineNumber: 113,
+        lineNumber: 117,
         columnNumber: 7
       },
       this
     ),
     /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "sharp-edge-box w-auto h-460/1280 [--all:20px] grid-pattern justify-evenly", children: colleges.map((x) => /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "object-scale-down", children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("img", { className: "object-cover", src: x.imagePath }, void 0, false, {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-      lineNumber: 123,
+      lineNumber: 127,
       columnNumber: 13
     }, this) }, void 0, false, {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-      lineNumber: 122,
+      lineNumber: 126,
       columnNumber: 11
     }, this)) }, void 0, false, {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-      lineNumber: 120,
+      lineNumber: 124,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(CategoryDisplay, { content: category }, void 0, false, {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-      lineNumber: 127,
+      lineNumber: 131,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(CategoryDisplay, { content: difficulty }, void 0, false, {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-      lineNumber: 128,
+      lineNumber: 132,
       columnNumber: 7
     }, this)
   ] }, void 0, true, {
     fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-    lineNumber: 112,
+    lineNumber: 116,
     columnNumber: 5
   }, this);
 }

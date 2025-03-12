@@ -1,6 +1,10 @@
 "use strict";
 const electron = require("electron");
 electron.contextBridge.exposeInMainWorld("ipcRenderer", {
+  removeAllListeners(...args) {
+    const [channel] = args;
+    return electron.ipcRenderer.removeAllListeners(channel);
+  },
   on(...args) {
     const [channel, listener] = args;
     return electron.ipcRenderer.on(

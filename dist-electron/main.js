@@ -24,20 +24,15 @@ function initializeDB() {
     )
   );
   db.serialize(() => {
-    let isEmpty = true;
+    db.run("DROP TABLE IF EXISTS colleges");
     db.run(
-      "CREATE TABLE colleges (id INTEGER PRIMARY KEY, name TEXT, shorthand TEXT, imagePath TEXT, score NUMBER)",
-      () => {
-        isEmpty = false;
-      }
+      "CREATE TABLE IF NOT EXISTS colleges (id INTEGER PRIMARY KEY, name TEXT, shorthand TEXT, imagePath TEXT, score NUMBER)"
     );
-    if (isEmpty) {
-      for (const college of colleges) {
-        db.run(
-          "INSERT INTO colleges (name, shorthand, imagePath, score) VALUES (?, ?, ?, ?)",
-          [college.name, college.shortHand, college.imagePath, 0]
-        );
-      }
+    for (const college of colleges) {
+      db.run(
+        "INSERT INTO colleges (name, shorthand, imagePath, score) VALUES (?, ?, ?, ?)",
+        [college.name, college.shortHand, college.imagePath, 0]
+      );
     }
   });
   return db;

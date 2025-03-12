@@ -72,7 +72,7 @@ export default function ControlView() {
           <button>Reset Scores</button>
           <button>Refresh</button>
         </div>
-        <div className='bg-red-300 h-1/4 sharp-edge-box [--bottom-left:5px] [--bottom-right:5px]'></div>
+        <div className='bg-gray-300 h-1/4 sharp-edge-box [--bottom-left:2.5px] [--bottom-right:2.5px]'></div>
       </div>
 
       <div className='h-4/5 w-3/5 mx-[20%]'>

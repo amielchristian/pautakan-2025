@@ -43,24 +43,17 @@ function initializeDB(): sqlite3.Database {
     )
   );
 
+  // The schema should be updated to account for scores in a specific round, to support animations.
   db.serialize(() => {
-    // db.run('DROP TABLE IF EXISTS colleges');
-
-    // Checks if table exists - if so, no insert is done
-    let isEmpty: boolean = true;
+    db.run('DROP TABLE IF EXISTS colleges');
     db.run(
-      'CREATE TABLE colleges (id INTEGER PRIMARY KEY, name TEXT, shorthand TEXT, imagePath TEXT, score NUMBER)',
-      () => {
-        isEmpty = false;
-      }
+      'CREATE TABLE IF NOT EXISTS colleges (id INTEGER PRIMARY KEY, name TEXT, shorthand TEXT, imagePath TEXT, score NUMBER)'
     );
-    if (isEmpty) {
-      for (const college of colleges) {
-        db.run(
-          'INSERT INTO colleges (name, shorthand, imagePath, score) VALUES (?, ?, ?, ?)',
-          [college.name, college.shortHand, college.imagePath, 0]
-        );
-      }
+    for (const college of colleges) {
+      db.run(
+        'INSERT INTO colleges (name, shorthand, imagePath, score) VALUES (?, ?, ?, ?)',
+        [college.name, college.shortHand, college.imagePath, 0]
+      );
     }
   });
 
