@@ -81,12 +81,12 @@ function initializeIPC(db) {
 function createWindow() {
   mainView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, "icon.png"),
-    // width: 1920,
-    // height: 1080,
+    width: 1920,
+    height: 1080,
     webPreferences: {
       preload: path.join(__dirname, "preload.mjs")
-    }
-    // frame: false,
+    },
+    frame: false
     // alwaysOnTop: true,
   });
   techView = new BrowserWindow({

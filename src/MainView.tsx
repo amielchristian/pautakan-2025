@@ -121,11 +121,9 @@ function Sidebar({
       >
         Pautakan 2025
       </div>
-      <div className='sharp-edge-box w-auto h-460/1280 [--all:20px] grid-pattern justify-evenly'>
+      <div className='sharp-edge-box h-460/1280 p-[10%] [--all:20px] grid-pattern grid grid-cols-4 gap-x-2 gap-y-0 items-center'>
         {colleges.map((x) => (
-          <div className='object-scale-down'>
-            <img className='object-cover' src={x.imagePath} />
-          </div>
+          <img className='object-cover scale-200' src={x.imagePath} />
         ))}
       </div>
       <CategoryDisplay content={category} />

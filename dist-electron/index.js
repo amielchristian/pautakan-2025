@@ -164,11 +164,7 @@ function Sidebar({
       },
       this
     ),
-    /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "sharp-edge-box w-auto h-460/1280 [--all:20px] grid-pattern justify-evenly", children: colleges.map((x) => /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "object-scale-down", children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("img", { className: "object-cover", src: x.imagePath }, void 0, false, {
-      fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-      lineNumber: 127,
-      columnNumber: 13
-    }, this) }, void 0, false, {
+    /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "sharp-edge-box h-460/1280 p-[10%] [--all:20px] grid-pattern grid grid-cols-4 gap-x-2 gap-y-0 items-center", children: colleges.map((x) => /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("img", { className: "object-cover scale-200", src: x.imagePath }, void 0, false, {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
       lineNumber: 126,
       columnNumber: 11
@@ -179,12 +175,12 @@ function Sidebar({
     }, this),
     /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(CategoryDisplay, { content: category }, void 0, false, {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-      lineNumber: 131,
+      lineNumber: 129,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(CategoryDisplay, { content: difficulty }, void 0, false, {
       fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
-      lineNumber: 132,
+      lineNumber: 130,
       columnNumber: 7
     }, this)
   ] }, void 0, true, {
