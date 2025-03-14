@@ -119,7 +119,7 @@ function Sidebar({
       flex items-center justify-center
       w-auto h-240/1280 [--all:20px] grid-pattern'
       >
-        Pautakan 2025
+        <img src='./public/main logo.png' />
       </div>
       <div className='sharp-edge-box h-460/1280 p-[10%] [--all:20px] grid-pattern grid grid-cols-4 gap-x-2 gap-y-0 items-center'>
         {colleges.map((x) => (

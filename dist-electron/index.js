@@ -153,7 +153,11 @@ function Sidebar({
       "div",
       {
         className: "sharp-edge-box text-white text-4xl font-[Starter] font-bold\r\n      flex items-center justify-center\r\n      w-auto h-240/1280 [--all:20px] grid-pattern",
-        children: "Pautakan 2025"
+        children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("img", { src: "./public/main logo.png" }, void 0, false, {
+          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/MainView.tsx",
+          lineNumber: 122,
+          columnNumber: 9
+        }, this)
       },
       void 0,
       false,
