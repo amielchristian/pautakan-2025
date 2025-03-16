@@ -37,19 +37,21 @@
 
 #root {
   /* Colors */
+  --purple: rgb(128, 0, 255);
+  --red: rgba(183, 38, 25, 1);
 
   font-family: sans-serif;
   --grid-pattern: repeating-linear-gradient(
       to right,
-      #f00 0,
-      #f00 1px,
+      var(--red) 0,
+      var(--red) 1px,
       transparent 1px,
       transparent 25px
     ),
     repeating-linear-gradient(
       to bottom,
-      #f00 0,
-      #f00 1px,
+      var(--red) 0,
+      var(--red) 1px,
       transparent 1px,
       transparent 25px
     );
@@ -126,5 +128,18 @@
   .grid-pattern {
     background-color: #232333;
     --img: var(--grid-pattern);
+  }
+
+  .inset-shadow-custom {
+    --inset-shadow-color: var(--purple);
+    --inset-shadow-size: 0.5em;
+    box-shadow: inset 0px 0px var(--inset-shadow-size) 0px
+      var(--inset-shadow-color);
+  }
+
+  .shadow-custom {
+    --shadow-color: var(--purple);
+    --shadow-size: 0.5em;
+    box-shadow: 0px 0px var(--shadow-size) 0px var(--shadow-color);
   }
 }

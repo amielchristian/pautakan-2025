@@ -44,7 +44,7 @@ function MainView() {
   return (
     <>
       {/* Body - flex row */}
-      <div className='overflow-hidden bg-gray-300 flex flex-row h-screen w-screen p-4 space-x-[1%]'>
+      <div className='overflow-hidden bg-gray-300 flex flex-row h-screen w-screen p-4 space-x-[1%] inset-shadow-custom'>
         {/* Main */}
         <div
           className='sharp-edge-box flex flex-row w-full p-5 space-x-4
@@ -57,16 +57,17 @@ function MainView() {
             flex flex-col justify-evenly
             [--all:10px]
             [--border-width:2px] border-[2px]
-            [--border-color:#f00] border-[#f00]'
+            [--border-color:var(--red)] border-[var(--red)]'
           >
             {colleges.map((college: College) => (
-              <div className='flex flex-row space-x-4'>
+              <div key={college.id} className='flex flex-row space-x-4'>
                 <div
                   className='sharp-edge-box w-20 h-10 [--img:linear-gradient(#222,#111)] font-[DS-Digital] text-3xl
+                  inset-shadow-custom [--inset-shadow-color:var(--red)] [--inset-shadow-size:0.2em]
                   flex items-center justify-center
                   [--top-left:10px] [--bottom-right:10px]
                   [--border-width:2px] border-[2px]
-                  [--border-color:#f00] border-[#f00]'
+                  [--border-color:var(--red)] border-[var(--red)]'
                 >
                   {college.score.toString().padStart(3, '0')}
                 </div>
@@ -82,7 +83,7 @@ function MainView() {
             flex flex-col
             [--all:10px]
             [--border-width:2px] border-[2px]
-            [--border-color:#f00] border-[#f00]'
+            [--border-color:var(--red)] border-[var(--red)]'
           ></div>
         </div>
         <div className='flex flex-col w-3/20 space-y-[5%]'>
@@ -97,14 +98,14 @@ function MainView() {
   );
 }
 
-function CategoryDisplay({ content }: { content: string }) {
+function SettingContainer({ content }: { content: string }) {
   return (
     <div
       className='sharp-edge-box bg-black w-auto h-111/1280 [--bottom-left:20px] [--top-right:20px]
     [--img:linear-gradient(#222,#111)] font-[DS-Digital]
     text-4xl flex items-center justify-center
     [--border-width:2px] border-[2px]
-    [--border-color:#f00] border-[#f00]'
+    [--border-color:var(--red)] border-[var(--red)]'
     >
       {content}
     </div>
@@ -125,17 +126,21 @@ function Sidebar({
       <div
         className='sharp-edge-box text-white text-4xl font-[Starter] font-bold
       flex items-center justify-center
-      w-auto h-240/1280 [--all:20px] grid-pattern'
+      w-auto h-240/1280 [--all:20px] grid-pattern shadow-custom'
       >
         <img src='./images/logo.png' />
       </div>
       <div className='sharp-edge-box h-460/1280 p-[10%] [--all:20px] grid-pattern grid grid-cols-4 gap-x-2 gap-y-0 items-center'>
-        {colleges.map((x) => (
-          <img className='object-cover scale-200' src={x.imagePath} />
+        {colleges.map((college) => (
+          <img
+            key={college.id}
+            className='object-cover scale-200'
+            src={college.imagePath}
+          />
         ))}
       </div>
-      <CategoryDisplay content={category} />
-      <CategoryDisplay content={difficulty} />
+      <SettingContainer content={category} />
+      <SettingContainer content={difficulty} />
     </>
   );
 }

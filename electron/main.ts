@@ -142,7 +142,7 @@ function createWindow() {
   });
 
   // Set fullscreen mode
-  mainView.setFullScreen(true);
+  // mainView.setFullScreen(true);
 
   techView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
