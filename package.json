@@ -11,14 +11,14 @@
     "postinstall": "electron-rebuild"
   },
   "dependencies": {
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
     "@electron/rebuild": "^3.7.1",
+    "tailwindcss": "^4.0.11",
     "@tailwindcss/vite": "^4.0.11",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sqlite3": "^5.1.7",
-    "tailwindcss": "^4.0.11"
-  },
-  "devDependencies": {
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
     "@typescript-eslint/eslint-plugin": "^7.1.1",

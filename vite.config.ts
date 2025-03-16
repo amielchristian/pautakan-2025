@@ -21,8 +21,7 @@ export default defineConfig({
             rollupOptions: {
               input: {
                 main: path.resolve(__dirname, 'electron/main.ts'),
-                index: path.resolve(__dirname, 'index.html'),
-                control: path.resolve(__dirname, 'control.html'),
+                input,
               },
               external: [
                 'electron',
@@ -53,4 +52,12 @@ export default defineConfig({
           : {},
     }),
   ],
+  build: {
+    rollupOptions: {
+      input: {
+        index: 'index.html',
+        control: 'control.html',
+      },
+    },
+  },
 });
