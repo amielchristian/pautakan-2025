@@ -131,22 +131,19 @@ function ScoreButton({
   updateScore: (college: College, offset: number) => void;
 }) {
   const changeScore = () => {
-    let offset: number;
-    switch (difficulty) {
-      case 'Easy':
-        offset = 5;
-        break;
-      case 'Average':
-        offset = 10;
-        break;
-      case 'Difficult':
-        offset = 15;
-        break;
-      default:
-        offset = 1;
-        break;
-    }
-    offset *= add ? 1 : -1;
+    const offset: number =
+      (function (): number {
+        switch (difficulty) {
+          case 'Easy':
+            return 5;
+          case 'Average':
+            return 10;
+          case 'Difficult':
+            return 15;
+          default:
+            return 1;
+        }
+      })() * (add ? 1 : -1);
     updateScore(college, offset);
   };
 
