@@ -1,4 +1,4 @@
-import { r as reactExports, j as jsxDevRuntimeExports, c as client, R as React } from "./index-C0KKN3Gf.js";
+import { r as reactExports, j as jsxRuntimeExports, c as client, R as React } from "./index-Bgro7GNA.js";
 function ControlView() {
   const [colleges, setColleges] = reactExports.useState([]);
   const [difficulty, setDifficulty] = reactExports.useState("Easy");
@@ -35,27 +35,19 @@ function ControlView() {
       collegeUpdated.score
     );
   }
-  return /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "w-screen h-screen justify-center items-center flex flex-col", children: [
-    /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "h-1/10 w-4/5 flex flex-col", children: [
-      /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "flex flex-row bg-gray-300 w-full justify-evenly", children: [
-        /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-screen h-screen justify-center items-center flex flex-col", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "h-1/10 w-4/5 flex flex-col", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-row bg-gray-300 w-full justify-evenly", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
           Dropdown,
           {
             options: ["Eliminations", "Finals"],
             onChange: (selected) => {
               setCategory(selected);
             }
-          },
-          void 0,
-          false,
-          {
-            fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-            lineNumber: 54,
-            columnNumber: 11
-          },
-          this
+          }
         ),
-        /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
           Dropdown,
           {
             options: [
@@ -68,159 +60,47 @@ function ControlView() {
             onChange: (selected) => {
               setDifficulty(selected);
             }
-          },
-          void 0,
-          false,
-          {
-            fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-            lineNumber: 60,
-            columnNumber: 11
-          },
-          this
+          }
         ),
-        /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("button", { children: "Reset Scores" }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 72,
-          columnNumber: 11
-        }, this),
-        /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("button", { children: "Refresh" }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 73,
-          columnNumber: 11
-        }, this)
-      ] }, void 0, true, {
-        fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-        lineNumber: 53,
-        columnNumber: 9
-      }, this),
-      /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "bg-gray-300 h-1/4 sharp-edge-box [--bottom-left:2.5px] [--bottom-right:2.5px]" }, void 0, false, {
-        fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-        lineNumber: 75,
-        columnNumber: 9
-      }, this)
-    ] }, void 0, true, {
-      fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-      lineNumber: 52,
-      columnNumber: 7
-    }, this),
-    /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "h-4/5 w-3/5 mx-[20%]", children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("table", { className: "w-full h-full", children: [
-      /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("thead", { children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("tr", { children: [
-        /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("th", { children: "Rank" }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 82,
-          columnNumber: 15
-        }, this),
-        /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("th", { children: "College" }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 83,
-          columnNumber: 15
-        }, this),
-        /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("th", { children: "Score" }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 84,
-          columnNumber: 15
-        }, this)
-      ] }, void 0, true, {
-        fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-        lineNumber: 81,
-        columnNumber: 13
-      }, this) }, void 0, false, {
-        fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-        lineNumber: 80,
-        columnNumber: 11
-      }, this),
-      /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("tbody", { children: colleges.map((college, index) => /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("tr", { children: [
-        /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("td", { children: index + 1 }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 90,
-          columnNumber: 17
-        }, this),
-        /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("td", { children: college.name }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 91,
-          columnNumber: 17
-        }, this),
-        /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("td", { children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "flex flex-row space-x-4", children: [
-          /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("span", { children: college.score }, void 0, false, {
-            fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-            lineNumber: 94,
-            columnNumber: 21
-          }, this),
-          /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { children: "Reset Scores" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { children: "Refresh" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-gray-300 h-1/4 sharp-edge-box [--bottom-left:2.5px] [--bottom-right:2.5px]" })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-4/5 w-3/5 mx-[20%]", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full h-full", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Rank" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "College" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Score" })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: colleges.map((college, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: index + 1 }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: college.name }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-row space-x-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: college.score }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
             ScoreButton,
             {
               college,
               add: false,
               difficulty,
               updateScore
-            },
-            void 0,
-            false,
-            {
-              fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-              lineNumber: 95,
-              columnNumber: 21
-            },
-            this
+            }
           ),
-          /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
             ScoreButton,
             {
               college,
               add: true,
               difficulty,
               updateScore
-            },
-            void 0,
-            false,
-            {
-              fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-              lineNumber: 101,
-              columnNumber: 21
-            },
-            this
+            }
           )
-        ] }, void 0, true, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 93,
-          columnNumber: 19
-        }, this) }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 92,
-          columnNumber: 17
-        }, this)
-      ] }, void 0, true, {
-        fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-        lineNumber: 89,
-        columnNumber: 15
-      }, this)) }, void 0, false, {
-        fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-        lineNumber: 87,
-        columnNumber: 11
-      }, this)
-    ] }, void 0, true, {
-      fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-      lineNumber: 79,
-      columnNumber: 9
-    }, this) }, void 0, false, {
-      fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-      lineNumber: 78,
-      columnNumber: 7
-    }, this),
-    /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "h-1/10 bg-gray-300 flex flex-row p-4 space-x-[1%]", children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("button", { children: "Show Leaderboard" }, void 0, false, {
-      fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-      lineNumber: 116,
-      columnNumber: 9
-    }, this) }, void 0, false, {
-      fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-      lineNumber: 115,
-      columnNumber: 7
-    }, this)
-  ] }, void 0, true, {
-    fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-    lineNumber: 51,
-    columnNumber: 5
-  }, this);
+        ] }) })
+      ] })) })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-1/10 bg-gray-300 flex flex-row p-4 space-x-[1%]", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { children: "Show Leaderboard" }) })
+  ] });
 }
 function ScoreButton({
   college,
@@ -248,11 +128,7 @@ function ScoreButton({
     updateScore(college, offset);
   };
   const styles = `p-2 ${add ? "bg-green-500 hover:bg-green-700" : "bg-red-500 hover:bg-red-700"}`;
-  return /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("button", { className: styles, onClick: changeScore, children: add ? "+" : "-" }, void 0, false, {
-    fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-    lineNumber: 157,
-    columnNumber: 5
-  }, this);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: styles, onClick: changeScore, children: add ? "+" : "-" });
 }
 function Dropdown({
   options,
@@ -265,66 +141,27 @@ function Dropdown({
     setIsOpen(false);
     if (onChange) onChange(option);
   };
-  return /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "relative w-64", children: [
-    /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative w-64", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
       "button",
       {
         onClick: () => setIsOpen(!isOpen),
         className: "w-full p-2 bg-white border rounded flex justify-between items-center",
-        children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("span", { children: selected }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-          lineNumber: 186,
-          columnNumber: 9
-        }, this)
-      },
-      void 0,
-      false,
-      {
-        fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-        lineNumber: 182,
-        columnNumber: 7
-      },
-      this
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: selected })
+      }
     ),
-    isOpen && /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "overflow-visible absolute z-50 w-full mt-1 bg-white border rounded shadow", children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("ul", { children: options.map((option) => /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(
+    isOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-visible absolute z-50 w-full mt-1 bg-white border rounded shadow", children: /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { children: options.map((option) => /* @__PURE__ */ jsxRuntimeExports.jsx(
       "li",
       {
         className: "p-2 hover:bg-gray-100 cursor-pointer",
         onClick: () => handleSelect(option),
         children: option
       },
-      option,
-      false,
-      {
-        fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-        lineNumber: 194,
-        columnNumber: 15
-      },
-      this
-    )) }, void 0, false, {
-      fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-      lineNumber: 192,
-      columnNumber: 11
-    }, this) }, void 0, false, {
-      fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-      lineNumber: 191,
-      columnNumber: 9
-    }, this)
-  ] }, void 0, true, {
-    fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
-    lineNumber: 180,
-    columnNumber: 5
-  }, this);
+      option
+    )) }) })
+  ] });
 }
 client.createRoot(document.getElementById("root")).render(
-  /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(React.StrictMode, { children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(ControlView, {}, void 0, false, {
-    fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/control.tsx",
-    lineNumber: 8,
-    columnNumber: 5
-  }, void 0) }, void 0, false, {
-    fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/control.tsx",
-    lineNumber: 7,
-    columnNumber: 3
-  }, void 0)
+  /* @__PURE__ */ jsxRuntimeExports.jsx(React.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ControlView, {}) })
 );
 //# sourceMappingURL=control.js.map
