@@ -47,10 +47,19 @@ export default function ControlView() {
     );
   }
 
+  async function resetScores() {
+    setColleges(colleges.map((x: College) => ({ ...x, score: 0 })));
+    await window.ipcRenderer.invoke('reset-scores');
+  }
+
+  async function refresh() {
+    await window.ipcRenderer.invoke('refresh');
+  }
+
   return (
-    <div className='w-screen h-screen justify-center items-center flex flex-col'>
-      <div className='h-1/10 w-4/5 flex flex-col'>
-        <div className='flex flex-row bg-gray-300 w-full justify-evenly'>
+    <div className='grid-pattern bg-[image:var(--grid-pattern)] w-screen h-screen justify-center items-center flex flex-col'>
+      <div className='h-1/10 w-full flex flex-col'>
+        <div className='flex flex-row items-center bg-gray-300 h-full w-full justify-evenly'>
           <Dropdown
             options={['Eliminations', 'Finals']}
             onChange={(selected) => {
@@ -69,19 +78,29 @@ export default function ControlView() {
               setDifficulty(selected);
             }}
           />
-          <button>Reset Scores</button>
-          <button>Refresh</button>
+          <button
+            className='bg-black p-2 text-white rounded-xl border-4 border-red-900'
+            onClick={resetScores}
+          >
+            Reset Scores
+          </button>
+          <button
+            className='bg-black p-2 text-white rounded-xl border-4 border-red-900'
+            onClick={refresh}
+          >
+            Refresh
+          </button>
         </div>
         <div className='bg-gray-300 h-1/4 sharp-edge-box [--bottom-left:2.5px] [--bottom-right:2.5px]'></div>
       </div>
 
-      <div className='h-4/5 w-3/5 mx-[20%]'>
+      <div className='bg-white h-4/5 w-7/10 px-[5%] py-[2%]'>
         <table className='w-full h-full'>
           <thead>
             <tr>
               <th>Rank</th>
               <th>College</th>
-              <th>Score</th>
+              <th colSpan={2}>Score</th>
             </tr>
           </thead>
           <tbody>
@@ -89,22 +108,21 @@ export default function ControlView() {
               <tr>
                 <td>{index + 1}</td>
                 <td>{college.name}</td>
+                <td>{college.score}</td>
                 <td>
-                  <div className='flex flex-row space-x-4'>
-                    <span>{college.score}</span>
-                    <ScoreButton
-                      college={college}
-                      add={false}
-                      difficulty={difficulty}
-                      updateScore={updateScore}
-                    />
-                    <ScoreButton
-                      college={college}
-                      add={true}
-                      difficulty={difficulty}
-                      updateScore={updateScore}
-                    />
-                  </div>
+                  <ScoreButton
+                    college={college}
+                    add={false}
+                    difficulty={difficulty}
+                    updateScore={updateScore}
+                  />
+
+                  <ScoreButton
+                    college={college}
+                    add={true}
+                    difficulty={difficulty}
+                    updateScore={updateScore}
+                  />
                 </td>
               </tr>
             ))}
@@ -112,8 +130,10 @@ export default function ControlView() {
         </table>
       </div>
 
-      <div className='h-1/10 bg-gray-300 flex flex-row p-4 space-x-[1%]'>
-        <button>Show Leaderboard</button>
+      <div className='h-1/10 w-full bg-gray-300 flex flex-row p-4 space-x-[1%]'>
+        <button className='bg-black p-2 text-white rounded-xl border-4 border-red-900'>
+          Show Leaderboard
+        </button>
       </div>
     </div>
   );
@@ -174,7 +194,7 @@ function Dropdown({
   };
 
   return (
-    <div className='relative w-64'>
+    <div className='relative w-64 h-[50%]'>
       {/* Dropdown button */}
       <button
         onClick={() => setIsOpen(!isOpen)}

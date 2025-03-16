@@ -114,22 +114,26 @@ function initializeIPC(db: sqlite3.Database) {
   });
 
   // // Reset all scores
-  // ipcMain.handle('reset-scores', () => {
-  //   return new Promise((resolve, reject) => {
-  //     db.run('UPDATE college SET score = 0', function (err) {
-  //       if (err) {
-  //         console.error('Error resetting scores:', err);
-  //         reject(err);
-  //       } else {
-  //         // Notify all windows about the reset
-  //         BrowserWindow.getAllWindows().forEach((window) => {
-  //           window.webContents.send('scores-reset');
-  //         });
-  //         resolve({ success: true, changes: this.changes });
-  //       }
-  //     });
-  //   });
-  // });
+  ipcMain.handle('reset-scores', () => {
+    return new Promise((resolve, reject) => {
+      db.run('UPDATE colleges SET score = 0', function (err) {
+        if (err) {
+          console.error('Error resetting scores:', err);
+          reject(err);
+        } else {
+          // Notify all windows about the reset
+          BrowserWindow.getAllWindows().forEach((window) => {
+            window.webContents.send('scores-reset');
+          });
+          resolve({ success: true, changes: this.changes });
+        }
+      });
+    });
+  });
+
+  ipcMain.handle('refresh', () => {
+    mainView?.webContents.send('refresh');
+  });
 }
 
 // Views

@@ -28,11 +28,19 @@ function MainView() {
         );
       });
     });
+    window.ipcRenderer.once('scores-reset', () => {
+      getColleges().then((updatedColleges) => {
+        setColleges(updatedColleges);
+      });
+    });
     window.ipcRenderer.once('category-synced', (_, category) => {
       setCategory(category);
     });
     window.ipcRenderer.once('difficulty-synced', (_, difficulty) => {
       setDifficulty(difficulty);
+    });
+    window.ipcRenderer.once('refresh', () => {
+      window.location.reload();
     });
   }, [colleges, category, difficulty]);
 
@@ -116,7 +124,7 @@ function Score({ college }: { college: College }) {
         {college.score.toString().padStart(3, '0')}
       </div>
       <span
-        className={`text-4xl font-[Starter] text-transparent bg-clip-text font-bold bg-red-100 drop-shadow-[0_0_0.1em_red] ${
+        className={`text-4xl font-[Starter] text-transparent bg-clip-text font-bold bg-red-200 drop-shadow-[0_0_0.1em_red] ${
           showGlow ? 'text-glow' : ''
         }`}
       >
