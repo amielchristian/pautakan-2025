@@ -29,7 +29,9 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL
 let mainView: BrowserWindow | null;
 let techView: BrowserWindow | null;
 
-// DB
+// Data
+let category = 'Eliminations';
+let difficulty = 'Easy';
 function initializeDB(): sqlite3.Database {
   const db = new sqlite3.Database('./db.sqlite3', (err) => {
     if (err) {
@@ -62,13 +64,14 @@ function initializeDB(): sqlite3.Database {
 
 // IPC handlers
 function initializeIPC(db: sqlite3.Database) {
-  ipcMain.handle('change-category', (_, category) => {
-    console.log('Category change invoked.');
-    mainView?.webContents.send('category-changed', category);
+  ipcMain.handle('sync-category', (_, data?) => {
+    if (data) category = data;
+    mainView?.webContents.send('category-synced', category);
   });
 
-  ipcMain.handle('change-difficulty', (_, difficulty) => {
-    mainView?.webContents.send('difficulty-changed', difficulty);
+  ipcMain.handle('sync-difficulty', (_, data) => {
+    if (data) difficulty = data;
+    mainView?.webContents.send('difficulty-synced', difficulty);
   });
 
   ipcMain.handle('get-colleges', () => {
@@ -85,7 +88,6 @@ function initializeIPC(db: sqlite3.Database) {
 
   // Update college score
   ipcMain.handle('update-college-score', (_, shortHand, newScore) => {
-    console.log('Score update invoked.');
     return new Promise((resolve, reject) => {
       db.run(
         'UPDATE colleges SET score = ? WHERE shortHand = ?',
@@ -140,7 +142,7 @@ function createWindow() {
   });
 
   // Set fullscreen mode
-  // mainView.setFullScreen(true);
+  mainView.setFullScreen(true);
 
   techView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),

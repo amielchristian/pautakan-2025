@@ -4,32 +4,40 @@ import { College } from './types';
 
 function MainView() {
   const [colleges, setColleges] = useState<College[]>([]);
-  const [difficulty, setDifficulty] = useState<string>('Easy');
-  const [category, setCategory] = useState<string>('Eliminations');
+  const [difficulty, setDifficulty] = useState<string>('');
+  const [category, setCategory] = useState<string>('');
 
   const getColleges = async () => {
     return await window.ipcRenderer.invoke('get-colleges');
   };
 
+  // Listen for updates
   useEffect(() => {
     window.ipcRenderer.removeAllListeners('db-updated');
-    window.ipcRenderer.removeAllListeners('category-changed');
-    window.ipcRenderer.removeAllListeners('difficulty-changed');
+    window.ipcRenderer.removeAllListeners('category-synced');
+    window.ipcRenderer.removeAllListeners('difficulty-synced');
 
     window.ipcRenderer.once('db-updated', () => {
       getColleges().then((colleges) => {
         setColleges(colleges);
       });
     });
-    window.ipcRenderer.once('category-changed', (_, category) => {
+    window.ipcRenderer.once('category-synced', (_, category) => {
       setCategory(category);
     });
-    window.ipcRenderer.once('difficulty-changed', (_, difficulty) => {
+    window.ipcRenderer.once('difficulty-synced', (_, difficulty) => {
       setDifficulty(difficulty);
     });
   }, [colleges, category, difficulty]);
 
+  // Initial load
   useEffect(() => {
+    const retrieveCategoryAndDifficulty = async () => {
+      await window.ipcRenderer.invoke('sync-category');
+      await window.ipcRenderer.invoke('sync-difficulty');
+    };
+    retrieveCategoryAndDifficulty();
+
     getColleges().then((colleges) => setColleges(colleges));
   }, []);
 

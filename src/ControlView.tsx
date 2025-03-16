@@ -19,14 +19,14 @@ export default function ControlView() {
 
   useEffect(() => {
     const changeCategory = async () => {
-      await window.ipcRenderer.invoke('change-category', category);
+      await window.ipcRenderer.invoke('sync-category', category);
     };
     changeCategory();
   }, [category]);
 
   useEffect(() => {
     const changeDifficulty = async () => {
-      await window.ipcRenderer.invoke('change-difficulty', difficulty);
+      await window.ipcRenderer.invoke('sync-difficulty', difficulty);
     };
     changeDifficulty();
   }, [difficulty]);
