@@ -142,4 +142,23 @@
     --shadow-size: 0.5em;
     box-shadow: 0px 0px var(--shadow-size) 0px var(--shadow-color);
   }
+
+  .text-glow {
+    animation: glow 1s ease-in-out 1 alternate;
+  }
+
+  @keyframes glow {
+    from {
+      background-color: var(--color-red-100);
+    }
+    to {
+      background-color: var(--color-red-900);
+    }
+    from {
+      background-color: var(--color-red-900);
+    }
+    to {
+      background-color: var(--color-red-100);
+    }
+  }
 }

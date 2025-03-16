@@ -26,3 +26,6 @@ dist-ssr
 
 # Release files
 release
+
+# Database
+*.sqlite3

@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import sqlite3 from 'sqlite3';
 import fs from 'node:fs';
+import { College } from '../src/types';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -44,6 +45,9 @@ function initializeDB(): sqlite3.Database {
       'utf-8'
     )
   );
+  colleges.sort((a: College, b: College) =>
+    a.shorthand > b.shorthand ? 1 : a.shorthand === b.shorthand ? 0 : -1
+  );
 
   // The schema should be updated to account for scores in a specific round, to support animations.
   db.serialize(() => {
@@ -54,7 +58,7 @@ function initializeDB(): sqlite3.Database {
     for (const college of colleges) {
       db.run(
         'INSERT INTO colleges (name, shorthand, imagePath, score) VALUES (?, ?, ?, ?)',
-        [college.name, college.shortHand, college.imagePath, 0]
+        [college.name, college.shorthand, college.imagePath, 0]
       );
     }
   });
@@ -87,19 +91,19 @@ function initializeIPC(db: sqlite3.Database) {
   });
 
   // Update college score
-  ipcMain.handle('update-college-score', (_, shortHand, newScore) => {
+  ipcMain.handle('update-college-score', (_, shorthand, newScore) => {
     return new Promise((resolve, reject) => {
       db.run(
-        'UPDATE colleges SET score = ? WHERE shortHand = ?',
-        [newScore, shortHand],
+        'UPDATE colleges SET score = ? WHERE shorthand = ?',
+        [newScore, shorthand],
         function (err) {
           if (err) {
-            console.error(`Error updating score for ${shortHand}:`, err);
+            console.error(`Error updating score for ${shorthand}:`, err);
             reject(err);
           } else {
             // Notify all windows about the update
             BrowserWindow.getAllWindows().forEach((window) => {
-              window.webContents.send('score-updated', shortHand, newScore);
+              window.webContents.send('score-updated', shorthand, newScore);
               window.webContents.send('db-updated');
             });
             resolve({ success: true, changes: this.changes });

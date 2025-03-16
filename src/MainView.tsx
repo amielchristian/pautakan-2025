@@ -18,8 +18,14 @@ function MainView() {
     window.ipcRenderer.removeAllListeners('difficulty-synced');
 
     window.ipcRenderer.once('db-updated', () => {
-      getColleges().then((colleges) => {
-        setColleges(colleges);
+      getColleges().then((updatedColleges) => {
+        setColleges(
+          updatedColleges.map((updatedCollege: College, i: number) => {
+            return updatedCollege.score !== colleges[i].score
+              ? updatedCollege
+              : colleges[i];
+          })
+        );
       });
     });
     window.ipcRenderer.once('category-synced', (_, category) => {
@@ -60,21 +66,7 @@ function MainView() {
             [--border-color:var(--red)] border-[var(--red)]'
           >
             {colleges.map((college: College) => (
-              <div key={college.id} className='flex flex-row space-x-4'>
-                <div
-                  className='sharp-edge-box w-20 h-10 [--img:linear-gradient(#222,#111)] font-[DS-Digital] text-3xl
-                  inset-shadow-custom [--inset-shadow-color:var(--red)] [--inset-shadow-size:0.2em]
-                  flex items-center justify-center
-                  [--top-left:10px] [--bottom-right:10px]
-                  [--border-width:2px] border-[2px]
-                  [--border-color:var(--red)] border-[var(--red)]'
-                >
-                  {college.score.toString().padStart(3, '0')}
-                </div>
-                <span className='text-4xl font-[Starter]'>
-                  {college.shorthand}
-                </span>
-              </div>
+              <Score key={college.id} college={college} />
             ))}
           </div>
           {/* Main */}
@@ -98,6 +90,43 @@ function MainView() {
   );
 }
 
+// Scores
+function Score({ college }: { college: College }) {
+  const [showGlow, setShowGlow] = useState(false);
+
+  useEffect(() => {
+    setShowGlow(true);
+    const timeout = setTimeout(() => {
+      setShowGlow(false);
+    }, 1000);
+    console.log(`Score modified for ${college.name}!`);
+    return () => clearTimeout(timeout);
+  }, [college]);
+
+  return (
+    <div className='flex flex-row space-x-4'>
+      <div
+        className='sharp-edge-box w-20 h-10 [--img:linear-gradient(#222,#111)] font-[DS-Digital] text-3xl
+    inset-shadow-custom [--inset-shadow-color:var(--red)] [--inset-shadow-size:0.2em]
+    flex items-center justify-center
+    [--top-left:10px] [--bottom-right:10px]
+    [--border-width:2px] border-[2px]
+    [--border-color:var(--red)] border-[var(--red)]'
+      >
+        {college.score.toString().padStart(3, '0')}
+      </div>
+      <span
+        className={`text-4xl font-[Starter] text-transparent bg-clip-text font-bold bg-red-100 drop-shadow-[0_0_0.1em_red] ${
+          showGlow ? 'text-glow' : ''
+        }`}
+      >
+        {college.shorthand}
+      </span>
+    </div>
+  );
+}
+
+// Difficulty and Category
 function SettingContainer({ content }: { content: string }) {
   return (
     <div

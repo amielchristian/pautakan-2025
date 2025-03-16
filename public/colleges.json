@@ -1,82 +1,82 @@
 [
   {
     "name": "College of Rehabilitation Sciences",
-    "shortHand": "CRS",
+    "shorthand": "CRS",
     "imagePath": "./images/colleges/CRS.png"
   },
   {
     "name": "College of Accountancy",
-    "shortHand": "ACC",
+    "shorthand": "AMV",
     "imagePath": "./images/colleges/ACC.png"
   },
   {
     "name": "College of Architecture",
-    "shortHand": "ARKI",
+    "shorthand": "ARKI",
     "imagePath": "./images/colleges/ARKI.png"
   },
   {
     "name": "Faculty of Arts and Letters",
-    "shortHand": "AB",
+    "shorthand": "AB",
     "imagePath": "./images/colleges/AB.png"
   },
   {
     "name": "Faculty of Civil Law",
-    "shortHand": "LAW",
+    "shorthand": "CIVIL LAW",
     "imagePath": "./images/colleges/LAW.png"
   },
   {
     "name": "College of Commerce and Business Administration",
-    "shortHand": "COMM",
+    "shorthand": "COMM",
     "imagePath": "./images/colleges/COMM.png"
   },
   {
     "name": "College of Education",
-    "shortHand": "EDUC",
+    "shorthand": "EDUC",
     "imagePath": "./images/colleges/EDUC.png"
   },
   {
     "name": "Faculty of Engineering",
-    "shortHand": "ENGG",
+    "shorthand": "ENGG",
     "imagePath": "./images/colleges/ENGG.png"
   },
   {
     "name": "College of Information and Computing Sciences",
-    "shortHand": "CICS",
+    "shorthand": "CICS",
     "imagePath": "./images/colleges/CICS.png"
   },
   {
     "name": "Faculty of Medicine and Surgery",
-    "shortHand": "MED",
+    "shorthand": "MEDSURG",
     "imagePath": "./images/colleges/MED.png"
   },
   {
     "name": "Conservatory of Music",
-    "shortHand": "MUSIC",
+    "shorthand": "MUSIC",
     "imagePath": "./images/colleges/MUSIC.png"
   },
   {
     "name": "College of Nursing",
-    "shortHand": "NUR",
+    "shorthand": "NURSING",
     "imagePath": "./images/colleges/NURSING.png"
   },
   {
     "name": "Faculty of Pharmacy",
-    "shortHand": "PHARMA",
+    "shorthand": "PHARMA",
     "imagePath": "./images/colleges/PHARMA.png"
   },
   {
     "name": "Institute of Physical Education and Athletics",
-    "shortHand": "IPEA",
+    "shorthand": "IPEA",
     "imagePath": "./images/colleges/IPEA.png"
   },
   {
     "name": "College of Science",
-    "shortHand": "COS",
+    "shorthand": "COS",
     "imagePath": "./images/colleges/COS.png"
   },
   {
     "name": "College of Tourism and Hospitality Management",
-    "shortHand": "CTHM",
+    "shorthand": "CTHM",
     "imagePath": "./images/colleges/CTHM.png"
   }
 ]
