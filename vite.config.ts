@@ -21,7 +21,6 @@ export default defineConfig({
             rollupOptions: {
               input: {
                 main: path.resolve(__dirname, 'electron/main.ts'),
-                input,
               },
               external: [
                 'electron',
