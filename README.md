@@ -12,8 +12,8 @@ This project uses Electron, React, TailwindCSS, and SQLite3.
 
 The backend of this application can be found in the `electron` folder. This is home to the main process, where operations such as database initialization and interprocess communication is defined. Everything else is part of the renderer process, or the frontend. Frontend files can be found in the `src` folder.
 
-### Existing issues
+### Existing Issues
 
-- The control window's HTML isn't rendered in the packaged version of the app.
-- Fonts don't render in the packaged version of the app.
-- The DS-Digital font isn't rendering in any version.
+- [x] The control window's HTML isn't rendered in the packaged version of the app.
+- [x] Fonts don't render in the packaged version of the app.
+- [x] The DS-Digital font isn't rendering in any version.
