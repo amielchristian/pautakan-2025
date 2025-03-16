@@ -14,6 +14,6 @@ The backend of this application can be found in the `electron` folder. This is h
 
 ### Existing Issues
 
-[x] The control window's HTML isn't rendered in the packaged version of the app.
-[x] Fonts don't render in the packaged version of the app.
-[x] The DS-Digital font isn't rendering in any version.
+- [x] The control window's HTML isn't rendered in the packaged version of the app.
+- [x] Fonts don't render in the packaged version of the app.
+- [x] The DS-Digital font isn't rendering in any version.
