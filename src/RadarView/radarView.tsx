@@ -1,25 +1,8 @@
 import React, { useEffect } from 'react';
 import './radarView.css';
+import { College } from '../types';
 
-const logoPaths = [
-  'public/images/colleges/AB.png',
-  'public/images/colleges/ACC.png',
-  'public/images/colleges/ARKI.png',
-  'public/images/colleges/CICS.png',
-  'public/images/colleges/COMM.png',
-  'public/images/colleges/COS.png',
-  'public/images/colleges/CRS.png',
-  'public/images/colleges/CTHM.png',
-  'public/images/colleges/EDUC.png',
-  'public/images/colleges/ENGG.png',
-  'public/images/colleges/IPEA.png',
-  'public/images/colleges/LAW.png',
-  'public/images/colleges/MED.png',
-  'public/images/colleges/PHARMA.png',
-  'public/images/colleges/MUSIC.png',
-];
-
-const RadarView: React.FC = () => {
+function RadarView({ colleges }: { colleges: College[] }) {
   useEffect(() => {
     const rotatingContainer = document.getElementById('rotatingContainer');
     const radialGridContainer = document.getElementById('radialGridContainer');
@@ -46,22 +29,24 @@ const RadarView: React.FC = () => {
     const totalBootupTime = 10; // Total time for full radar setup before pings start
 
     // Creating radial lines and logos
-    for (let i = 0; i < 16; i++) {
+    const collegeCount = colleges.length;
+    for (let i = 0; i < collegeCount; i++) {
       const radialLine = document.createElement('div');
       radialLine.className = 'radial-line';
-      let angle = i * (360 / 16) - 90;
+      let angle = i * (360 / collegeCount) - 90;
       radialLine.style.transform = `rotate(${angle}deg)`;
       radialLine.style.animationDelay = `${2.5 + i * 0.04}s`;
       radialGridContainer.appendChild(radialLine);
 
-      angle = i * (360 / 16);
+      angle = i * (360 / collegeCount);
       const angleRad = (angle * Math.PI) / 180;
 
       const logoContainer = document.createElement('div');
       logoContainer.className = 'logo-container';
 
       const logoImage = document.createElement('img');
-      logoImage.src = logoPaths[i];
+      console.log(colleges[i]);
+      logoImage.src = colleges[i].imagePath;
       logoImage.alt = `Logo ${i + 1}`;
 
       logoContainer.appendChild(logoImage);
@@ -138,7 +123,7 @@ const RadarView: React.FC = () => {
       // Start the initial sequence
       startPingSequence();
     }
-  }, []);
+  }, [colleges]);
 
   return (
     <div className='radar-container'>
@@ -161,6 +146,6 @@ const RadarView: React.FC = () => {
       <div className='clock-face'></div>
     </div>
   );
-};
+}
 
 export default RadarView;

@@ -86,7 +86,7 @@ function MainView() {
             [--border-width:2px] border-[2px]
             [--border-color:var(--red)] border-[var(--red)]'
           >
-            <RadarView></RadarView>
+            <RadarView colleges={colleges}></RadarView>
           </div>
         </div>
         <div className='flex flex-col w-3/20 space-y-[5%]'>
