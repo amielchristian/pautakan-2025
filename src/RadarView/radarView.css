@@ -1,0 +1,202 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .radar-container {
+    position: relative;
+    width: 800px;
+    height: 800px;
+    opacity: 0;
+    animation: fadeIn 1s forwards 1s; /* Start after 1 second of black screen */
+  }
+  
+  /* Base container */
+  .radar-base {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 30%;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: visible;
+    opacity: 0;
+    animation: fadeIn 1s forwards 2s; /* Start after center vault image */
+  }
+  
+  /* Center vault image wrapper */
+  .center-image-wrapper {
+    position: absolute;
+    width: 122px;
+    height: 122px;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Center vault image */
+  .center-image {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    z-index: 10;
+    opacity: 0;
+    animation: fadeIn 1s forwards 2s; /* Start after black screen */
+  }
+  
+  /* The line segments that fill the clock and center border */
+  .line-segment {
+    position: absolute;
+    width: 5px; /* Short length of each line segment */
+    height: 2px; /* Height of each line segment */
+    background-color: white;
+    top: 50%;
+    left: 50%;
+    transform-origin: left center;
+    opacity: 0;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+  }
+  
+  /* Radial grid line - extremely faint dashed lines */
+  .radial-line {
+    position: absolute;
+    width: 1200px; /* Significantly longer lines */
+    height: 0;
+    border-top: 1px dashed rgba(255, 255, 255, 0.03); /* Much more faint */
+    top: 50%;
+    left: -200px; /* Offset to center the longer lines */
+    transform-origin: center;
+    opacity: 0;
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.02); /* Reduced glow */
+    animation: fadeIn 0.8s forwards;
+  }
+  
+  /* Logo container for the logos - 30% bigger */
+  .logo-container {
+    position: absolute;
+    width: 91px; /* 70px * 1.3 = 91px (30% bigger) */
+    height: 91px; /* 70px * 1.3 = 91px (30% bigger) */
+    transform-origin: center;
+    opacity: 0;
+    z-index: 8;
+  }
+  
+  .logo-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  
+  /* Solid border circle */
+  .center-border {
+    position: absolute;
+    width: 122px;
+    height: 122px;
+    border-radius: 50%;
+    border: 4px solid white;
+    box-sizing: border-box;
+    opacity: 0;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+    transform: rotate(-90deg); /* Start position at 12 o'clock */
+  }
+  
+  @keyframes circleBorderFill {
+    0% { 
+      stroke-dashoffset: 385;
+    }
+    100% { 
+      stroke-dashoffset: 0;
+    }
+  }
+  
+  /* The container that will rotate after boot-up */
+  .rotating-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    animation: none; /* Will be set to rotate after boot-up */
+    z-index: 1;
+  }
+  
+  /* Container for center border */
+  .center-border-container {
+    position: absolute;
+    width: 122px;
+    height: 122px;
+    z-index: 9;
+  }
+  
+  /* Container for radial grid - no rotation animation */
+  .radial-grid-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    overflow: visible; /* Allow lines to extend beyond container */
+  }
+  
+  /* Container for logos - no rotation */
+  .logos-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 7;
+    overflow: visible;
+  }
+  
+  @keyframes rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Radar ping effect with extended range */
+  .radar-ping {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px solid rgba(160, 32, 240, 0.6);
+    width: 0;
+    height: 0;
+    animation: radar-ping 6s ease-out;
+    z-index: 5;
+    opacity: 0;
+  }
+  
+  @keyframes radar-ping {
+    0% {
+      width: 0;
+      height: 0;
+      opacity: 1;
+    }
+    30% {
+      opacity: 0.8;
+    }
+    100% {
+      width: 1500px;
+      height: 1500px;
+      opacity: 0;
+    }
+  }
+  
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
