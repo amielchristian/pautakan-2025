@@ -1,34 +1,42 @@
-import React, { useEffect } from "react";
-import "./radarView.css";
+import React, { useEffect } from 'react';
+import './radarView.css';
 
 const logoPaths = [
-  "public/images/colleges/AB.png",
-  "public/images/colleges/ACC.png",
-  "public/images/colleges/ARKI.png",
-  "public/images/colleges/CICS.png",
-  "public/images/colleges/COMM.png",
-  "public/images/colleges/COS.png",
-  "public/images/colleges/CRS.png",
-  "public/images/colleges/CTHM.png",
-  "public/images/colleges/EDUC.png",
-  "public/images/colleges/ENGG.png",
-  "public/images/colleges/IPEA.png",
-  "public/images/colleges/LAW.png",
-  "public/images/colleges/MED.png",
-  "public/images/colleges/PHARMA.png",
-  "public/images/colleges/MUSIC.png",
-  "public/images/colleges/NURSING.png",
+  'public/images/colleges/AB.png',
+  'public/images/colleges/ACC.png',
+  'public/images/colleges/ARKI.png',
+  'public/images/colleges/CICS.png',
+  'public/images/colleges/COMM.png',
+  'public/images/colleges/COS.png',
+  'public/images/colleges/CRS.png',
+  'public/images/colleges/CTHM.png',
+  'public/images/colleges/EDUC.png',
+  'public/images/colleges/ENGG.png',
+  'public/images/colleges/IPEA.png',
+  'public/images/colleges/LAW.png',
+  'public/images/colleges/MED.png',
+  'public/images/colleges/PHARMA.png',
+  'public/images/colleges/MUSIC.png',
 ];
 
 const RadarView: React.FC = () => {
   useEffect(() => {
-    const rotatingContainer = document.getElementById("rotatingContainer");
-    const radialGridContainer = document.getElementById("radialGridContainer");
-    const logosContainer = document.getElementById("logosContainer");
-    const centerBorderContainer = document.getElementById("centerBorderContainer");
-    const radarBase = document.getElementById("radarBase");
+    const rotatingContainer = document.getElementById('rotatingContainer');
+    const radialGridContainer = document.getElementById('radialGridContainer');
+    const logosContainer = document.getElementById('logosContainer');
+    const centerBorderContainer = document.getElementById(
+      'centerBorderContainer'
+    );
+    const radarBase = document.getElementById('radarBase');
 
-    if (!rotatingContainer || !radialGridContainer || !logosContainer || !centerBorderContainer || !radarBase) return;
+    if (
+      !rotatingContainer ||
+      !radialGridContainer ||
+      !logosContainer ||
+      !centerBorderContainer ||
+      !radarBase
+    )
+      return;
 
     const numSegments = 220;
     const radius = 290;
@@ -39,8 +47,8 @@ const RadarView: React.FC = () => {
 
     // Creating radial lines and logos
     for (let i = 0; i < 16; i++) {
-      const radialLine = document.createElement("div");
-      radialLine.className = "radial-line";
+      const radialLine = document.createElement('div');
+      radialLine.className = 'radial-line';
       let angle = i * (360 / 16) - 90;
       radialLine.style.transform = `rotate(${angle}deg)`;
       radialLine.style.animationDelay = `${2.5 + i * 0.04}s`;
@@ -49,18 +57,20 @@ const RadarView: React.FC = () => {
       angle = i * (360 / 16);
       const angleRad = (angle * Math.PI) / 180;
 
-      const logoContainer = document.createElement("div");
-      logoContainer.className = "logo-container";
+      const logoContainer = document.createElement('div');
+      logoContainer.className = 'logo-container';
 
-      const logoImage = document.createElement("img");
+      const logoImage = document.createElement('img');
       logoImage.src = logoPaths[i];
       logoImage.alt = `Logo ${i + 1}`;
 
       logoContainer.appendChild(logoImage);
-      logoContainer.style.position = "absolute";
-      logoContainer.style.left = "50%";
-      logoContainer.style.top = "50%";
-      logoContainer.style.animation = `fadeIn 0.8s forwards ${logosStartTime + i * 0.2}s`;
+      logoContainer.style.position = 'absolute';
+      logoContainer.style.left = '50%';
+      logoContainer.style.top = '50%';
+      logoContainer.style.animation = `fadeIn 0.8s forwards ${
+        logosStartTime + i * 0.2
+      }s`;
 
       const parentSize = 90;
       const radiusPercentage = (radius / parentSize) * 100;
@@ -75,15 +85,17 @@ const RadarView: React.FC = () => {
 
     // Creating rotating segments
     for (let i = 0; i < numSegments; i++) {
-      const segment = document.createElement("div");
-      segment.className = "line-segment";
-      const angle = (i * (360 / numSegments)) - 90;
+      const segment = document.createElement('div');
+      segment.className = 'line-segment';
+      const angle = i * (360 / numSegments) - 90;
       segment.style.transform = `rotate(${angle}deg) translateX(${radius}px) rotate(90deg)`;
-      segment.style.animation = `fadeIn 0.3s forwards ${3 + (i / numSegments) * bootupDuration}s`;
+      segment.style.animation = `fadeIn 0.3s forwards ${
+        3 + (i / numSegments) * bootupDuration
+      }s`;
       rotatingContainer.appendChild(segment);
     }
 
-    rotatingContainer.style.animation = "rotate 30s linear infinite";
+    rotatingContainer.style.animation = 'rotate 30s linear infinite';
 
     // **Start radar pings after boot-up time**
     setTimeout(createPatternedPings, totalBootupTime * 1000 + 200);
@@ -91,14 +103,10 @@ const RadarView: React.FC = () => {
     // **Function to create radar pings with the pattern**
     function createPatternedPings() {
       function createPing() {
-        const ping = document.createElement("div");
-        ping.className = "radar-ping";
+        const ping = document.createElement('div');
+        ping.className = 'radar-ping';
         radarBase.appendChild(ping);
-        ping.style.animation = "radar-ping 6s ease-out";
-
-        setTimeout(() => {
-          if (ping.parentNode) ping.parentNode.removeChild(ping);
-        }, 6000);
+        ping.style.animation = 'radar-ping 6s ease-out infinite';
       }
 
       function startPingSequence() {
@@ -117,24 +125,28 @@ const RadarView: React.FC = () => {
 
       // Start the initial sequence
       startPingSequence();
-
-      // Repeat pattern every 5 seconds
-      setInterval(startPingSequence, 5000);
     }
   }, []);
 
   return (
-    <div className="radar-container">
-      <div id="radarBase" className="radar-base">
-        <div id="radialGridContainer" className="radial-grid-container"></div>
-        <div className="center-image-wrapper">
-          <div id="logosContainer" className="logos-container"></div>
-          <img src="public/images/icon.png" alt="Center Vault" className="center-image" />
-          <div id="centerBorderContainer" className="center-border-container"></div>
+    <div className='radar-container'>
+      <div id='radarBase' className='radar-base'>
+        <div id='radialGridContainer' className='radial-grid-container'></div>
+        <div className='center-image-wrapper'>
+          <div id='logosContainer' className='logos-container'></div>
+          <img
+            src='public/images/icon.png'
+            alt='Center Vault'
+            className='center-image'
+          />
+          <div
+            id='centerBorderContainer'
+            className='center-border-container'
+          ></div>
         </div>
-        <div id="rotatingContainer" className="rotating-container"></div>
+        <div id='rotatingContainer' className='rotating-container'></div>
       </div>
-      <div className="clock-face"></div>
+      <div className='clock-face'></div>
     </div>
   );
 };
