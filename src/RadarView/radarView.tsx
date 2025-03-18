@@ -95,6 +95,18 @@ const RadarView: React.FC = () => {
       rotatingContainer.appendChild(segment);
     }
 
+    // TODO: I'm trying to make the rotating container a circle div with a dashed border instead of a div containing 220 divs
+
+    // rotatingContainer.style.strokeWidth = '2px';
+    // rotatingContainer.style.borderRadius = '50%';
+    // rotatingContainer.style.width = `${radius * 2}px`;
+    // rotatingContainer.style.height = `${radius * 2}px`;
+    // rotatingContainer.style.borderWidth = '2px';
+    // rotatingContainer.style.borderStyle = 'dashed';
+    // rotatingContainer.style.strokeDasharray = `calc(2 * 3.14 * ${radius})`;
+    // rotatingContainer.style.strokeDashoffset = `calc(2 * 3.14 * ${radius})`;
+    // rotatingContainer.style.animation = `draw-circle ${bootupDuration}s linear 1 forwards`;
+
     rotatingContainer.style.animation = 'rotate 30s linear infinite';
 
     // **Start radar pings after boot-up time**
@@ -105,7 +117,7 @@ const RadarView: React.FC = () => {
       function createPing() {
         const ping = document.createElement('div');
         ping.className = 'radar-ping';
-        radarBase.appendChild(ping);
+        radarBase?.appendChild(ping);
         ping.style.animation = 'radar-ping 6s ease-out infinite';
       }
 

@@ -81,7 +81,7 @@ function MainView() {
           {/* Main */}
           <div
             className='sharp-edge-box w-full
-            flex flex-col
+            flex flex-col align-center justify-center items-center
             [--all:10px]
             [--border-width:2px] border-[2px]
             [--border-color:var(--red)] border-[var(--red)]'
