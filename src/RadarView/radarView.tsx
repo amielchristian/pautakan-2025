@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import './radarView.css';
 import { College } from '../types';
 
@@ -45,7 +45,6 @@ function RadarView({ colleges }: { colleges: College[] }) {
       logoContainer.className = 'logo-container';
 
       const logoImage = document.createElement('img');
-      console.log(colleges[i]);
       logoImage.src = colleges[i].imagePath;
       logoImage.alt = `Logo ${i + 1}`;
 
