@@ -45,12 +45,12 @@ function ControlView() {
           defaultValue: category,
           children: [
             /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("option", { value: "Eliminations", children: "Eliminations" }, void 0, false, {
-              fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+              fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
               lineNumber: 58,
               columnNumber: 11
             }, this),
             /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("option", { value: "Finals", children: "Finals" }, void 0, false, {
-              fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+              fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
               lineNumber: 59,
               columnNumber: 11
             }, this)
@@ -59,7 +59,7 @@ function ControlView() {
         void 0,
         true,
         {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+          fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
           lineNumber: 53,
           columnNumber: 9
         },
@@ -73,27 +73,27 @@ function ControlView() {
           defaultValue: difficulty,
           children: [
             /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("option", { value: "Easy", children: "Easy" }, void 0, false, {
-              fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+              fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
               lineNumber: 66,
               columnNumber: 11
             }, this),
             /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("option", { value: "Average", children: "Average" }, void 0, false, {
-              fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+              fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
               lineNumber: 67,
               columnNumber: 11
             }, this),
             /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("option", { value: "Difficult", children: "Difficult" }, void 0, false, {
-              fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+              fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
               lineNumber: 68,
               columnNumber: 11
             }, this),
             /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("option", { value: "Clincher", children: "Clincher" }, void 0, false, {
-              fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+              fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
               lineNumber: 69,
               columnNumber: 11
             }, this),
             /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("option", { value: "Sudden Death", children: "Sudden Death" }, void 0, false, {
-              fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+              fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
               lineNumber: 70,
               columnNumber: 11
             }, this)
@@ -102,67 +102,67 @@ function ControlView() {
         void 0,
         true,
         {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+          fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
           lineNumber: 61,
           columnNumber: 9
         },
         this
       ),
       /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("button", { children: "Reset Scores" }, void 0, false, {
-        fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+        fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
         lineNumber: 72,
         columnNumber: 9
       }, this),
       /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("button", { children: "Refresh" }, void 0, false, {
-        fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+        fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
         lineNumber: 73,
         columnNumber: 9
       }, this)
     ] }, void 0, true, {
-      fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+      fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
       lineNumber: 52,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "h-4/5 w-3/5 mx-[20%]", children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("table", { className: "w-full h-full", children: [
       /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("thead", { children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("tr", { children: [
         /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("th", { children: "Rank" }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+          fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
           lineNumber: 80,
           columnNumber: 15
         }, this),
         /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("th", { children: "College" }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+          fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
           lineNumber: 81,
           columnNumber: 15
         }, this),
         /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("th", { children: "Score" }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+          fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
           lineNumber: 82,
           columnNumber: 15
         }, this)
       ] }, void 0, true, {
-        fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+        fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
         lineNumber: 79,
         columnNumber: 13
       }, this) }, void 0, false, {
-        fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+        fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
         lineNumber: 78,
         columnNumber: 11
       }, this),
       /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("tbody", { children: colleges.map((college, index) => /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("tr", { children: [
         /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("td", { children: index + 1 }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+          fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
           lineNumber: 88,
           columnNumber: 17
         }, this),
         /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("td", { children: college.name }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+          fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
           lineNumber: 89,
           columnNumber: 17
         }, this),
         /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("td", { children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "flex flex-row space-x-4", children: [
           /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("span", { children: college.score }, void 0, false, {
-            fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+            fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
             lineNumber: 92,
             columnNumber: 21
           }, this),
@@ -177,7 +177,7 @@ function ControlView() {
             void 0,
             false,
             {
-              fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+              fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
               lineNumber: 93,
               columnNumber: 21
             },
@@ -194,50 +194,50 @@ function ControlView() {
             void 0,
             false,
             {
-              fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+              fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
               lineNumber: 99,
               columnNumber: 21
             },
             this
           )
         ] }, void 0, true, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+          fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
           lineNumber: 91,
           columnNumber: 19
         }, this) }, void 0, false, {
-          fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+          fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
           lineNumber: 90,
           columnNumber: 17
         }, this)
       ] }, void 0, true, {
-        fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+        fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
         lineNumber: 87,
         columnNumber: 15
       }, this)) }, void 0, false, {
-        fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+        fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
         lineNumber: 85,
         columnNumber: 11
       }, this)
     ] }, void 0, true, {
-      fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+      fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
       lineNumber: 77,
       columnNumber: 9
     }, this) }, void 0, false, {
-      fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+      fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
       lineNumber: 76,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("div", { className: "h-1/10 bg-gray-300 flex flex-row p-4 space-x-[1%]", children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("button", { children: "Show Leaderboard" }, void 0, false, {
-      fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+      fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
       lineNumber: 114,
       columnNumber: 9
     }, this) }, void 0, false, {
-      fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+      fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
       lineNumber: 113,
       columnNumber: 7
     }, this)
   ] }, void 0, true, {
-    fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+    fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
     lineNumber: 51,
     columnNumber: 5
   }, this);
@@ -269,18 +269,18 @@ function ScoreButton({
   };
   const styles = `p-2 ${add ? "bg-green-500 hover:bg-green-700" : "bg-red-500 hover:bg-red-700"}`;
   return /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV("button", { className: styles, onClick: changeScore, children: add ? "+" : "-" }, void 0, false, {
-    fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/ControlView.tsx",
+    fileName: "/home/qwikwire205/pautakan-2025/src/ControlView.tsx",
     lineNumber: 155,
     columnNumber: 5
   }, this);
 }
 client.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(React.StrictMode, { children: /* @__PURE__ */ jsxDevRuntimeExports.jsxDEV(ControlView, {}, void 0, false, {
-    fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/control.tsx",
+    fileName: "/home/qwikwire205/pautakan-2025/src/control.tsx",
     lineNumber: 8,
     columnNumber: 5
   }, void 0) }, void 0, false, {
-    fileName: "/Users/amielchristianmala-ay/Projects/pautakan-2025/src/control.tsx",
+    fileName: "/home/qwikwire205/pautakan-2025/src/control.tsx",
     lineNumber: 7,
     columnNumber: 3
   }, void 0)
