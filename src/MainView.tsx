@@ -1,6 +1,7 @@
 import './App.css';
 import { useEffect, useState } from 'react';
 import { College } from './types';
+import RadarView from './RadarView/radarView';
 
 function MainView() {
   const [colleges, setColleges] = useState<College[]>([]);
@@ -80,11 +81,13 @@ function MainView() {
           {/* Main */}
           <div
             className='sharp-edge-box w-full
-            flex flex-col
+            flex flex-col align-center justify-center items-center
             [--all:10px]
             [--border-width:2px] border-[2px]
             [--border-color:var(--red)] border-[var(--red)]'
-          ></div>
+          >
+            <RadarView colleges={colleges}></RadarView>
+          </div>
         </div>
         <div className='flex flex-col w-3/20 space-y-[5%]'>
           <Sidebar
