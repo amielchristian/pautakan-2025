@@ -72,7 +72,7 @@ body {
   position: absolute;
   width: 1200px; /* Significantly longer lines */
   height: 0;
-  border-top: 1px dashed rgba(255, 255, 255, 0.03); /* Much more faint */
+  border-top: 1px dashed rgba(255, 255, 255, 0.1); /* Much more faint */
   top: 50%;
   left: -200px; /* Offset to center the longer lines */
   transform-origin: center;
