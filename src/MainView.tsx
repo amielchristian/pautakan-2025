@@ -17,6 +17,7 @@ function MainView() {
     window.ipcRenderer.removeAllListeners('db-updated');
     window.ipcRenderer.removeAllListeners('category-synced');
     window.ipcRenderer.removeAllListeners('difficulty-synced');
+    window.ipcRenderer.removeAllListeners('top5-colleges');
 
     window.ipcRenderer.once('db-updated', () => {
       getColleges().then((updatedColleges) => {
@@ -29,19 +30,31 @@ function MainView() {
         );
       });
     });
+    
     window.ipcRenderer.once('scores-reset', () => {
       getColleges().then((updatedColleges) => {
         setColleges(updatedColleges);
       });
     });
+    
     window.ipcRenderer.once('category-synced', (_, category) => {
       setCategory(category);
     });
+    
     window.ipcRenderer.once('difficulty-synced', (_, difficulty) => {
       setDifficulty(difficulty);
     });
+    
     window.ipcRenderer.once('refresh', () => {
       window.location.reload();
+    });
+    
+    // Listen for top5 colleges event from control view
+    window.ipcRenderer.once('top5-colleges', (_, topColleges) => {
+      console.log("TOP 5 COLLEGES (MAIN VIEW):");
+      topColleges.forEach((college: College, index: number) => {
+        console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
+      });
     });
   }, [colleges, category, difficulty]);
 

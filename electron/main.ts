@@ -78,6 +78,13 @@ function initializeIPC(db: sqlite3.Database) {
     mainView?.webContents.send('difficulty-synced', difficulty);
   });
 
+  // Handle showing top 5 colleges
+  ipcMain.handle('show-top5', (_, topColleges) => {
+    // Send the top 5 colleges to the main view
+    mainView?.webContents.send('top5-colleges', topColleges);
+    return { success: true };
+  });
+
   ipcMain.handle('get-colleges', () => {
     return new Promise((resolve, reject) => {
       db.all('SELECT * FROM colleges', (err, rows) => {

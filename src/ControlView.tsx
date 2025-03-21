@@ -4,9 +4,9 @@ import { College } from './types';
 
 export default function ControlView() {
   const [colleges, setColleges] = useState<College[]>([]);
-  // const [leaderboard, setLeaderboard] = useState<College[]>([]);
   const [difficulty, setDifficulty] = useState('Easy');
   const [category, setCategory] = useState('Eliminations');
+  const [selectedColleges, setSelectedColleges] = useState<College[]>([]);
 
   // Load colleges
   useEffect(() => {
@@ -56,6 +56,56 @@ export default function ControlView() {
     await window.ipcRenderer.invoke('refresh');
   }
 
+  // Handle college selection (max 5)
+  const handleCollegeSelect = (college: College) => {
+    setSelectedColleges(current => {
+      // If already selected, remove it
+      if (current.some(c => c.id === college.id)) {
+        return current.filter(c => c.id !== college.id);
+      }
+      
+      // If 5 already selected, don't add more
+      if (current.length >= 5) {
+        return current;
+      }
+      
+      // Otherwise add it
+      return [...current, college];
+    });
+    
+    // Log the selection
+    console.log(`College selected: ${college.shorthand}`);
+  };
+
+  // Handle drag start
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.dataTransfer.setData('collegeIndex', index.toString());
+  };
+
+  // Handle drag over
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  // Handle drop to reorder colleges
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, dropIndex: number) => {
+    e.preventDefault();
+    const dragIndex = parseInt(e.dataTransfer.getData('collegeIndex'));
+    
+    if (dragIndex === dropIndex) return;
+    
+    const reorderedColleges = [...selectedColleges];
+    const draggedCollege = reorderedColleges[dragIndex];
+    
+    // Remove dragged college
+    reorderedColleges.splice(dragIndex, 1);
+    
+    // Insert at new position
+    reorderedColleges.splice(dropIndex, 0, draggedCollege);
+    
+    setSelectedColleges(reorderedColleges);
+  };
+
   return (
     <div className='grid-pattern bg-[image:var(--grid-pattern)] w-screen h-screen justify-center items-center flex flex-col'>
       <div className='h-1/10 w-full flex flex-col'>
@@ -95,19 +145,28 @@ export default function ControlView() {
       </div>
 
       <div className='bg-white h-4/5 w-7/10 px-[5%] py-[2%]'>
-        <table className='w-full h-full'>
+        <table className='w-full'>
           <thead>
             <tr>
               <th>Rank</th>
               <th>College</th>
+              <th>Select</th>
               <th colSpan={2}>Score</th>
             </tr>
           </thead>
           <tbody>
             {colleges.map((college: College, index: number) => (
-              <tr>
+              <tr key={college.id}>
                 <td>{index + 1}</td>
                 <td>{college.name}</td>
+                <td>
+                  <input 
+                    type="checkbox"
+                    checked={selectedColleges.some(c => c.id === college.id)}
+                    onChange={() => handleCollegeSelect(college)}
+                    disabled={selectedColleges.length >= 5 && !selectedColleges.some(c => c.id === college.id)}
+                  />
+                </td>
                 <td>{college.score}</td>
                 <td>
                   <ScoreButton
@@ -131,9 +190,38 @@ export default function ControlView() {
       </div>
 
       <div className='h-1/10 w-full bg-gray-300 flex flex-row p-4 space-x-[1%]'>
-        <button className='bg-black p-2 text-white rounded-xl border-4 border-red-900'>
+        <button 
+          className='bg-black p-2 text-white rounded-xl border-4 border-red-900'
+          onClick={async () => {
+            // Send the top 5 colleges to main process
+            await window.ipcRenderer.invoke('show-top5', selectedColleges);
+            
+            // Also log in the control view console
+            console.log("TOP 5 COLLEGES:");
+            selectedColleges.forEach((college, index) => {
+              console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
+            });
+          }}
+        >
           Show Leaderboard
         </button>
+        
+        {/* Drag and drop area for selected colleges */}
+        <div className='flex flex-row space-x-2 flex-grow'>
+          {selectedColleges.map((college, index) => (
+            <div
+              key={college.id}
+              draggable
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, index)}
+              className='p-2 bg-black text-white rounded border-2 border-red-900 cursor-move flex flex-col items-center'
+            >
+              <div>{index + 1}</div>
+              <div>{college.shorthand}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
