@@ -14,12 +14,15 @@ function MainView() {
 
   // Listen for updates
   useEffect(() => {
+    // Clean up previous listeners first
     window.ipcRenderer.removeAllListeners('db-updated');
     window.ipcRenderer.removeAllListeners('category-synced');
     window.ipcRenderer.removeAllListeners('difficulty-synced');
     window.ipcRenderer.removeAllListeners('top5-colleges');
+    window.ipcRenderer.removeAllListeners('refresh');
+    window.ipcRenderer.removeAllListeners('scores-reset');
 
-    window.ipcRenderer.once('db-updated', () => {
+    window.ipcRenderer.on('db-updated', () => {
       getColleges().then((updatedColleges) => {
         setColleges(
           updatedColleges.map((updatedCollege: College, i: number) => {
@@ -31,32 +34,43 @@ function MainView() {
       });
     });
     
-    window.ipcRenderer.once('scores-reset', () => {
+    window.ipcRenderer.on('scores-reset', () => {
       getColleges().then((updatedColleges) => {
         setColleges(updatedColleges);
       });
     });
     
-    window.ipcRenderer.once('category-synced', (_, category) => {
+    window.ipcRenderer.on('category-synced', (_, category) => {
       setCategory(category);
     });
     
-    window.ipcRenderer.once('difficulty-synced', (_, difficulty) => {
+    window.ipcRenderer.on('difficulty-synced', (_, difficulty) => {
       setDifficulty(difficulty);
+      console.log(`DIFFICULTY CHANGED: ${difficulty}`);
     });
     
-    window.ipcRenderer.once('refresh', () => {
+    window.ipcRenderer.on('refresh', () => {
       window.location.reload();
     });
     
     // Listen for top5 colleges event from control view
-    window.ipcRenderer.once('top5-colleges', (_, topColleges) => {
+    window.ipcRenderer.on('top5-colleges', (_, topColleges) => {
       console.log("TOP 5 COLLEGES (MAIN VIEW):");
       topColleges.forEach((college: College, index: number) => {
         console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
       });
     });
-  }, [colleges, category, difficulty]);
+
+    // Clean up listeners when the component unmounts
+    return () => {
+      window.ipcRenderer.removeAllListeners('db-updated');
+      window.ipcRenderer.removeAllListeners('category-synced');
+      window.ipcRenderer.removeAllListeners('difficulty-synced');
+      window.ipcRenderer.removeAllListeners('top5-colleges');
+      window.ipcRenderer.removeAllListeners('refresh');
+      window.ipcRenderer.removeAllListeners('scores-reset');
+    };
+  }, [colleges]);
 
   // Initial load
   useEffect(() => {

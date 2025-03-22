@@ -27,6 +27,7 @@ export default function ControlView() {
   useEffect(() => {
     const changeDifficulty = async () => {
       await window.ipcRenderer.invoke('sync-difficulty', difficulty);
+      console.log(`Difficulty changed to: ${difficulty}`);
     };
     changeDifficulty();
   }, [difficulty]);
