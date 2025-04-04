@@ -131,8 +131,17 @@ function MainView() {
 
   return (
     <>
+      {/* Full-screen frame */}
+      <div className="screen-frame absolute inset-0 w-full h-full pointer-events-none z-50">
+        <img 
+          src="./images/NEW SCREEN FRAME.png" 
+          alt="Screen Frame" 
+          className="w-95 h-95"
+        />
+      </div>
+
       {/* Body - flex row */}
-      <div className='overflow-hidden bg-gray-300 flex flex-row h-screen w-screen p-4 space-x-[1%] inset-shadow-custom'>
+      <div className='overflow-hidden bg-gray-300 flex flex-row h-screen w-screen p-10 space-x-[1%] inset-shadow-custom'>
         {/* Main */}
         <div
           className='sharp-edge-box flex flex-row w-full p-5 space-x-4
