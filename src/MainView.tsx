@@ -1,5 +1,5 @@
 import './App.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { College } from './types';
 import RadarView from './RadarView/radarView';
 
@@ -7,10 +7,32 @@ function MainView() {
   const [colleges, setColleges] = useState<College[]>([]);
   const [difficulty, setDifficulty] = useState<string>('');
   const [category, setCategory] = useState<string>('');
+  const radialGridContainerRef = useRef<HTMLDivElement>(null);
 
   const getColleges = async () => {
     return await window.ipcRenderer.invoke('get-colleges');
   };
+
+  // Create radial lines
+  useEffect(() => {
+    if (colleges.length > 0 && radialGridContainerRef.current) {
+      // Clear existing radial lines
+      while (radialGridContainerRef.current.firstChild) {
+        radialGridContainerRef.current.removeChild(radialGridContainerRef.current.firstChild);
+      }
+
+      // Create radial lines
+      const collegeCount = colleges.length;
+      for (let i = 0; i < collegeCount; i++) {
+        const radialLine = document.createElement('div');
+        radialLine.className = 'radial-line';
+        let angle = i * (360 / collegeCount);
+        radialLine.style.transform = `rotate(${angle}deg)`;
+        radialLine.style.animationDelay = `${2 + i * 0.1}s`; // Staggered fade-in effect
+        radialGridContainerRef.current.appendChild(radialLine);
+      }
+    }
+  }, [colleges]);
 
   // Listen for updates
   useEffect(() => {
@@ -111,8 +133,11 @@ function MainView() {
             flex flex-col align-center justify-center items-center
             [--all:10px]
             [--border-width:2px] border-[2px]
-            [--border-color:var(--red)] border-[var(--red)]'
+            [--border-color:var(--red)] border-[var(--red)]
+            relative'
           >
+            {/* Radial grid container */}
+            <div id='radialGridContainer' ref={radialGridContainerRef} className='radial-grid-container'></div>
             <RadarView colleges={colleges}></RadarView>
           </div>
         </div>

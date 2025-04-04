@@ -5,7 +5,6 @@ import { College } from '../types';
 function RadarView({ colleges }: { colleges: College[] }) {
   useEffect(() => {
     const rotatingContainer = document.getElementById('rotatingContainer');
-    const radialGridContainer = document.getElementById('radialGridContainer');
     const logosContainer = document.getElementById('logosContainer');
     const centerBorderContainer = document.getElementById(
       'centerBorderContainer'
@@ -14,7 +13,6 @@ function RadarView({ colleges }: { colleges: College[] }) {
 
     if (
       !rotatingContainer ||
-      !radialGridContainer ||
       !logosContainer ||
       !centerBorderContainer ||
       !radarBase
@@ -28,17 +26,10 @@ function RadarView({ colleges }: { colleges: College[] }) {
     const logosStartTime = 3.5 + logosPauseDelay;
     const totalBootupTime = 10; // Total time for full radar setup before pings start
 
-    // Creating radial lines and logos
+    // Creating logos
     const collegeCount = colleges.length;
     for (let i = 0; i < collegeCount; i++) {
-      const radialLine = document.createElement('div');
-      radialLine.className = 'radial-line';
-      let angle = i * (360 / collegeCount) - 90;
-      radialLine.style.transform = `rotate(${angle}deg)`;
-      radialLine.style.animationDelay = `${2.5 + i * 0.04}s`;
-      radialGridContainer.appendChild(radialLine);
-
-      angle = i * (360 / collegeCount);
+      const angle = i * (360 / collegeCount);
       const angleRad = (angle * Math.PI) / 180;
 
       const logoContainer = document.createElement('div');
@@ -79,18 +70,6 @@ function RadarView({ colleges }: { colleges: College[] }) {
       rotatingContainer.appendChild(segment);
     }
 
-    // TODO: I'm trying to make the rotating container a circle div with a dashed border instead of a div containing 220 divs
-
-    // rotatingContainer.style.strokeWidth = '2px';
-    // rotatingContainer.style.borderRadius = '50%';
-    // rotatingContainer.style.width = `${radius * 2}px`;
-    // rotatingContainer.style.height = `${radius * 2}px`;
-    // rotatingContainer.style.borderWidth = '2px';
-    // rotatingContainer.style.borderStyle = 'dashed';
-    // rotatingContainer.style.strokeDasharray = `calc(2 * 3.14 * ${radius})`;
-    // rotatingContainer.style.strokeDashoffset = `calc(2 * 3.14 * ${radius})`;
-    // rotatingContainer.style.animation = `draw-circle ${bootupDuration}s linear 1 forwards`;
-
     rotatingContainer.style.animation = 'rotate 30s linear infinite';
 
     // **Start radar pings after boot-up time**
@@ -127,7 +106,6 @@ function RadarView({ colleges }: { colleges: College[] }) {
   return (
     <div className='radar-container'>
       <div id='radarBase' className='radar-base'>
-        <div id='radialGridContainer' className='radial-grid-container'></div>
         <div className='center-image-wrapper'>
           <div id='logosContainer' className='logos-container'></div>
           <img
