@@ -59,6 +59,51 @@
     );
 }
 
+/* Radial grid container */
+.radial-grid-container {
+  position: absolute;
+  width: 0;
+  height: 0;
+  z-index: -1; /* Negative z-index to position behind everything */
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0; /* Start invisible */
+  animation: simpleFadeIn 2s forwards 2s; /* Fade in after 2 seconds */
+}
+
+/* Radial grid line - white lines that extend across the entire screen */
+.radial-line {
+  position: absolute;
+  width: 3000px; /* Much longer lines to ensure they extend beyond screen */
+  height: 0;
+  border-top: 1px solid #ffffff; /* Pure white color */
+  transform-origin: 0 0; /* Origin at start of line */
+  z-index: -2; /* Ensure lines are behind everything */
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.3); /* Enhanced glow */
+  /* No individual animation - will inherit from container */
+}
+
+/* Simple fade-in animation */
+@keyframes simpleFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 @layer components {
   /*
     The sharp-edge-box class creates a box with sharp edges.
