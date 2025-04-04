@@ -1,0 +1,81 @@
+/* Finals mode specific styles */
+
+.finals-mode-banner {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 100;
+  }
+  
+  .finals-mode-banner h1 {
+    font-family: 'Starter', sans-serif;
+    font-size: 4rem;
+    font-weight: bold;
+    color: transparent;
+    background-clip: text;
+    background-image: linear-gradient(to right, #ff3019 0%, #e2b04a 100%);
+    text-shadow: 0 0 15px rgba(255, 48, 25, 0.7);
+    animation: pulse 2s infinite;
+  }
+  
+  /* Enlarge logo containers in finals mode */
+  .finals-mode .logo-container {
+    width: 115px;
+    height: 115px;
+    transition: all 0.5s ease-in-out;
+  }
+  
+  /* Additional style for rank labels */
+  .rank-label {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    background-color: #b72619;
+    color: white;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 16px;
+    font-family: 'Starter', sans-serif;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+    animation: fadeIn 1s forwards 0.5s;
+    opacity: 0;
+  }
+  
+  /* Pulse animation for Finals banner */
+  @keyframes pulse {
+    0% {
+      text-shadow: 0 0 10px rgba(255, 48, 25, 0.7);
+    }
+    50% {
+      text-shadow: 0 0 20px rgba(255, 48, 25, 0.9), 0 0 30px rgba(255, 48, 25, 0.5);
+    }
+    100% {
+      text-shadow: 0 0 10px rgba(255, 48, 25, 0.7);
+    }
+  }
+  
+  /* Position adjustments for top 5 mode to spread logos more evenly */
+  .finals-mode.radar-base {
+    overflow: visible;
+  }
+  
+  /* Trophy icon for 1st place */
+  .rank-label.first-place {
+    background-color: gold;
+    color: #222;
+  }
+  
+  /* Scale animation for logo hover */
+  .logo-container:hover {
+    transform-origin: center;
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+    z-index: 11;
+  }

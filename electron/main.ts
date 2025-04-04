@@ -1,24 +1,15 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import sqlite3 from 'sqlite3';
-import fs from 'node:fs';
 import { College } from '../src/types';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// In ES modules, __dirname is not available directly, so we create it
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // The built directory structure
-//
-// ├─┬─┬ dist
-// │ │ └── index.html
-// │ │
-// │ ├─┬ dist-electron
-// │ │ ├── main.js
-// │ │ └── preload.mjs
-// │
 process.env.APP_ROOT = path.join(__dirname, '..');
 
-// 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
 export const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL'];
 export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron');
 export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist');
@@ -33,44 +24,130 @@ let techView: BrowserWindow | null;
 // Data
 let category = 'Eliminations';
 let difficulty = 'Easy';
-function initializeDB(): sqlite3.Database {
-  const db = new sqlite3.Database('./db.sqlite3', (err) => {
-    if (err) {
-      console.error(err.message);
-    }
-  });
-  const colleges = JSON.parse(
-    fs.readFileSync(
-      path.join(process.env.VITE_PUBLIC, './colleges.json'),
-      'utf-8'
-    )
-  );
-  colleges.sort((a: College, b: College) =>
-    a.shorthand > b.shorthand ? 1 : a.shorthand === b.shorthand ? 0 : -1
-  );
+let topFiveColleges: College[] = [];
 
-  // The schema should be updated to account for scores in a specific round, to support animations.
-  db.serialize(() => {
-    db.run('DROP TABLE IF EXISTS colleges');
-    db.run(
-      'CREATE TABLE IF NOT EXISTS colleges (id INTEGER PRIMARY KEY, name TEXT, shorthand TEXT, imagePath TEXT, score NUMBER)'
-    );
-    for (const college of colleges) {
-      db.run(
-        'INSERT INTO colleges (name, shorthand, imagePath, score) VALUES (?, ?, ?, ?)',
-        [college.name, college.shorthand, college.imagePath, 0]
-      );
-    }
-  });
-
-  return db;
-}
+// Mock colleges data directly in memory
+let colleges: College[] = [
+  {
+    id: 1,
+    name: "College of Rehabilitation Sciences",
+    shorthand: "CRS",
+    imagePath: "./images/colleges/CRS.png",
+    score: 0
+  },
+  {
+    id: 2,
+    name: "College of Accountancy",
+    shorthand: "AMV",
+    imagePath: "./images/colleges/ACC.png",
+    score: 0
+  },
+  {
+    id: 3,
+    name: "Faculty of Arts and Letters",
+    shorthand: "AB",
+    imagePath: "./images/colleges/AB.png",
+    score: 0
+  },
+  {
+    id: 4,
+    name: "College of Commerce and Business Administration",
+    shorthand: "COMM",
+    imagePath: "./images/colleges/COMM.png",
+    score: 0
+  },
+  {
+    id: 5,
+    name: "College of Education",
+    shorthand: "EDUC",
+    imagePath: "./images/colleges/EDUC.png",
+    score: 0
+  },
+  {
+    id: 6,
+    name: "Faculty of Engineering",
+    shorthand: "ENGG",
+    imagePath: "./images/colleges/ENGG.png",
+    score: 0
+  },
+  {
+    id: 7,
+    name: "College of Information and Computing Sciences",
+    shorthand: "CICS",
+    imagePath: "./images/colleges/CICS.png",
+    score: 0
+  },
+  {
+    id: 8,
+    name: "Faculty of Medicine and Surgery",
+    shorthand: "MEDSURG",
+    imagePath: "./images/colleges/MED.png",
+    score: 0
+  },
+  {
+    id: 9,
+    name: "Conservatory of Music",
+    shorthand: "MUSIC",
+    imagePath: "./images/colleges/MUSIC.png",
+    score: 0
+  },
+  {
+    id: 10,
+    name: "College of Nursing",
+    shorthand: "NURSING",
+    imagePath: "./images/colleges/NURSING.png",
+    score: 0
+  },
+  {
+    id: 11,
+    name: "Faculty of Pharmacy",
+    shorthand: "PHARMA",
+    imagePath: "./images/colleges/PHARMA.png",
+    score: 0
+  },
+  {
+    id: 12,
+    name: "Institute of Physical Education and Athletics",
+    shorthand: "IPEA",
+    imagePath: "./images/colleges/IPEA.png",
+    score: 0
+  },
+  {
+    id: 13,
+    name: "College of Science",
+    shorthand: "COS",
+    imagePath: "./images/colleges/COS.png",
+    score: 0
+  },
+  {
+    id: 14,
+    name: "College of Tourism and Hospitality Management",
+    shorthand: "CTHM",
+    imagePath: "./images/colleges/CTHM.png",
+    score: 0
+  },
+  {
+    id: 15,
+    name: "Faculty of Civil Law",
+    shorthand: "CIVIL LAW",
+    imagePath: "./images/colleges/LAW.png",
+    score: 0
+  }
+];
 
 // IPC handlers
-function initializeIPC(db: sqlite3.Database) {
+function initializeIPC() {
   ipcMain.handle('sync-category', (_, data?) => {
+    const oldCategory = category;
     if (data) category = data;
-    mainView?.webContents.send('category-synced', category);
+
+    if (oldCategory === 'Eliminations' && category === 'Finals' && topFiveColleges.length > 0) {
+      mainView?.webContents.send('switch-to-finals', topFiveColleges);
+    } else {
+      mainView?.webContents.send('category-synced', category);
+    }
+    
+    return { category, topFiveColleges };
   });
 
   ipcMain.handle('sync-difficulty', (_, data) => {
@@ -78,68 +155,77 @@ function initializeIPC(db: sqlite3.Database) {
     mainView?.webContents.send('difficulty-synced', difficulty);
   });
 
-  // Handle showing top 5 colleges
-  ipcMain.handle('show-top5', (_, topColleges) => {
-    // Send the top 5 colleges to the main view
-    mainView?.webContents.send('top5-colleges', topColleges);
+  ipcMain.handle('show-top5', (_, selectedColleges) => {
+    topFiveColleges = selectedColleges;
+    mainView?.webContents.send('top5-colleges', topFiveColleges);
     return { success: true };
   });
 
   ipcMain.handle('get-colleges', () => {
-    return new Promise((resolve, reject) => {
-      db.all('SELECT * FROM colleges', (err, rows) => {
-        if (err) {
-          console.error("Couldn't get colleges");
-          reject(err);
-        }
-        resolve(rows);
-      });
-    });
+    // If we're in Finals mode and have top five colleges, only return those
+    if (category === 'Finals' && topFiveColleges.length > 0) {
+      return topFiveColleges;
+    }
+    
+    // Return all colleges
+    return colleges;
   });
 
-  // Update college score
   ipcMain.handle('update-college-score', (_, shorthand, newScore) => {
-    return new Promise((resolve, reject) => {
-      db.run(
-        'UPDATE colleges SET score = ? WHERE shorthand = ?',
-        [newScore, shorthand],
-        function (err) {
-          if (err) {
-            console.error(`Error updating score for ${shorthand}:`, err);
-            reject(err);
-          } else {
-            // Notify all windows about the update
-            BrowserWindow.getAllWindows().forEach((window) => {
-              window.webContents.send('score-updated', shorthand, newScore);
-              window.webContents.send('db-updated');
-            });
-            resolve({ success: true, changes: this.changes });
-          }
+    try {
+      // Update score in colleges array
+      for (let i = 0; i < colleges.length; i++) {
+        if (colleges[i].shorthand === shorthand) {
+          colleges[i].score = newScore;
+          break;
         }
-      );
-    });
+      }
+      
+      // Update score in topFiveColleges if it exists there
+      for (let i = 0; i < topFiveColleges.length; i++) {
+        if (topFiveColleges[i].shorthand === shorthand) {
+          topFiveColleges[i].score = newScore;
+          break;
+        }
+      }
+      
+      // Notify all windows about the update
+      BrowserWindow.getAllWindows().forEach((window) => {
+        window.webContents.send('score-updated', shorthand, newScore);
+        window.webContents.send('db-updated');
+      });
+      
+      return { success: true };
+    } catch (err) {
+      console.error(`Error updating score for ${shorthand}:`, err);
+      return { success: false, error: err };
+    }
   });
 
-  // // Reset all scores
   ipcMain.handle('reset-scores', () => {
-    return new Promise((resolve, reject) => {
-      db.run('UPDATE colleges SET score = 0', function (err) {
-        if (err) {
-          console.error('Error resetting scores:', err);
-          reject(err);
-        } else {
-          // Notify all windows about the reset
-          BrowserWindow.getAllWindows().forEach((window) => {
-            window.webContents.send('scores-reset');
-          });
-          resolve({ success: true, changes: this.changes });
-        }
+    try {
+      // Reset all scores
+      colleges.forEach(college => { college.score = 0; });
+      topFiveColleges.forEach(college => { college.score = 0; });
+      
+      // Notify all windows about the reset
+      BrowserWindow.getAllWindows().forEach((window) => {
+        window.webContents.send('scores-reset');
       });
-    });
+      
+      return { success: true };
+    } catch (err) {
+      console.error('Error resetting scores:', err);
+      return { success: false, error: err };
+    }
   });
 
   ipcMain.handle('refresh', () => {
     mainView?.webContents.send('refresh');
+  });
+
+  ipcMain.handle('get-top5', () => {
+    return topFiveColleges;
   });
 }
 
@@ -153,11 +239,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.mjs'),
     },
     frame: false,
-    // alwaysOnTop: true,
   });
-
-  // Set fullscreen mode
-  // mainView.setFullScreen(true);
 
   techView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
@@ -178,9 +260,6 @@ function createWindow() {
   }
 }
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -190,15 +269,16 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
 });
 
 app.whenReady().then(async () => {
-  const db = initializeDB();
-  initializeIPC(db);
-  createWindow();
+  try {
+    initializeIPC();
+    createWindow();
+  } catch (err) {
+    console.error('Failed to initialize application:', err);
+  }
 });
