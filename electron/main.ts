@@ -27,112 +27,112 @@ let difficulty = 'Easy';
 let topFiveColleges: College[] = [];
 
 // Mock colleges data directly in memory
-let colleges: College[] = [
+const colleges: College[] = [
   {
     id: 1,
-    name: "College of Rehabilitation Sciences",
-    shorthand: "CRS",
-    imagePath: "./images/colleges/CRS.png",
-    score: 0
+    name: 'College of Rehabilitation Sciences',
+    shorthand: 'CRS',
+    imagePath: './images/colleges/CRS.png',
+    score: 0,
   },
   {
     id: 2,
-    name: "College of Accountancy",
-    shorthand: "AMV",
-    imagePath: "./images/colleges/ACC.png",
-    score: 0
+    name: 'College of Accountancy',
+    shorthand: 'AMV',
+    imagePath: './images/colleges/ACC.png',
+    score: 0,
   },
   {
     id: 3,
-    name: "Faculty of Arts and Letters",
-    shorthand: "AB",
-    imagePath: "./images/colleges/AB.png",
-    score: 0
+    name: 'Faculty of Arts and Letters',
+    shorthand: 'AB',
+    imagePath: './images/colleges/AB.png',
+    score: 0,
   },
   {
     id: 4,
-    name: "College of Commerce and Business Administration",
-    shorthand: "COMM",
-    imagePath: "./images/colleges/COMM.png",
-    score: 0
+    name: 'College of Commerce and Business Administration',
+    shorthand: 'COMM',
+    imagePath: './images/colleges/COMM.png',
+    score: 0,
   },
   {
     id: 5,
-    name: "College of Education",
-    shorthand: "EDUC",
-    imagePath: "./images/colleges/EDUC.png",
-    score: 0
+    name: 'College of Education',
+    shorthand: 'EDUC',
+    imagePath: './images/colleges/EDUC.png',
+    score: 0,
   },
   {
     id: 6,
-    name: "Faculty of Engineering",
-    shorthand: "ENGG",
-    imagePath: "./images/colleges/ENGG.png",
-    score: 0
+    name: 'Faculty of Engineering',
+    shorthand: 'ENGG',
+    imagePath: './images/colleges/ENGG.png',
+    score: 0,
   },
   {
     id: 7,
-    name: "College of Information and Computing Sciences",
-    shorthand: "CICS",
-    imagePath: "./images/colleges/CICS.png",
-    score: 0
+    name: 'College of Information and Computing Sciences',
+    shorthand: 'CICS',
+    imagePath: './images/colleges/CICS.png',
+    score: 0,
   },
   {
     id: 8,
-    name: "Faculty of Medicine and Surgery",
-    shorthand: "MEDSURG",
-    imagePath: "./images/colleges/MED.png",
-    score: 0
+    name: 'Faculty of Medicine and Surgery',
+    shorthand: 'MEDSURG',
+    imagePath: './images/colleges/MED.png',
+    score: 0,
   },
   {
     id: 9,
-    name: "Conservatory of Music",
-    shorthand: "MUSIC",
-    imagePath: "./images/colleges/MUSIC.png",
-    score: 0
+    name: 'Conservatory of Music',
+    shorthand: 'MUSIC',
+    imagePath: './images/colleges/MUSIC.png',
+    score: 0,
   },
   {
     id: 10,
-    name: "College of Nursing",
-    shorthand: "NURSING",
-    imagePath: "./images/colleges/NURSING.png",
-    score: 0
+    name: 'College of Nursing',
+    shorthand: 'NURSING',
+    imagePath: './images/colleges/NURSING.png',
+    score: 0,
   },
   {
     id: 11,
-    name: "Faculty of Pharmacy",
-    shorthand: "PHARMA",
-    imagePath: "./images/colleges/PHARMA.png",
-    score: 0
+    name: 'Faculty of Pharmacy',
+    shorthand: 'PHARMA',
+    imagePath: './images/colleges/PHARMA.png',
+    score: 0,
   },
   {
     id: 12,
-    name: "Institute of Physical Education and Athletics",
-    shorthand: "IPEA",
-    imagePath: "./images/colleges/IPEA.png",
-    score: 0
+    name: 'Institute of Physical Education and Athletics',
+    shorthand: 'IPEA',
+    imagePath: './images/colleges/IPEA.png',
+    score: 0,
   },
   {
     id: 13,
-    name: "College of Science",
-    shorthand: "COS",
-    imagePath: "./images/colleges/COS.png",
-    score: 0
+    name: 'College of Science',
+    shorthand: 'COS',
+    imagePath: './images/colleges/COS.png',
+    score: 0,
   },
   {
     id: 14,
-    name: "College of Tourism and Hospitality Management",
-    shorthand: "CTHM",
-    imagePath: "./images/colleges/CTHM.png",
-    score: 0
+    name: 'College of Tourism and Hospitality Management',
+    shorthand: 'CTHM',
+    imagePath: './images/colleges/CTHM.png',
+    score: 0,
   },
   {
     id: 15,
-    name: "Faculty of Civil Law",
-    shorthand: "CIVIL LAW",
-    imagePath: "./images/colleges/LAW.png",
-    score: 0
-  }
+    name: 'Faculty of Civil Law',
+    shorthand: 'CIVIL LAW',
+    imagePath: './images/colleges/LAW.png',
+    score: 0,
+  },
 ];
 
 // IPC handlers
@@ -141,12 +141,16 @@ function initializeIPC() {
     const oldCategory = category;
     if (data) category = data;
 
-    if (oldCategory === 'Eliminations' && category === 'Finals' && topFiveColleges.length > 0) {
+    if (
+      oldCategory === 'Eliminations' &&
+      category === 'Finals' &&
+      topFiveColleges.length > 0
+    ) {
       mainView?.webContents.send('switch-to-finals', topFiveColleges);
     } else {
       mainView?.webContents.send('category-synced', category);
     }
-    
+
     return { category, topFiveColleges };
   });
 
@@ -166,7 +170,7 @@ function initializeIPC() {
     if (category === 'Finals' && topFiveColleges.length > 0) {
       return topFiveColleges;
     }
-    
+
     // Return all colleges
     return colleges;
   });
@@ -180,7 +184,7 @@ function initializeIPC() {
           break;
         }
       }
-      
+
       // Update score in topFiveColleges if it exists there
       for (let i = 0; i < topFiveColleges.length; i++) {
         if (topFiveColleges[i].shorthand === shorthand) {
@@ -188,13 +192,13 @@ function initializeIPC() {
           break;
         }
       }
-      
+
       // Notify all windows about the update
       BrowserWindow.getAllWindows().forEach((window) => {
         window.webContents.send('score-updated', shorthand, newScore);
         window.webContents.send('db-updated');
       });
-      
+
       return { success: true };
     } catch (err) {
       console.error(`Error updating score for ${shorthand}:`, err);
@@ -205,14 +209,18 @@ function initializeIPC() {
   ipcMain.handle('reset-scores', () => {
     try {
       // Reset all scores
-      colleges.forEach(college => { college.score = 0; });
-      topFiveColleges.forEach(college => { college.score = 0; });
-      
+      colleges.forEach((college) => {
+        college.score = 0;
+      });
+      topFiveColleges.forEach((college) => {
+        college.score = 0;
+      });
+
       // Notify all windows about the reset
       BrowserWindow.getAllWindows().forEach((window) => {
         window.webContents.send('scores-reset');
       });
-      
+
       return { success: true };
     } catch (err) {
       console.error('Error resetting scores:', err);

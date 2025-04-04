@@ -19,7 +19,9 @@ function MainView() {
     if (colleges.length > 0 && radialGridContainerRef.current) {
       // Clear existing radial lines
       while (radialGridContainerRef.current.firstChild) {
-        radialGridContainerRef.current.removeChild(radialGridContainerRef.current.firstChild);
+        radialGridContainerRef.current.removeChild(
+          radialGridContainerRef.current.firstChild
+        );
       }
 
       // Create radial lines
@@ -27,7 +29,7 @@ function MainView() {
       for (let i = 0; i < collegeCount; i++) {
         const radialLine = document.createElement('div');
         radialLine.className = 'radial-line';
-        let angle = i * (360 / collegeCount);
+        const angle = i * (360 / collegeCount);
         radialLine.style.transform = `rotate(${angle}deg)`;
         radialLine.style.animationDelay = `${2 + i * 0.1}s`; // Staggered fade-in effect
         radialGridContainerRef.current.appendChild(radialLine);
@@ -57,44 +59,47 @@ function MainView() {
         );
       });
     });
-    
+
     window.ipcRenderer.on('scores-reset', () => {
       getColleges().then((updatedColleges) => {
         setColleges(updatedColleges);
       });
     });
-    
+
     window.ipcRenderer.on('category-synced', (_, newCategory) => {
       setCategory(newCategory);
       if (newCategory === 'Eliminations') {
         setIsFinalsMode(false);
-        getColleges().then(allColleges => {
+        getColleges().then((allColleges) => {
           setColleges(allColleges);
         });
       }
     });
-    
+
     window.ipcRenderer.on('switch-to-finals', (_, topFiveColleges) => {
       setCategory('Finals');
       setIsFinalsMode(true);
       setColleges(topFiveColleges);
 
       // Refresh the view to reflect changes
-      console.log('Switched to Finals mode with top 5 colleges:', topFiveColleges);
+      console.log(
+        'Switched to Finals mode with top 5 colleges:',
+        topFiveColleges
+      );
     });
-    
+
     window.ipcRenderer.on('difficulty-synced', (_, difficulty) => {
       setDifficulty(difficulty);
       console.log(`DIFFICULTY CHANGED: ${difficulty}`);
     });
-    
+
     window.ipcRenderer.on('refresh', () => {
       window.location.reload();
     });
-    
+
     // Listen for top5 colleges event from control view
     window.ipcRenderer.on('top5-colleges', (_, topColleges) => {
-      console.log("TOP 5 COLLEGES (MAIN VIEW):");
+      console.log('TOP 5 COLLEGES (MAIN VIEW):');
       topColleges.forEach((college: College, index: number) => {
         console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
       });
@@ -115,11 +120,16 @@ function MainView() {
   // Initial load
   useEffect(() => {
     const retrieveCategoryAndDifficulty = async () => {
-      const { category: currentCategory, topFiveColleges } = await window.ipcRenderer.invoke('sync-category');
+      const { category: currentCategory, topFiveColleges } =
+        await window.ipcRenderer.invoke('sync-category');
       await window.ipcRenderer.invoke('sync-difficulty');
-      
+
       // If we're already in Finals mode and have top 5 colleges, use those
-      if (currentCategory === 'Finals' && topFiveColleges && topFiveColleges.length > 0) {
+      if (
+        currentCategory === 'Finals' &&
+        topFiveColleges &&
+        topFiveColleges.length > 0
+      ) {
         setIsFinalsMode(true);
         setColleges(topFiveColleges);
       } else {
@@ -132,11 +142,11 @@ function MainView() {
   return (
     <>
       {/* Full-screen frame */}
-      <div className="screen-frame absolute inset-0 w-full h-full pointer-events-none z-50">
-        <img 
-          src="./images/NEW SCREEN FRAME.png" 
-          alt="Screen Frame" 
-          className="w-95 h-95"
+      <div className='screen-frame absolute inset-0 w-full h-full pointer-events-none z-50'>
+        <img
+          src='./images/NEW SCREEN FRAME.png'
+          alt='Screen Frame'
+          className='w-95 h-95'
         />
       </div>
 
@@ -170,11 +180,15 @@ function MainView() {
             relative'
           >
             {/* Radial grid container */}
-            <div id='radialGridContainer' ref={radialGridContainerRef} className='radial-grid-container'></div>
+            <div
+              id='radialGridContainer'
+              ref={radialGridContainerRef}
+              className='radial-grid-container'
+            ></div>
             <RadarView colleges={colleges}></RadarView>
             {isFinalsMode && (
-              <div className="absolute top-0 left-0 w-full p-4 text-center">
-                <h1 className="text-6xl font-[Starter] font-bold text-transparent bg-clip-text bg-red-200 drop-shadow-[0_0_0.2em_red]">
+              <div className='absolute top-0 left-0 w-full p-4 text-center'>
+                <h1 className='text-6xl font-[Starter] font-bold text-transparent bg-clip-text bg-red-200 drop-shadow-[0_0_0.2em_red]'>
                   FINALS
                 </h1>
               </div>
