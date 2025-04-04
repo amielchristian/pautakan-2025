@@ -17,30 +17,12 @@ export default function ControlView() {
     getColleges();
   }, []);
 
-  // Check for existing top 5 on load
-  useEffect(() => {
-    const getTop5 = async () => {
-      const topFive = await window.ipcRenderer.invoke('get-top5');
-      if (topFive && topFive.length > 0) {
-        setSelectedColleges(topFive);
-      }
-    };
-    getTop5();
-  }, []);
-
   useEffect(() => {
     const changeCategory = async () => {
-      // Send the top 5 colleges when changing category
-      const result = await window.ipcRenderer.invoke('sync-category', category);
-      console.log('Category changed to:', category, 'Result:', result);
-      
-      // When switching to finals, make sure we show the selected colleges
-      if (category === 'Finals' && selectedColleges.length > 0) {
-        await window.ipcRenderer.invoke('show-top5', selectedColleges);
-      }
+      await window.ipcRenderer.invoke('sync-category', category);
     };
     changeCategory();
-  }, [category, selectedColleges]);
+  }, [category]);
 
   useEffect(() => {
     const changeDifficulty = async () => {
@@ -59,14 +41,6 @@ export default function ControlView() {
         x.name === collegeUpdated.name ? collegeUpdated : x
       )
     );
-    
-    // Also update the score in selectedColleges if it exists there
-    setSelectedColleges(
-      selectedColleges.map((x: College) =>
-        x.shorthand === collegeUpdated.shorthand ? { ...x, score: collegeUpdated.score } : x
-      )
-    );
-    
     await window.ipcRenderer.invoke(
       'update-college-score',
       collegeUpdated.shorthand,
@@ -76,7 +50,6 @@ export default function ControlView() {
 
   async function resetScores() {
     setColleges(colleges.map((x: College) => ({ ...x, score: 0 })));
-    setSelectedColleges(selectedColleges.map((x: College) => ({ ...x, score: 0 })));
     await window.ipcRenderer.invoke('reset-scores');
   }
 
@@ -143,7 +116,6 @@ export default function ControlView() {
             onChange={(selected) => {
               setCategory(selected);
             }}
-            initialValue={category}
           />
           <Dropdown
             options={[
@@ -156,7 +128,6 @@ export default function ControlView() {
             onChange={(selected) => {
               setDifficulty(selected);
             }}
-            initialValue={difficulty}
           />
           <button
             className='bg-black p-2 text-white rounded-xl border-4 border-red-900'
@@ -220,26 +191,15 @@ export default function ControlView() {
       </div>
 
       <div className='h-1/10 w-full bg-gray-300 flex flex-row p-4 space-x-[1%]'>
-        <button 
-          className='bg-black p-2 text-white rounded-xl border-4 border-red-900'
-          onClick={async () => {
-            // Send the top 5 colleges to main process
-            await window.ipcRenderer.invoke('show-top5', selectedColleges);
-            
-            // If we're already in Finals mode, immediately refresh to show top 5
-            if (category === 'Finals') {
-              await window.ipcRenderer.invoke('sync-category', 'Finals');
-            }
-            
-            // Also log in the control view console
-            console.log("TOP 5 COLLEGES:");
-            selectedColleges.forEach((college, index) => {
-              console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
-            });
-          }}
-        >
-          Show Leaderboard
-        </button>
+      <button 
+        className='bg-black p-2 text-white rounded-xl border-4 border-red-900 z-10'
+        onClick={async () => {
+          await window.ipcRenderer.invoke('show-leaderboard', selectedColleges);
+          console.log("Show Leaderboard button clicked");
+  }}
+>
+  Show Leaderboard
+</button>
         
         {/* Drag and drop area for selected colleges */}
         <div className='flex flex-row space-x-2 flex-grow'>
@@ -303,14 +263,12 @@ function ScoreButton({
 function Dropdown({
   options,
   onChange,
-  initialValue,
 }: {
   options: string[];
   onChange?: (value: string) => void;
-  initialValue?: string;
 }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selected, setSelected] = useState<string>(initialValue || options[0]);
+  const [selected, setSelected] = useState<string>(options[0]);
 
   const handleSelect = (option: string) => {
     setSelected(option);

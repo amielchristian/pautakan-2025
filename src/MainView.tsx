@@ -8,6 +8,7 @@ function MainView() {
   const [difficulty, setDifficulty] = useState<string>('');
   const [category, setCategory] = useState<string>('');
   const [isFinalsMode, setIsFinalsMode] = useState<boolean>(false);
+  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const radialGridContainerRef = useRef<HTMLDivElement>(null);
 
   const getColleges = async () => {
@@ -129,16 +130,31 @@ function MainView() {
     retrieveCategoryAndDifficulty();
   }, []);
 
+   // Listen for "Show Leaderboard" event
+   useEffect(() => {
+    window.ipcRenderer.on('show-leaderboard', (_, selectedColleges) => {
+      console.log('Leaderboard data received:', selectedColleges);
+      setShowLeaderboard(true); // Show the black box overlay
+    });
+  
+    return () => {
+      window.ipcRenderer.removeAllListeners('show-leaderboard');
+    };
+  }, []);
+
   return (
     <>
       {/* Body - flex row */}
       <div className='overflow-hidden bg-gray-300 flex flex-row h-screen w-screen p-4 space-x-[1%] inset-shadow-custom'>
+           
         {/* Main */}
         <div
           className='sharp-edge-box flex flex-row w-full p-5 space-x-4
           [--border-width:2px] border-[2px]
           [--all:20px]'
         >
+     
+
           {/* Scores */}
           <div
             className='sharp-edge-box p-5
@@ -170,8 +186,55 @@ function MainView() {
                 </h1>
               </div>
             )}
+
           </div>
+        
+        {/* Black Box Overlay - Always Visible */}
+        <div className="fixed inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[1.5px] z-50">
+      
+
+{/* BAR TOP Container */}
+<div className="fixed top-[18%] left-1/2 transform -translate-x-1/2 w-full">
+  {/* BAR TOP Image */}
+  <img
+    src="/images/Top 5/BAR TOP.png"
+    alt="BAR TOP"
+    className="w-full"
+  />
+
+  {/* "TOP 5" Text in the center of the image */}
+  <div className="absolute top-1/2 left-[43%] transform -translate-x-1/2 -translate-y-1/2 flex justify-center">
+    <h1 className="text-9xl font-[Starter] text-white bg-clip-text font-bold bg-red-200 drop-shadow-[0_0_0.1em_white]">
+      TOP 5
+    </h1>
+  </div>
+</div>
+
+
+      {/* Podium Container - In the center, between the bars */}
+
+      <div className="fixed top-[50%] left-[43%] transform -translate-x-1/2 -translate-y-1/2">
+        <div className="flex justify-center space-x-4">
+          <img src="/images/Top 5/Podium/1.png" alt="Podium1" className="podium" />
+          <img src="/images/Top 5/Podium/2.png" alt="Podium2" className="podium" />
+          <img src="/images/Top 5/Podium/3.png" alt="Podium3" className="podium" />
+          <img src="/images/Top 5/Podium/4.png" alt="Podium4" className="podium" />
+          <img src="/images/Top 5/Podium/5.png" alt="Podium5" className="podium" />
         </div>
+      </div>
+
+      {/* BAR BOT - Positioned below the podiums */}
+      <img
+        src="/images/Top 5/BAR BOT.png"
+        alt="BAR BOT"
+        className="absolute top-[70%] left-1/2 transform -translate-x-1/2 w-full"
+      />
+
+</div>
+
+
+        </div>
+        
         <div className='flex flex-col w-3/20 space-y-[5%]'>
           <Sidebar
             difficulty={difficulty}
@@ -180,6 +243,8 @@ function MainView() {
           />
         </div>
       </div>
+     
+      
     </>
   );
 }
@@ -235,6 +300,7 @@ function SettingContainer({ content }: { content: string }) {
   );
 }
 
+// Sidebar
 function Sidebar({
   colleges,
   difficulty,
@@ -266,6 +332,10 @@ function Sidebar({
       <SettingContainer content={difficulty} />
     </>
   );
+
+
+
+
 }
 
 export default MainView;
