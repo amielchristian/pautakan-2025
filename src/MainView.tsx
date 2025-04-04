@@ -7,6 +7,7 @@ function MainView() {
   const [colleges, setColleges] = useState<College[]>([]);
   const [difficulty, setDifficulty] = useState<string>('');
   const [category, setCategory] = useState<string>('');
+  const [isFinalsMode, setIsFinalsMode] = useState<boolean>(false);
   const radialGridContainerRef = useRef<HTMLDivElement>(null);
 
   const getColleges = async () => {
@@ -41,6 +42,7 @@ function MainView() {
     window.ipcRenderer.removeAllListeners('category-synced');
     window.ipcRenderer.removeAllListeners('difficulty-synced');
     window.ipcRenderer.removeAllListeners('top5-colleges');
+    window.ipcRenderer.removeAllListeners('switch-to-finals');
     window.ipcRenderer.removeAllListeners('refresh');
     window.ipcRenderer.removeAllListeners('scores-reset');
 
@@ -48,7 +50,7 @@ function MainView() {
       getColleges().then((updatedColleges) => {
         setColleges(
           updatedColleges.map((updatedCollege: College, i: number) => {
-            return updatedCollege.score !== colleges[i].score
+            return updatedCollege.score !== colleges[i]?.score
               ? updatedCollege
               : colleges[i];
           })
@@ -62,8 +64,23 @@ function MainView() {
       });
     });
     
-    window.ipcRenderer.on('category-synced', (_, category) => {
-      setCategory(category);
+    window.ipcRenderer.on('category-synced', (_, newCategory) => {
+      setCategory(newCategory);
+      if (newCategory === 'Eliminations') {
+        setIsFinalsMode(false);
+        getColleges().then(allColleges => {
+          setColleges(allColleges);
+        });
+      }
+    });
+    
+    window.ipcRenderer.on('switch-to-finals', (_, topFiveColleges) => {
+      setCategory('Finals');
+      setIsFinalsMode(true);
+      setColleges(topFiveColleges);
+
+      // Refresh the view to reflect changes
+      console.log('Switched to Finals mode with top 5 colleges:', topFiveColleges);
     });
     
     window.ipcRenderer.on('difficulty-synced', (_, difficulty) => {
@@ -89,6 +106,7 @@ function MainView() {
       window.ipcRenderer.removeAllListeners('category-synced');
       window.ipcRenderer.removeAllListeners('difficulty-synced');
       window.ipcRenderer.removeAllListeners('top5-colleges');
+      window.ipcRenderer.removeAllListeners('switch-to-finals');
       window.ipcRenderer.removeAllListeners('refresh');
       window.ipcRenderer.removeAllListeners('scores-reset');
     };
@@ -97,12 +115,18 @@ function MainView() {
   // Initial load
   useEffect(() => {
     const retrieveCategoryAndDifficulty = async () => {
-      await window.ipcRenderer.invoke('sync-category');
+      const { category: currentCategory, topFiveColleges } = await window.ipcRenderer.invoke('sync-category');
       await window.ipcRenderer.invoke('sync-difficulty');
+      
+      // If we're already in Finals mode and have top 5 colleges, use those
+      if (currentCategory === 'Finals' && topFiveColleges && topFiveColleges.length > 0) {
+        setIsFinalsMode(true);
+        setColleges(topFiveColleges);
+      } else {
+        getColleges().then((colleges) => setColleges(colleges));
+      }
     };
     retrieveCategoryAndDifficulty();
-
-    getColleges().then((colleges) => setColleges(colleges));
   }, []);
 
   return (
@@ -139,6 +163,13 @@ function MainView() {
             {/* Radial grid container */}
             <div id='radialGridContainer' ref={radialGridContainerRef} className='radial-grid-container'></div>
             <RadarView colleges={colleges}></RadarView>
+            {isFinalsMode && (
+              <div className="absolute top-0 left-0 w-full p-4 text-center">
+                <h1 className="text-6xl font-[Starter] font-bold text-transparent bg-clip-text bg-red-200 drop-shadow-[0_0_0.2em_red]">
+                  FINALS
+                </h1>
+              </div>
+            )}
           </div>
         </div>
         <div className='flex flex-col w-3/20 space-y-[5%]'>
