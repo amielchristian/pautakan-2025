@@ -238,3 +238,33 @@
   height: 100%;
   padding: 2rem; /* Adjust padding to ensure content stays within visible frame area */
 }
+
+.content-container {
+  width: 98%;
+  margin-right: auto;
+  position: relative;
+}
+
+/* Add an explicit red border on the right side */
+.visible-right-border {
+  position: absolute;
+  top: 0;
+  right: -8px;
+  width: 2px;
+  height: 100%;
+  background-color: var(--red);
+  box-shadow: 0 0 5px rgba(183, 38, 25, 0.7);
+  z-index: 5;
+}
+
+/* Adjust sidebar positioning */
+.sidebar-container {
+  margin-right: 10px;
+  position: relative;
+}
+
+/* For the main content and radar view area */
+.main-content {
+  width: calc(100% - 15px);
+  margin-right: 15px;
+}

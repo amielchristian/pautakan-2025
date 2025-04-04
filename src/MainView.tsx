@@ -141,11 +141,11 @@ function MainView() {
       </div>
 
       {/* Body - flex row */}
-      <div className='overflow-hidden bg-gray-300 flex flex-row h-screen w-screen p-10 space-x-[1%] inset-shadow-custom'>
+      <div className='overflow-hidden bg-gray-300 flex flex-row h-screen w-screen p-8 pr-23 space-x-[1%] inset-shadow-custom'>
         {/* Main */}
         <div
-          className='sharp-edge-box flex flex-row w-full p-5 space-x-4
-          [--border-width:2px] border-[2px]
+          className='sharp-edge-box flex flex-row w-[98%] p-5 space-x-4
+          [--border-width:2px] border-[2px] border-r-[4px] border-r-[var(--red)]
           [--all:20px]'
         >
           {/* Scores */}
@@ -162,10 +162,10 @@ function MainView() {
           </div>
           {/* Main */}
           <div
-            className='sharp-edge-box w-full
+            className='sharp-edge-box w-[98%]
             flex flex-col align-center justify-center items-center
             [--all:10px]
-            [--border-width:2px] border-[2px]
+            [--border-width:2px] border-[2px] border-r-[3px]
             [--border-color:var(--red)] border-[var(--red)]
             relative'
           >
@@ -181,7 +181,7 @@ function MainView() {
             )}
           </div>
         </div>
-        <div className='flex flex-col w-3/20 space-y-[5%]'>
+        <div className='flex flex-col w-3/20 space-y-[5%] mr-3'>
           <Sidebar
             difficulty={difficulty}
             category={category}
