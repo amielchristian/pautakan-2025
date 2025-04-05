@@ -1,3 +1,5 @@
+/* Complete radarView.css */
+
 body {
   margin: 0;
   padding: 0;
@@ -15,22 +17,22 @@ body {
   width: 800px;
   height: 800px;
   opacity: 0;
-  animation: fadeIn 1s forwards 1s; /* Start after 1 second of black screen */
+  animation: fadeIn 1s forwards 1s;
 }
 
-/* Base container */
+/* Base container - INCREASED SIZE */
 .radar-base {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 30%;
+  border-radius: 50%; /* Changed from 30% to 50% for full circle */
   background-color: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: visible;
   opacity: 0;
-  animation: fadeIn 1s forwards 2s; /* Start after center vault image */
+  animation: fadeIn 1s forwards 2s;
 }
 
 /* Center vault image wrapper */
@@ -51,27 +53,27 @@ body {
   object-fit: contain;
   z-index: 10;
   opacity: 0;
-  animation: fadeIn 1s forwards 2s; /* Start after black screen */
+  animation: fadeIn 1s forwards 2s;
 }
 
 /* The line segments that fill the clock and center border */
 .line-segment {
   position: absolute;
-  width: 5px; /* Short length of each line segment */
-  height: 2px; /* Height of each line segment */
+  width: 7px; /* Moderately increased for better visibility */
+  height: 2.5px; /* Slightly increased height for better visibility */
   background-color: white;
   top: 50%;
   left: 50%;
   transform-origin: left center;
   opacity: 0;
-  box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.6); /* Enhanced glow but not too strong */
 }
 
-/* Logo container for the logos - 30% bigger */
+/* Logo container for the logos */
 .logo-container {
   position: absolute;
-  width: 91px; /* 70px * 1.3 = 91px (30% bigger) */
-  height: 91px; /* 70px * 1.3 = 91px (30% bigger) */
+  width: 91px;
+  height: 91px;
   transform-origin: center;
   opacity: 0;
   z-index: 8;
@@ -93,7 +95,7 @@ body {
   box-sizing: border-box;
   opacity: 0;
   box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
-  transform: rotate(-90deg); /* Start position at 12 o'clock */
+  transform: rotate(-90deg);
 }
 
 @keyframes circleBorderFill {
@@ -110,7 +112,7 @@ body {
   border-color: white;
   top: 0;
   left: 0;
-  animation: none; /* Will be set to rotate after boot-up */
+  animation: none;
   z-index: 1;
 }
 
@@ -125,8 +127,8 @@ body {
 /* Container for logos - no rotation */
 .logos-container {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: 130%; /* Significantly expanded for the much larger circle */
+  height: 130%; /* Significantly expanded for the much larger circle */
   z-index: 7;
   overflow: visible;
 }
@@ -146,10 +148,10 @@ body {
   top: 50%;
   left: 50%;
   border-radius: 50%;
-  border: 1px solid rgba(160, 32, 240, 0.6);
-  width: 1500px;
-  height: 1500px;
-  animation: radar-ping 6s ease-out;
+  border: 3px solid rgba(160, 32, 240, 0.9); /* Thicker border for better visibility at larger size */
+  width: 2400px; /* Significantly increased for the much larger radius */
+  height: 2400px; /* Significantly increased for the much larger radius */
+  animation: radar-ping 4s ease-out;
   z-index: 5;
   opacity: 0;
 }
@@ -159,11 +161,14 @@ body {
     transform: translate(-50%, -50%) scale(0);
     opacity: 1;
   }
-  30% {
-    opacity: 0.8;
+  20% {
+    opacity: 0.9; /* Peak visibility early */
+  }
+  60% {
+    opacity: 0.2; /* Faster fade */
   }
   100% {
-    transform: translate(-50%, -50%) scale(1); /* Adjust the scale factor as needed */
+    transform: translate(-50%, -50%) scale(1);
     opacity: 0;
   }
 }
@@ -175,4 +180,85 @@ body {
   100% {
     opacity: 1;
   }
+}
+
+/* Finals mode specific styles */
+.finals-mode-banner {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  z-index: 100;
+}
+
+.finals-mode-banner h1 {
+  font-family: 'Starter', sans-serif;
+  font-size: 4rem;
+  font-weight: bold;
+  color: transparent;
+  background-clip: text;
+  background-image: linear-gradient(to right, #ff3019 0%, #e2b04a 100%);
+  text-shadow: 0 0 15px rgba(255, 48, 25, 0.7);
+  animation: pulse 2s infinite;
+}
+
+/* Enlarge logo containers in finals mode */
+.finals-mode .logo-container {
+  width: 115px;
+  height: 115px;
+  transition: all 0.5s ease-in-out;
+}
+
+/* Additional style for rank labels */
+.rank-label {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  background-color: #b72619;
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 16px;
+  font-family: 'Starter', sans-serif;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+  animation: fadeIn 1s forwards 0.5s;
+  opacity: 0;
+}
+
+/* Pulse animation for Finals banner */
+@keyframes pulse {
+  0% {
+    text-shadow: 0 0 10px rgba(255, 48, 25, 0.7);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(255, 48, 25, 0.9), 0 0 30px rgba(255, 48, 25, 0.5);
+  }
+  100% {
+    text-shadow: 0 0 10px rgba(255, 48, 25, 0.7);
+  }
+}
+
+/* Position adjustments for top 5 mode to spread logos more evenly */
+.finals-mode.radar-base {
+  overflow: visible;
+}
+
+/* Trophy icon for 1st place */
+.rank-label.first-place {
+  background-color: gold;
+  color: #222;
+}
+
+/* Scale animation for logo hover */
+.logo-container:hover {
+  transform-origin: center;
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+  z-index: 11;
 }

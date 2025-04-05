@@ -1,7 +1,5 @@
 import { useEffect, useRef } from 'react';
 import './radarView.css';
-// Add finals mode specific styles
-import './finalsMode.css';
 import { College } from '../types';
 import React, { useState } from 'react';
 
@@ -28,10 +26,12 @@ function RadarView({ colleges }: { colleges: College[] }) {
     let pingId = 0;
 
     function createPingSequence() {
+      // Original pattern: Three quick pulses followed by a pause
       setPings((p) => [...p, pingId++]);
       setTimeout(() => setPings((p) => [...p, pingId++]), 300);
       setTimeout(() => setPings((p) => [...p, pingId++]), 600);
 
+      // Then wait before the next sequence
       setTimeout(createPingSequence, 8000);
     }
 
@@ -43,9 +43,11 @@ function RadarView({ colleges }: { colleges: College[] }) {
   }, [booted]);
 
   const isFinalsMode = colleges.length <= 5;
-  const radius = 290;
+  // DRAMATICALLY increased radius for a much bigger circle
+  const radius = 530; // Significantly increased for a much larger circle
   const parentSize = 90;
-  const numSegments = 220;
+  // Increased number of segments for more dense lines on the larger circle
+  const numSegments = 320; // More segments for the larger circle
 
   return (
     <div className='radar-container'>
@@ -109,7 +111,7 @@ function RadarView({ colleges }: { colleges: College[] }) {
           <div id='centerBorderContainer' className='center-border-container' />
         </div>
 
-        {/* Rotating segments */}
+        {/* Rotating segments - increased length for bigger circle */}
         <div
           id='rotatingContainer'
           className='rotating-container'
