@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import './radarView.css';
+import './finalsMode.css';
 import { College } from '../types';
 import React, { useState } from 'react';
 
@@ -9,6 +10,22 @@ function RadarView({ colleges }: { colleges: College[] }) {
   const [booted, setBooted] = useState(false);
   // Keep track of individual college radius adjustments
   const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<Record<string, number>>({});
+  // Keep track of previous scores to determine if score is increasing or decreasing
+  const [prevScores, setPrevScores] = useState<Record<string, number>>({});
+  
+  // Sort colleges by score to determine rankings (top 5)
+  const rankedColleges = useMemo(() => {
+    return [...colleges].sort((a, b) => b.score - a.score);
+  }, [colleges]);
+
+  // Get just the top 5 colleges
+  const topFiveColleges = useMemo(() => {
+    return rankedColleges.slice(0, 5).filter(college => college.score > 0);
+  }, [rankedColleges]);
+  
+  // Track previous rankings to detect changes
+  const [prevRankings, setPrevRankings] = useState<Record<string, number>>({});
+  const [rankChangeEffects, setRankChangeEffects] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const totalBootupTime = 10 * 1000;
@@ -21,26 +38,106 @@ function RadarView({ colleges }: { colleges: College[] }) {
     return () => clearTimeout(bootupTimer);
   }, []);
 
+  // Update previous rankings and detect changes - for ALL modes
+  useEffect(() => {
+    if (colleges.length > 0) {
+      const newRankings: Record<string, number> = {};
+      const newEffects: Record<string, boolean> = {};
+      
+      // Assign rankings to top 5 colleges
+      rankedColleges.slice(0, 5).forEach((college, index) => {
+        // Only consider colleges with scores > 0 for rankings
+        if (college.score <= 0) return;
+        
+        const newRank = index + 1;
+        const prevRank = prevRankings[college.shorthand] || 0;
+        
+        // Store the new rank
+        newRankings[college.shorthand] = newRank;
+        
+        // If this isn't first render and rank changed, trigger effect
+        if (prevRank !== 0 && prevRank !== newRank) {
+          console.log(`Rank changed for ${college.shorthand}: ${prevRank} -> ${newRank}`);
+          newEffects[college.shorthand] = true;
+          
+          // Clear the effect after animation completes
+          setTimeout(() => {
+            setRankChangeEffects(prev => ({
+              ...prev,
+              [college.shorthand]: false
+            }));
+          }, 2000);
+        }
+      });
+      
+      setPrevRankings(newRankings);
+      
+      // Only set effects if there are any
+      if (Object.keys(newEffects).length > 0) {
+        setRankChangeEffects(newEffects);
+      }
+    }
+  }, [rankedColleges, colleges]);
+
+  // Store prev scores on initial load
+  useEffect(() => {
+    const initialScores: Record<string, number> = {};
+    colleges.forEach(college => {
+      initialScores[college.shorthand] = college.score;
+    });
+    setPrevScores(initialScores);
+  }, []);
+
   // Add a listener for college-specific radius updates
   useEffect(() => {
     // Set up event listener for when a college's score is updated
     window.ipcRenderer.on('score-updated', (_, shorthand, newScore) => {
+      // Get previous score to determine if we're increasing or decreasing
+      const oldScore = prevScores[shorthand] || 0;
+      
       setCollegeRadiusAdjustments(prev => {
         const currentFactor = prev[shorthand] || 1.0;
-        // Reduce by 5% each time (multiply by 0.95)
-        // Allow movement all the way to the center (minimum 0.05 or 5% of original radius)
-        const newFactor = Math.max(currentFactor * 0.95, 0.05);
-        console.log(`College ${shorthand} radius adjustment: ${currentFactor} -> ${newFactor}`);
+        
+        // If score is increasing, move toward center (reduce radius)
+        // If score is decreasing, move away from center (increase radius)
+        let newFactor;
+        
+        if (newScore > oldScore) {
+          // Score increasing - move toward center
+          newFactor = Math.max(currentFactor * 0.95, 0.05);
+          console.log(`College ${shorthand} moving inward: ${currentFactor} -> ${newFactor}`);
+        } else {
+          // Score decreasing - move away from center
+          // Cap at 1.0 to prevent going beyond original position
+          newFactor = Math.min(currentFactor * 1.05, 1.0);
+          console.log(`College ${shorthand} moving outward: ${currentFactor} -> ${newFactor}`);
+        }
+        
         return {
           ...prev,
           [shorthand]: newFactor
         };
       });
+      
+      // Update the previous score for next comparison
+      setPrevScores(prev => ({
+        ...prev,
+        [shorthand]: newScore
+      }));
+      
+      // Log rank changes
+      console.log(`Score updated for ${shorthand}: ${oldScore} -> ${newScore}`);
     });
 
     // Reset all adjustments when scores are reset
     window.ipcRenderer.on('scores-reset', () => {
       setCollegeRadiusAdjustments({});
+      // Reset previous scores too
+      const resetScores: Record<string, number> = {};
+      colleges.forEach(college => {
+        resetScores[college.shorthand] = 0;
+      });
+      setPrevScores(resetScores);
       console.log("All college positions reset");
     });
 
@@ -49,7 +146,7 @@ function RadarView({ colleges }: { colleges: College[] }) {
       window.ipcRenderer.removeAllListeners('score-updated');
       window.ipcRenderer.removeAllListeners('scores-reset');
     };
-  }, []);
+  }, [prevScores, colleges]);
 
   // Ping sequence using React state
   useEffect(() => {
@@ -120,10 +217,14 @@ function RadarView({ colleges }: { colleges: College[] }) {
               const logosPauseDelay = 2;
               const logosStartTime = 3.5 + logosPauseDelay;
 
+              // Get the rank of this college if it's in the top 5 (1-indexed)
+              const collegeRank = topFiveColleges.findIndex(c => c.shorthand === college.shorthand) + 1;
+              const isInTopFive = collegeRank > 0 && collegeRank <= 5;
+
               return (
                 <div
                   key={i}
-                  className='logo-container'
+                  className={`logo-container ${isInTopFive ? 'top-five' : ''}`}
                   style={{
                     position: 'absolute',
                     left: '50%',
@@ -136,7 +237,36 @@ function RadarView({ colleges }: { colleges: College[] }) {
                   }}
                 >
                   <img src={college.imagePath} alt={`Logo ${i + 1}`} />
-                  {/* Removed the violet underline indicator */}
+                  
+                  {/* Add rank indicator for top 5 colleges in all modes */}
+                  {isInTopFive && (
+                    <div 
+                      className={`rank-indicator ${rankChangeEffects[college.shorthand] ? 'rank-changed' : ''}`}
+                      style={{
+                        position: 'absolute',
+                        top: '-20px',
+                        right: '-20px',
+                        width: '40px',
+                        height: '40px',
+                        opacity: 1,
+                        animation: rankChangeEffects[college.shorthand] 
+                          ? 'rankChangeEffect 2s ease-in-out'
+                          : `fadeIn 0.8s forwards ${logosStartTime + i * 0.2 + 0.5}s`,
+                        zIndex: 12
+                      }}
+                    >
+                      <img 
+                        src={`./images/ingameRanks/${collegeRank}.png`} 
+                        alt={`Rank ${collegeRank}`} 
+                        style={{ 
+                          width: '100%', 
+                          height: '100%',
+                          filter: rankChangeEffects[college.shorthand] ? 'brightness(1.5) drop-shadow(0 0 10px gold)' : 'none',
+                          transition: 'filter 0.3s ease-in-out'
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               );
             })}
