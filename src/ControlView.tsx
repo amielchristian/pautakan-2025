@@ -52,7 +52,7 @@ export default function ControlView() {
 
   // Update colleges on change
   // ...then sync to DB
-  async function updateScore(college: College, offset: number) {
+  async function updateScore(college: College, offset: number, adjustRadius: boolean = false) {
     const collegeUpdated = { ...college, score: college.score + offset };
     setColleges(
       colleges.map((x: College) =>
@@ -67,10 +67,12 @@ export default function ControlView() {
       )
     );
     
+    // Send adjustRadius parameter to main process
     await window.ipcRenderer.invoke(
       'update-college-score',
       collegeUpdated.shorthand,
-      collegeUpdated.score
+      collegeUpdated.score,
+      adjustRadius
     );
   }
 
@@ -271,7 +273,7 @@ function ScoreButton({
   college: College;
   add: boolean;
   difficulty: string;
-  updateScore: (college: College, offset: number) => void;
+  updateScore: (college: College, offset: number, adjustRadius?: boolean) => void;
 }) {
   const changeScore = () => {
     const offset: number =
@@ -283,11 +285,17 @@ function ScoreButton({
             return 10;
           case 'Difficult':
             return 15;
+          case 'Clincher':
+            return 20;
+          case 'Sudden Death':
+            return 25;
           default:
             return 1;
         }
       })() * (add ? 1 : -1);
-    updateScore(college, offset);
+    
+    // Only adjust radius when adding points, not when subtracting
+    updateScore(college, offset, add);
   };
 
   const styles = `p-2 ${
