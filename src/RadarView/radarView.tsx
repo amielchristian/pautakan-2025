@@ -7,6 +7,8 @@ function RadarView({ colleges }: { colleges: College[] }) {
   const radarBaseRef = useRef<HTMLDivElement>(null);
   const [pings, setPings] = useState<number[]>([]);
   const [booted, setBooted] = useState(false);
+  // Keep track of individual college radius adjustments
+  const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const totalBootupTime = 10 * 1000;
@@ -17,6 +19,36 @@ function RadarView({ colleges }: { colleges: College[] }) {
     }, totalBootupTime + 200);
 
     return () => clearTimeout(bootupTimer);
+  }, []);
+
+  // Add a listener for college-specific radius updates
+  useEffect(() => {
+    // Set up event listener for when a college's score is updated
+    window.ipcRenderer.on('score-updated', (_, shorthand, newScore) => {
+      setCollegeRadiusAdjustments(prev => {
+        const currentFactor = prev[shorthand] || 1.0;
+        // Reduce by 5% each time (multiply by 0.95)
+        // Allow movement all the way to the center (minimum 0.05 or 5% of original radius)
+        const newFactor = Math.max(currentFactor * 0.95, 0.05);
+        console.log(`College ${shorthand} radius adjustment: ${currentFactor} -> ${newFactor}`);
+        return {
+          ...prev,
+          [shorthand]: newFactor
+        };
+      });
+    });
+
+    // Reset all adjustments when scores are reset
+    window.ipcRenderer.on('scores-reset', () => {
+      setCollegeRadiusAdjustments({});
+      console.log("All college positions reset");
+    });
+
+    // Cleanup
+    return () => {
+      window.ipcRenderer.removeAllListeners('score-updated');
+      window.ipcRenderer.removeAllListeners('scores-reset');
+    };
   }, []);
 
   // Ping sequence using React state
@@ -43,11 +75,11 @@ function RadarView({ colleges }: { colleges: College[] }) {
   }, [booted]);
 
   const isFinalsMode = colleges.length <= 5;
-  // DRAMATICALLY increased radius for a much bigger circle
-  const radius = 530; // Significantly increased for a much larger circle
+  // Base radius value 
+  const baseRadius = 530;
   const parentSize = 90;
-  // Increased number of segments for more dense lines on the larger circle
-  const numSegments = 320; // More segments for the larger circle
+  // Number of segments
+  const numSegments = 320;
 
   return (
     <div className='radar-container'>
@@ -61,7 +93,10 @@ function RadarView({ colleges }: { colleges: College[] }) {
           <div
             key={id}
             className='radar-ping'
-            style={{ animation: 'radar-ping 6s ease-out' }}
+            style={{ 
+              animation: 'radar-ping 4s ease-out',
+              border: '3px solid rgba(160, 32, 240, 0.9)' // Ensure this is set inline
+            }}
             onAnimationEnd={() =>
               setPings((p) => p.filter((pingId) => pingId !== id))
             }
@@ -74,7 +109,12 @@ function RadarView({ colleges }: { colleges: College[] }) {
             {colleges.map((college, i) => {
               const angle = (i * 360) / colleges.length;
               const angleRad = (angle * Math.PI) / 180;
-              const radiusPercentage = (radius / parentSize) * 100;
+              
+              // Apply individual adjustment factor for this specific college
+              const adjustmentFactor = collegeRadiusAdjustments[college.shorthand] || 1.0;
+              const adjustedRadius = baseRadius * adjustmentFactor;
+              
+              const radiusPercentage = (adjustedRadius / parentSize) * 100;
               const logoX = radiusPercentage * Math.cos(angleRad);
               const logoY = radiusPercentage * Math.sin(angleRad);
               const logosPauseDelay = 2;
@@ -92,9 +132,11 @@ function RadarView({ colleges }: { colleges: College[] }) {
                     animation: `fadeIn 0.8s forwards ${
                       logosStartTime + i * 0.2
                     }s`,
+                    transition: 'transform 0.5s ease-out' // Smooth transition when radius changes
                   }}
                 >
                   <img src={college.imagePath} alt={`Logo ${i + 1}`} />
+                  {/* Removed the violet underline indicator */}
                 </div>
               );
             })}
@@ -111,7 +153,7 @@ function RadarView({ colleges }: { colleges: College[] }) {
           <div id='centerBorderContainer' className='center-border-container' />
         </div>
 
-        {/* Rotating segments - increased length for bigger circle */}
+        {/* Rotating segments - fixed radius for lines */}
         <div
           id='rotatingContainer'
           className='rotating-container'
@@ -126,7 +168,7 @@ function RadarView({ colleges }: { colleges: College[] }) {
                 key={i}
                 className='line-segment'
                 style={{
-                  transform: `rotate(${angle}deg) translateX(${radius}px) rotate(90deg)`,
+                  transform: `rotate(${angle}deg) translateX(${baseRadius}px) rotate(90deg)`,
                   animation: `fadeIn 0.3s forwards ${delay}s`,
                 }}
               />

@@ -3,6 +3,8 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { College } from '../src/types';
 
+let radarShrinkFactor = 1.0; // Start at 100% size
+
 // In ES modules, __dirname is not available directly, so we create it
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -175,16 +177,23 @@ function initializeIPC() {
     return colleges;
   });
 
-  ipcMain.handle('update-college-score', (_, shorthand, newScore) => {
+  ipcMain.handle('update-college-score', (_, shorthand, newScore, adjustRadius = false) => {
     try {
+      // Find the college in the array
+      let updatedCollege = null;
+      
       // Update score in colleges array
       for (let i = 0; i < colleges.length; i++) {
         if (colleges[i].shorthand === shorthand) {
+          // Store old score to check if it's increasing
+          const oldScore = colleges[i].score;
+          // Update the score
           colleges[i].score = newScore;
+          updatedCollege = colleges[i];
           break;
         }
       }
-
+  
       // Update score in topFiveColleges if it exists there
       for (let i = 0; i < topFiveColleges.length; i++) {
         if (topFiveColleges[i].shorthand === shorthand) {
@@ -192,13 +201,14 @@ function initializeIPC() {
           break;
         }
       }
-
+  
       // Notify all windows about the update
+      // The adjustRadius flag is no longer needed here - RadarView will handle it
       BrowserWindow.getAllWindows().forEach((window) => {
         window.webContents.send('score-updated', shorthand, newScore);
         window.webContents.send('db-updated');
       });
-
+  
       return { success: true };
     } catch (err) {
       console.error(`Error updating score for ${shorthand}:`, err);
