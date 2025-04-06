@@ -79,6 +79,7 @@
   width: 3000px; /* Much longer lines to ensure they extend beyond screen */
   height: 0;
   border-top: 1px solid #ffffff; /* Pure white color */
+  border-style: dashed;
   transform-origin: 0 0; /* Origin at start of line */
   z-index: -2; /* Ensure lines are behind everything */
   box-shadow: 0 0 3px rgba(255, 255, 255, 0.3); /* Enhanced glow */

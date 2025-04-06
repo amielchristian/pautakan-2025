@@ -8,6 +8,7 @@ function RadarView({ colleges }: { colleges: College[] }) {
   const radarBaseRef = useRef<HTMLDivElement>(null);
   const [pings, setPings] = useState<number[]>([]);
   const [booted, setBooted] = useState(false);
+  const circleRefs = useRef<(HTMLDivElement | null)[]>([]);
   // Keep track of individual college radius adjustments
   const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<Record<string, number>>({});
   // Keep track of previous scores to determine if score is increasing or decreasing
@@ -177,6 +178,8 @@ function RadarView({ colleges }: { colleges: College[] }) {
   const parentSize = 90;
   // Number of segments
   const numSegments = 320;
+  
+  // circleRefs.current[6].style.opacity = '0.6'; SAMPLE OF HOW TO SET A RED CIRCLE VISIBLE MANUALLY
 
   return (
     <div className='radar-container'>
@@ -185,6 +188,40 @@ function RadarView({ colleges }: { colleges: College[] }) {
         ref={radarBaseRef}
         className={`radar-base ${isFinalsMode ? 'finals-mode' : ''}`}
       >
+      {Array.from({ length: 12 }).map((_, i) => {
+        const minSize = 180;
+        const gap = 75;
+        const size = minSize + i * gap;
+        let startTime = 7;
+        const customDelays: string[] = []
+        for (let i = 0; i < 12; i++) { 
+          const toString = startTime + 's'
+          customDelays.push(toString);
+          startTime += 0.1;
+        }
+        return (
+          <div
+            key={`red-circle-${i}`}
+            ref={(el) => circleRefs.current[i] = el}
+            className="red-circle"
+            style={{
+              width: `${size}px`,
+              height: `${size}px`,
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              border: '2px solid red', // Set initial border width
+              borderRadius: '50%',
+              transform: `translate(-50%, -50%)`,
+              zIndex: 5,
+              opacity: 0, // Initial opacity, will animate with the `pulseBorder` animation
+              animation: 'pulseBorder 1s ease-in-out', // Apply the pulse animation to border-width
+              animationDelay: customDelays[i], // Use custom delays from the array
+            }}
+          />
+        );
+      })}
+
         {/* Radar Pings */}
         {pings.map((id) => (
           <div
@@ -215,7 +252,7 @@ function RadarView({ colleges }: { colleges: College[] }) {
               const logoX = radiusPercentage * Math.cos(angleRad);
               const logoY = radiusPercentage * Math.sin(angleRad);
               const logosPauseDelay = 2;
-              const logosStartTime = 3.5 + logosPauseDelay;
+              const logosStartTime = 1 + logosPauseDelay;
 
               // Get the rank of this college if it's in the top 5 (1-indexed)
               const collegeRank = topFiveColleges.findIndex(c => c.shorthand === college.shorthand) + 1;

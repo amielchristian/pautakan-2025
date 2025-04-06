@@ -342,3 +342,17 @@ body {
 .rank-changed {
   animation: rankChangeEffect 2s ease-in-out;
 }
+
+@keyframes pulseBorder {
+  0% {
+    opacity: 0;
+  } 
+  50% { 
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+
