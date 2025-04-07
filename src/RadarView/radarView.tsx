@@ -281,8 +281,8 @@ function RadarView({ colleges }: { colleges: College[] }) {
                       className={`rank-indicator ${rankChangeEffects[college.shorthand] ? 'rank-changed' : ''}`}
                       style={{
                         position: 'absolute',
-                        top: '-20px',
-                        right: '-20px',
+                        top: '0px',
+                        right: '10px',
                         width: '40px',
                         height: '40px',
                         opacity: 1,
