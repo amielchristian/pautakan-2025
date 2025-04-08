@@ -282,7 +282,7 @@ function RadarView({ colleges }: { colleges: College[] }) {
                       style={{
                         position: 'absolute',
                         top: '0px',
-                        right: '10px',
+                        right: '1px',
                         width: '40px',
                         height: '40px',
                         opacity: 1,
