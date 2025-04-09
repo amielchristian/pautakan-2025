@@ -13,6 +13,8 @@ function RadarView({ colleges }: { colleges: College[] }) {
   const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<Record<string, number>>({});
   // Keep track of previous scores to determine if score is increasing or decreasing
   const [prevScores, setPrevScores] = useState<Record<string, number>>({});
+  // NEW: Track which colleges should show red logos
+  const [redLogoColleges, setRedLogoColleges] = useState<Record<string, boolean>>({});
   
   // Sort colleges by score to determine rankings (top 5)
   const rankedColleges = useMemo(() => {
@@ -126,6 +128,20 @@ function RadarView({ colleges }: { colleges: College[] }) {
         [shorthand]: newScore
       }));
       
+      // NEW: Set the red logo flag for this college
+      setRedLogoColleges(prev => ({
+        ...prev,
+        [shorthand]: true
+      }));
+      
+      // NEW: Set a timeout to revert back to the original logo after 2 seconds
+      setTimeout(() => {
+        setRedLogoColleges(prev => ({
+          ...prev,
+          [shorthand]: false
+        }));
+      }, 2000);
+      
       // Log rank changes
       console.log(`Score updated for ${shorthand}: ${oldScore} -> ${newScore}`);
     });
@@ -139,6 +155,8 @@ function RadarView({ colleges }: { colleges: College[] }) {
         resetScores[college.shorthand] = 0;
       });
       setPrevScores(resetScores);
+      // NEW: Clear all red logo flags
+      setRedLogoColleges({});
       console.log("All college positions reset");
     });
 
@@ -257,6 +275,14 @@ function RadarView({ colleges }: { colleges: College[] }) {
               // Get the rank of this college if it's in the top 5 (1-indexed)
               const collegeRank = topFiveColleges.findIndex(c => c.shorthand === college.shorthand) + 1;
               const isInTopFive = collegeRank > 0 && collegeRank <= 5;
+              
+              // NEW: Determine if this college should use the red logo
+              const useRedLogo = redLogoColleges[college.shorthand] || false;
+              
+              // NEW: Modify the image path to use the red version if needed
+              const imagePath = useRedLogo 
+                ? college.imagePath.replace('.png', '-RED.png') 
+                : college.imagePath;
 
               return (
                 <div
@@ -273,7 +299,13 @@ function RadarView({ colleges }: { colleges: College[] }) {
                     transition: 'transform 0.5s ease-out' // Smooth transition when radius changes
                   }}
                 >
-                  <img src={college.imagePath} alt={`Logo ${i + 1}`} />
+                  <img 
+                    src={imagePath} 
+                    alt={`Logo ${i + 1}`} 
+                    style={{
+                      transition: 'all 0.3s ease' // Smooth transition for image changes
+                    }}
+                  />
                   
                   {/* Add rank indicator for top 5 colleges in all modes */}
                   {isInTopFive && (
@@ -282,7 +314,7 @@ function RadarView({ colleges }: { colleges: College[] }) {
                       style={{
                         position: 'absolute',
                         top: '0px',
-                        right: '1px',
+                        right: '10px',
                         width: '40px',
                         height: '40px',
                         opacity: 1,
