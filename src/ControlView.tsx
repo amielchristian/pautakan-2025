@@ -144,7 +144,11 @@ export default function ControlView() {
               .sort((a, b) => b.score - a.score)
               .slice(0, 5)
               .filter(college => college.score > 0);
-
+             // Check if there are fewer than 5 colleges with scores
+              if (topFiveColleges.length < 5) {
+                alert("There are fewer than 5 colleges with scores. Please ensure at least 5 colleges have scores before showing the leaderboard.");
+                return; // Stop execution if the condition is not met
+              }
             // Send the top 5 colleges to main process
             await window.ipcRenderer.invoke('show-top5', topFiveColleges);
             
