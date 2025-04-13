@@ -6,7 +6,6 @@ export default function ControlView() {
   const [colleges, setColleges] = useState<College[]>([]);
   const [difficulty, setDifficulty] = useState('Easy');
   const [category, setCategory] = useState('Eliminations');
-  const [selectedColleges, setSelectedColleges] = useState<College[]>([]);
 
   // Load colleges
   useEffect(() => {
@@ -17,30 +16,13 @@ export default function ControlView() {
     getColleges();
   }, []);
 
-  // Check for existing top 5 on load
-  useEffect(() => {
-    const getTop5 = async () => {
-      const topFive = await window.ipcRenderer.invoke('get-top5');
-      if (topFive && topFive.length > 0) {
-        setSelectedColleges(topFive);
-      }
-    };
-    getTop5();
-  }, []);
-
   useEffect(() => {
     const changeCategory = async () => {
-      // Send the top 5 colleges when changing category
       const result = await window.ipcRenderer.invoke('sync-category', category);
       console.log('Category changed to:', category, 'Result:', result);
-      
-      // When switching to finals, make sure we show the selected colleges
-      if (category === 'Finals' && selectedColleges.length > 0) {
-        await window.ipcRenderer.invoke('show-top5', selectedColleges);
-      }
     };
     changeCategory();
-  }, [category, selectedColleges]);
+  }, [category]);
 
   useEffect(() => {
     const changeDifficulty = async () => {
@@ -60,14 +42,6 @@ export default function ControlView() {
       )
     );
     
-    // Also update the score in selectedColleges if it exists there
-    setSelectedColleges(
-      selectedColleges.map((x: College) =>
-        x.shorthand === collegeUpdated.shorthand ? { ...x, score: collegeUpdated.score } : x
-      )
-    );
-    
-    // Send adjustRadius parameter to main process
     await window.ipcRenderer.invoke(
       'update-college-score',
       collegeUpdated.shorthand,
@@ -78,63 +52,12 @@ export default function ControlView() {
 
   async function resetScores() {
     setColleges(colleges.map((x: College) => ({ ...x, score: 0 })));
-    setSelectedColleges(selectedColleges.map((x: College) => ({ ...x, score: 0 })));
     await window.ipcRenderer.invoke('reset-scores');
   }
 
   async function refresh() {
     await window.ipcRenderer.invoke('refresh');
   }
-
-  // Handle college selection (max 5)
-  const handleCollegeSelect = (college: College) => {
-    setSelectedColleges(current => {
-      // If already selected, remove it
-      if (current.some(c => c.id === college.id)) {
-        return current.filter(c => c.id !== college.id);
-      }
-      
-      // If 5 already selected, don't add more
-      if (current.length >= 5) {
-        return current;
-      }
-      
-      // Otherwise add it
-      return [...current, college];
-    });
-    
-    // Log the selection
-    console.log(`College selected: ${college.shorthand}`);
-  };
-
-  // Handle drag start
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
-    e.dataTransfer.setData('collegeIndex', index.toString());
-  };
-
-  // Handle drag over
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
-
-  // Handle drop to reorder colleges
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>, dropIndex: number) => {
-    e.preventDefault();
-    const dragIndex = parseInt(e.dataTransfer.getData('collegeIndex'));
-    
-    if (dragIndex === dropIndex) return;
-    
-    const reorderedColleges = [...selectedColleges];
-    const draggedCollege = reorderedColleges[dragIndex];
-    
-    // Remove dragged college
-    reorderedColleges.splice(dragIndex, 1);
-    
-    // Insert at new position
-    reorderedColleges.splice(dropIndex, 0, draggedCollege);
-    
-    setSelectedColleges(reorderedColleges);
-  };
 
   return (
     <div className='grid-pattern bg-[image:var(--grid-pattern)] w-screen h-screen justify-center items-center flex flex-col'>
@@ -161,19 +84,17 @@ export default function ControlView() {
             initialValue={difficulty}
           />
           <button
-            className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
+            className='bg-black p-2 text-white rounded-xl border-4 border-red-900'
             onClick={resetScores}
           >
             Reset Scores
           </button>
           <button
-            className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
+            className='bg-black p-2 text-white rounded-xl border-4 border-red-900'
             onClick={refresh}
           >
             Refresh
           </button>
-
-
         </div>
         <div className='bg-gray-300 h-1/4 sharp-edge-box [--bottom-left:2.5px] [--bottom-right:2.5px]'></div>
       </div>
@@ -184,7 +105,6 @@ export default function ControlView() {
             <tr>
               <th>Rank</th>
               <th>College</th>
-              <th>Select</th>
               <th colSpan={2}>Score</th>
             </tr>
           </thead>
@@ -193,17 +113,8 @@ export default function ControlView() {
               <tr key={college.id}>
                 <td>{index + 1}</td>
                 <td>{college.name}</td>
-                <td>
-                  <input 
-                    type="checkbox"
-                    checked={selectedColleges.some(c => c.id === college.id)}
-                    onChange={() => handleCollegeSelect(college)}
-                    disabled={selectedColleges.length >= 5 && !selectedColleges.some(c => c.id === college.id)}
-                  />
-                </td>
                 <td>{college.score}</td>
                 <td>
-                 
                   <ScoreButton
                     college={college}
                     add={false}
@@ -224,43 +135,50 @@ export default function ControlView() {
         </table>
       </div>
 
-      <div 
-      className='h-1/10 w-full bg-gray-300 flex flex-row p-4 space-x-[1%]'
-      style={{ position: 'relative', zIndex: 10 }}>
+      <div className='h-1/10 w-full bg-gray-300 flex flex-row p-4 space-x-[1%]'>
+        <button 
+          className='bg-black p-2 text-white rounded-xl border-4 border-red-900'
+          onClick={async () => {
+            // Get the top 5 colleges based on score
+            const topFiveColleges = [...colleges]
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 5)
+              .filter(college => college.score > 0);
 
-      <button 
-      className='bg-black p-2 text-white rounded-xl border-4 border-red-900 z-10 cursor-pointer'
-      onClick={async () => {
-      try {
-        if (selectedColleges.length < 5) {
-          alert("Please select 5 colleges before showing the leaderboard.");
-          return;
-        }
-        await window.ipcRenderer.invoke('show-top5', selectedColleges);
-        console.log("TOP 5 COLLEGES:", selectedColleges);
-      } catch (error) {
-        console.error("Error invoking show-top5:", error);
-      }
-    }}
-    >
-      Show Leaderboard
-    </button>
-
-        {/* Drag and drop area for selected colleges */}
+            // Send the top 5 colleges to main process
+            await window.ipcRenderer.invoke('show-top5', topFiveColleges);
+            
+            // If we're already in Finals mode, immediately refresh to show top 5
+            if (category === 'Finals') {
+              await window.ipcRenderer.invoke('sync-category', 'Finals');
+            }
+            
+            // Also log in the control view console
+            console.log("TOP 5 COLLEGES:");
+            topFiveColleges.forEach((college, index) => {
+              console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
+            });
+          }}
+        >
+          Show Leaderboard
+        </button>
+        
+        {/* Display of top 5 colleges based on scores */}
         <div className='flex flex-row space-x-2 flex-grow'>
-          {selectedColleges.map((college, index) => (
-            <div
-              key={college.id}
-              draggable
-              onDragStart={(e) => handleDragStart(e, index)}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, index)}
-              className='p-2 bg-black text-white rounded border-2 border-red-900 cursor-move flex flex-col items-center'
-            >
-              <div>{index + 1}</div>
-              <div>{college.shorthand}</div>
-            </div>
-          ))}
+          {[...colleges]
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 5)
+            .filter(college => college.score > 0)
+            .map((college, index) => (
+              <div
+                key={college.id}
+                className='p-2 bg-black text-white rounded border-2 border-red-900 flex flex-col items-center'
+              >
+                <div>{index + 1}</div>
+                <div>{college.shorthand}</div>
+              </div>
+            ))
+          }
         </div>
       </div>
     </div>
@@ -302,7 +220,7 @@ function ScoreButton({
   };
 
   const styles = `p-2 ${
-    add ? 'bg-green-500 hover:bg-green-700 cursor-pointer' : 'bg-red-500 hover:bg-red-700 cursor-pointer'
+    add ? 'bg-green-500 hover:bg-green-700' : 'bg-red-500 hover:bg-red-700'
   }`;
   return (
     <button className={styles} onClick={changeScore}>
@@ -334,7 +252,7 @@ function Dropdown({
       {/* Dropdown button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className='w-full p-2 bg-white border rounded flex justify-between items-center cursor-pointer'
+        className='w-full p-2 bg-white border rounded flex justify-between items-center'
       >
         <span>{selected}</span>
       </button>
