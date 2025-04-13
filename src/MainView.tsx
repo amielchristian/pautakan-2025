@@ -53,7 +53,12 @@ function MainView() {
         const radialLine = document.createElement('div');
         radialLine.className = 'radial-line';
         const angle = i * (360 / collegeCount);
-        radialLine.style.transform = `rotate(${angle}deg)`;
+        if (collegeCount === 5) {
+          radialLine.style.transform = `rotate(${angle+54}deg)`;
+        }else{
+          radialLine.style.transform = `rotate(${angle}deg)`;
+        }
+        radialLine.style.transition = 
         radialLine.style.animationDelay = `${2 + i * 0.1}s`; // Staggered fade-in effect
         radialGridContainerRef.current.appendChild(radialLine);
       }
@@ -242,9 +247,9 @@ function MainView() {
             <RadarView colleges={colleges}></RadarView>
             {isFinalsMode && (
               <div className='absolute top-0 left-0 w-full p-4 text-center'>
-                <h1 className='text-6xl font-[Starter] font-bold text-transparent bg-clip-text bg-red-200 drop-shadow-[0_0_0.2em_red]'>
+                {/* <h1 className='text-6xl font-[Starter] font-bold text-transparent bg-clip-text bg-red-200 drop-shadow-[0_0_0.2em_red]'>
                   FINALS
-                </h1>
+                </h1> */}
               </div>
             )}
           </div>
