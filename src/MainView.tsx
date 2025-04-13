@@ -17,26 +17,6 @@ function MainView() {
     return await window.ipcRenderer.invoke('get-colleges');
   };
 
-  useEffect(() => {
-    window.ipcRenderer.on('show-top5', (_, topColleges) => {
-      console.log("Received Top 5 Colleges:", topColleges); // Debug log
-      setTopFiveColleges(topColleges); // Set the top 5 colleges
-      setIsPopupVisible(true); // Show the pop-up
-      console.log("isPopupVisible set to:", true); // Debug log
-  
-      // Check the updated state after a short delay
-      setTimeout(() => {
-        console.log("isPopupVisible (delayed check):", isPopupVisible);
-      }, 100);
-    });
-  
-    return () => {
-      window.ipcRenderer.removeAllListeners('show-top5');
-    };
-  }, []);
-
-  
-
   // Create radial lines
   useEffect(() => {
     if (colleges.length > 0 && radialGridContainerRef.current) {
@@ -70,6 +50,7 @@ function MainView() {
     window.ipcRenderer.removeAllListeners('switch-to-finals');
     window.ipcRenderer.removeAllListeners('refresh');
     window.ipcRenderer.removeAllListeners('scores-reset');
+    window.ipcRenderer.removeAllListeners('show-top5');
 
     window.ipcRenderer.on('db-updated', () => {
       getColleges().then((updatedColleges) => {
@@ -122,11 +103,15 @@ function MainView() {
 
     // Listen for top5 colleges event from control view
     window.ipcRenderer.on('top5-colleges', (_, topColleges) => {
-      console.log('TOP 5 COLLEGES (MAIN VIEW):');
+      setIsPopupVisible(true);
+      setTopFiveColleges(topColleges);
+      setIsPopupVisible(true);
       topColleges.forEach((college: College, index: number) => {
         console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
       });
+      
     });
+    
 
     // Clean up listeners when the component unmounts
     return () => {
@@ -137,6 +122,7 @@ function MainView() {
       window.ipcRenderer.removeAllListeners('switch-to-finals');
       window.ipcRenderer.removeAllListeners('refresh');
       window.ipcRenderer.removeAllListeners('scores-reset');
+      window.ipcRenderer.removeAllListeners('show-top5');
     };
   }, [colleges]);
 
@@ -194,35 +180,63 @@ function MainView() {
             ))}
           </div>
 
-   {/* Pop-Up Component */}
-   {/* Black Box Overlay - Always Visible */}
-{isPopupVisible && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[1.5px] z-100">
-    {/* Pop-up content */}
-    <div className="fixed top-[18%] left-1/2 transform -translate-x-1/2 w-full">
-      <img src="/images/Top5/BAR TOP.png" alt="BAR TOP" className="w-full" />
-      <div className="absolute top-1/2 left-[43%] transform -translate-x-1/2 -translate-y-1/2 flex justify-center">
-        <h1 className="text-9xl font-[Starter] text-white bg-clip-text font-bold bg-red-200 drop-shadow-[0_0_0.1em_white]">
-          TOP 5
-        </h1>
-      </div>
-    </div>
-    <div className="fixed top-[50%] left-[43%] transform -translate-x-1/2 -translate-y-1/2">
-      <div className="flex justify-center space-x-4">
-        <img src="/images/Top5/1.png" alt="Podium1" className="podium" />
-        <img src="/images/Top5/2.png" alt="Podium2" className="podium" />
-        <img src="/images/Top5/3.png" alt="Podium3" className="podium" />
-        <img src="/images/Top5/4.png" alt="Podium4" className="podium" />
-        <img src="/images/Top5/5.png" alt="Podium5" className="podium" />
-      </div>
-    </div>
-    <img
-      src="/images/Top5/BAR BOT.png"
-      alt="BAR BOT"
-      className="absolute top-[70%] left-1/2 transform -translate-x-1/2 w-full"
-    />
+   {/* Top 5 Pop-up */}
+   {isPopupVisible && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[1.5px] z-100">
+          {/* Top Bar */}
+          <div className="fixed top-[25%] left-1/2 transform -translate-x-1/2 w-full">
+            <img src="/images/Top5/BAR TOP.png" alt="BAR TOP" className="w-full" />
+            <div className="absolute top-1/2 left-[43%] transform -translate-x-1/2 -translate-y-1/2 flex justify-center">
+              <h1 className="text-9xl font-[Starter] text-white bg-clip-text font-bold bg-red-200 drop-shadow-[0_0_0.1em_white]">
+                TOP 5
+              </h1>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <img
+            src="/images/Top5/BAR BOT.png"
+            alt="BAR BOT"
+            className="absolute top-[70%] left-1/2 transform -translate-x-1/2 w-full"
+          />
+
+{/* Podium Images with Top 5 Colleges */}
+<div className="fixed top-[58%] left-[42.5%] transform -translate-x-1/2 -translate-y-1/2">
+  <div className="flex justify-center space-x-4">
+    {topFiveColleges.map((college, index) => {
+      // Extract the file name from the imagePath
+      const fileName = college.imagePath.split('/').pop(); // Example: 'CRS.png'
+
+      return (
+        <div key={college.id} className="flex flex-col items-center relative">
+          {/* Podium Image */}
+          <div className="relative">
+            <img
+              src={`/images/Top5/${index + 1}.png`}
+              alt={`Podium ${index + 1}`}
+              className="podium"
+            />
+            {/* Ranking Icon */}
+            <img
+              src={`/images/Top5/ICONS FOR RANKING/${fileName}`}
+              alt={`Rank Icon for ${college.name}`}
+              className="absolute top-[53%] left-[56%] transform -translate-x-1/2 -translate-y-1/2 w-96 h-88"
+            />
+          </div>
+          {/* College Name */}
+          <div className="mt-4 flex items-center justify-center">
+            <span className="text-4xl font-[Starter] text-white bg-clip-text font-bold bg-white-200 drop-shadow-[0_0_0.1em_red]">
+              {college.name}
+            </span>
+          </div>
+        </div>
+      );
+    })}
   </div>
-)}
+</div>
+          
+        </div>
+      )}
 
           {/* Main */}
           <div
