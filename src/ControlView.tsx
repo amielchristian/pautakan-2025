@@ -84,13 +84,13 @@ export default function ControlView() {
             initialValue={difficulty}
           />
           <button
-            className='bg-black p-2 text-white rounded-xl border-4 border-red-900'
+            className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
             onClick={resetScores}
           >
             Reset Scores
           </button>
           <button
-            className='bg-black p-2 text-white rounded-xl border-4 border-red-900'
+            className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
             onClick={refresh}
           >
             Refresh
@@ -137,7 +137,7 @@ export default function ControlView() {
 
       <div className='h-1/10 w-full bg-gray-300 flex flex-row p-4 space-x-[1%]'>
         <button 
-          className='bg-black p-2 text-white rounded-xl border-4 border-red-900'
+          className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
           onClick={async () => {
             // Get the top 5 colleges based on score
             const topFiveColleges = [...colleges]
@@ -224,7 +224,7 @@ function ScoreButton({
   };
 
   const styles = `p-2 ${
-    add ? 'bg-green-500 hover:bg-green-700' : 'bg-red-500 hover:bg-red-700'
+    add ? 'bg-green-500 hover:bg-green-700 cursor-pointer' : 'bg-red-500 hover:bg-red-700 cursor-pointer'
   }`;
   return (
     <button className={styles} onClick={changeScore}>
@@ -256,7 +256,7 @@ function Dropdown({
       {/* Dropdown button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className='w-full p-2 bg-white border rounded flex justify-between items-center'
+        className='w-full p-2 bg-white border rounded flex justify-between items-center cursor-pointer'
       >
         <span>{selected}</span>
       </button>
