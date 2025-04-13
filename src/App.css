@@ -83,6 +83,7 @@
   transform-origin: 0 0; /* Origin at start of line */
   z-index: -2; /* Ensure lines are behind everything */
   box-shadow: 0 0 3px rgba(255, 255, 255, 0.3); /* Enhanced glow */
+  transition: transform 0.8s ease-in-out;
   /* No individual animation - will inherit from container */
 }
 

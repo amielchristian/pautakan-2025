@@ -259,11 +259,16 @@ function RadarView({ colleges }: { colleges: College[] }) {
           {/* Logos */}
           <div id='logosContainer' className='logos-container'>
             {colleges.map((college, i) => {
-              const angle = (i * 360) / colleges.length;
+              let angle = ((i * 360) / colleges.length);
+              if(isFinalsMode){
+                angle = angle + 54;
+              }
               const angleRad = (angle * Math.PI) / 180;
               
               // Apply individual adjustment factor for this specific college
-              const adjustmentFactor = collegeRadiusAdjustments[college.shorthand] || 1.0;
+              const adjustmentFactor = isFinalsMode 
+                ? 0.78  // Custom closer-in value for finals mode
+                : (collegeRadiusAdjustments[college.shorthand] || 1.0);
               const adjustedRadius = baseRadius * adjustmentFactor;
               
               const radiusPercentage = (adjustedRadius / parentSize) * 100;
