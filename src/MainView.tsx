@@ -153,6 +153,19 @@ function MainView() {
     retrieveCategoryAndDifficulty();
   }, []);
 
+  useEffect(() => {
+    // Listen for the close-top5 event
+    window.ipcRenderer.on('close-top5', () => {
+      setIsPopupVisible(false); // Hide the popup
+      console.log("Popup closed via ControlView.");
+    });
+  
+    // Clean up the listener when the component unmounts
+    return () => {
+      window.ipcRenderer.removeAllListeners('close-top5');
+    };
+  }, []);
+
   return (
     <>
       {/* Full-screen frame */}
@@ -239,7 +252,7 @@ function MainView() {
     })}
   </div>
 </div>
-          
+    
         </div>
       )}
 

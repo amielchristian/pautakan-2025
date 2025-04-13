@@ -166,6 +166,20 @@ export default function ControlView() {
         >
           Show Leaderboard
         </button>
+
+          {/* Close Leaderboard Button */}
+  <button
+    className="bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer"
+    onClick={async () => {
+      // Invoke the main process to close the leaderboard
+      await window.ipcRenderer.invoke('close-top5');
+      console.log("Leaderboard closed.");
+    }}
+  >
+    Close Leaderboard
+  </button>
+
+
         
         {/* Display of top 5 colleges based on scores */}
         <div className='flex flex-row space-x-2 flex-grow'>

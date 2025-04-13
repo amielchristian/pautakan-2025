@@ -245,6 +245,14 @@ function initializeIPC() {
   ipcMain.handle('get-top5', () => {
     return topFiveColleges;
   });
+
+
+  ipcMain.handle('close-top5', () => {
+    // Forward the event to the MainView
+    if (mainView) {
+      mainView.webContents.send('close-top5');
+    }
+  });
 }
 
 // Views
