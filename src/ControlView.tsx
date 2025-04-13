@@ -161,17 +161,19 @@ export default function ControlView() {
             initialValue={difficulty}
           />
           <button
-            className='bg-black p-2 text-white rounded-xl border-4 border-red-900'
+            className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
             onClick={resetScores}
           >
             Reset Scores
           </button>
           <button
-            className='bg-black p-2 text-white rounded-xl border-4 border-red-900'
+            className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
             onClick={refresh}
           >
             Refresh
           </button>
+
+
         </div>
         <div className='bg-gray-300 h-1/4 sharp-edge-box [--bottom-left:2.5px] [--bottom-right:2.5px]'></div>
       </div>
@@ -201,6 +203,7 @@ export default function ControlView() {
                 </td>
                 <td>{college.score}</td>
                 <td>
+                 
                   <ScoreButton
                     college={college}
                     add={false}
@@ -221,28 +224,28 @@ export default function ControlView() {
         </table>
       </div>
 
-      <div className='h-1/10 w-full bg-gray-300 flex flex-row p-4 space-x-[1%]'>
-        <button 
-          className='bg-black p-2 text-white rounded-xl border-4 border-red-900'
-          onClick={async () => {
-            // Send the top 5 colleges to main process
-            await window.ipcRenderer.invoke('show-top5', selectedColleges);
-            
-            // If we're already in Finals mode, immediately refresh to show top 5
-            if (category === 'Finals') {
-              await window.ipcRenderer.invoke('sync-category', 'Finals');
-            }
-            
-            // Also log in the control view console
-            console.log("TOP 5 COLLEGES:");
-            selectedColleges.forEach((college, index) => {
-              console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
-            });
-          }}
-        >
-          Show Leaderboard
-        </button>
-        
+      <div 
+      className='h-1/10 w-full bg-gray-300 flex flex-row p-4 space-x-[1%]'
+      style={{ position: 'relative', zIndex: 10 }}>
+
+      <button 
+      className='bg-black p-2 text-white rounded-xl border-4 border-red-900 z-10 cursor-pointer'
+      onClick={async () => {
+      try {
+        if (selectedColleges.length < 5) {
+          alert("Please select 5 colleges before showing the leaderboard.");
+          return;
+        }
+        await window.ipcRenderer.invoke('show-top5', selectedColleges);
+        console.log("TOP 5 COLLEGES:", selectedColleges);
+      } catch (error) {
+        console.error("Error invoking show-top5:", error);
+      }
+    }}
+    >
+      Show Leaderboard
+    </button>
+
         {/* Drag and drop area for selected colleges */}
         <div className='flex flex-row space-x-2 flex-grow'>
           {selectedColleges.map((college, index) => (
@@ -299,7 +302,7 @@ function ScoreButton({
   };
 
   const styles = `p-2 ${
-    add ? 'bg-green-500 hover:bg-green-700' : 'bg-red-500 hover:bg-red-700'
+    add ? 'bg-green-500 hover:bg-green-700 cursor-pointer' : 'bg-red-500 hover:bg-red-700 cursor-pointer'
   }`;
   return (
     <button className={styles} onClick={changeScore}>
@@ -331,7 +334,7 @@ function Dropdown({
       {/* Dropdown button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className='w-full p-2 bg-white border rounded flex justify-between items-center'
+        className='w-full p-2 bg-white border rounded flex justify-between items-center cursor-pointer'
       >
         <span>{selected}</span>
       </button>

@@ -8,11 +8,34 @@ function MainView() {
   const [difficulty, setDifficulty] = useState<string>('');
   const [category, setCategory] = useState<string>('');
   const [isFinalsMode, setIsFinalsMode] = useState<boolean>(false);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [topFiveColleges, setTopFiveColleges] = useState<College[]>([]);
+
   const radialGridContainerRef = useRef<HTMLDivElement>(null);
 
   const getColleges = async () => {
     return await window.ipcRenderer.invoke('get-colleges');
   };
+
+  useEffect(() => {
+    window.ipcRenderer.on('show-top5', (_, topColleges) => {
+      console.log("Received Top 5 Colleges:", topColleges); // Debug log
+      setTopFiveColleges(topColleges); // Set the top 5 colleges
+      setIsPopupVisible(true); // Show the pop-up
+      console.log("isPopupVisible set to:", true); // Debug log
+  
+      // Check the updated state after a short delay
+      setTimeout(() => {
+        console.log("isPopupVisible (delayed check):", isPopupVisible);
+      }, 100);
+    });
+  
+    return () => {
+      window.ipcRenderer.removeAllListeners('show-top5');
+    };
+  }, []);
+
+  
 
   // Create radial lines
   useEffect(() => {
@@ -170,6 +193,37 @@ function MainView() {
               <Score key={college.id} college={college} />
             ))}
           </div>
+
+   {/* Pop-Up Component */}
+   {/* Black Box Overlay - Always Visible */}
+{isPopupVisible && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[1.5px] z-100">
+    {/* Pop-up content */}
+    <div className="fixed top-[18%] left-1/2 transform -translate-x-1/2 w-full">
+      <img src="/images/Top5/BAR TOP.png" alt="BAR TOP" className="w-full" />
+      <div className="absolute top-1/2 left-[43%] transform -translate-x-1/2 -translate-y-1/2 flex justify-center">
+        <h1 className="text-9xl font-[Starter] text-white bg-clip-text font-bold bg-red-200 drop-shadow-[0_0_0.1em_white]">
+          TOP 5
+        </h1>
+      </div>
+    </div>
+    <div className="fixed top-[50%] left-[43%] transform -translate-x-1/2 -translate-y-1/2">
+      <div className="flex justify-center space-x-4">
+        <img src="/images/Top5/1.png" alt="Podium1" className="podium" />
+        <img src="/images/Top5/2.png" alt="Podium2" className="podium" />
+        <img src="/images/Top5/3.png" alt="Podium3" className="podium" />
+        <img src="/images/Top5/4.png" alt="Podium4" className="podium" />
+        <img src="/images/Top5/5.png" alt="Podium5" className="podium" />
+      </div>
+    </div>
+    <img
+      src="/images/Top5/BAR BOT.png"
+      alt="BAR BOT"
+      className="absolute top-[70%] left-1/2 transform -translate-x-1/2 w-full"
+    />
+  </div>
+)}
+
           {/* Main */}
           <div
             className='sharp-edge-box w-[98%]
@@ -203,6 +257,10 @@ function MainView() {
           />
         </div>
       </div>
+   
+      
+  
+  
     </>
   );
 }

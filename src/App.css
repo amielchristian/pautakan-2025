@@ -269,3 +269,11 @@
   width: calc(100% - 15px);
   margin-right: 15px;
 }
+
+.podium {
+  width: auto;
+  height: auto;
+  max-width: 300px; 
+  max-height: 400px;
+  object-fit: contain;
+}
