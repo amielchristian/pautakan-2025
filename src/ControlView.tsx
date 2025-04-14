@@ -59,6 +59,40 @@ export default function ControlView() {
     await window.ipcRenderer.invoke('refresh');
   }
 
+  async function showLeaderboard() {
+    // Get the top 5 colleges based on score
+    const topFiveColleges = [...colleges]
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5)
+      .filter(college => college.score > 0);
+    
+    // Check if there are fewer than 5 colleges with scores
+    if (topFiveColleges.length < 5) {
+      alert("There are fewer than 5 colleges with scores. Please ensure at least 5 colleges have scores before showing the leaderboard.");
+      return; // Stop execution if the condition is not met
+    }
+    
+    // Send the top 5 colleges to main process
+    await window.ipcRenderer.invoke('show-top5', topFiveColleges);
+    
+    // If we're already in Finals mode, immediately refresh to show top 5
+    if (category === 'Finals') {
+      await window.ipcRenderer.invoke('sync-category', 'Finals');
+    }
+    
+    // Also log in the control view console
+    console.log("TOP 5 COLLEGES:");
+    topFiveColleges.forEach((college, index) => {
+      console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
+    });
+  }
+
+  async function closeLeaderboard() {
+    // Invoke the main process to close the leaderboard
+    await window.ipcRenderer.invoke('close-top5');
+    console.log("Leaderboard closed.");
+  }
+
   return (
     <div className='grid-pattern bg-[image:var(--grid-pattern)] w-screen h-screen justify-center items-center flex flex-col'>
       <div className='h-1/10 w-full flex flex-col'>
@@ -94,6 +128,18 @@ export default function ControlView() {
             onClick={refresh}
           >
             Refresh
+          </button>
+          <button 
+            className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
+            onClick={showLeaderboard}
+          >
+            Show Leaderboard
+          </button>
+          <button
+            className="bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer"
+            onClick={closeLeaderboard}
+          >
+            Close Leaderboard
           </button>
         </div>
         <div className='bg-gray-300 h-1/4 sharp-edge-box [--bottom-left:2.5px] [--bottom-right:2.5px]'></div>
@@ -135,70 +181,7 @@ export default function ControlView() {
         </table>
       </div>
 
-      <div className='h-1/10 w-full bg-gray-300 flex flex-row p-4 space-x-[1%]'>
-        <button 
-          className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
-          onClick={async () => {
-            // Get the top 5 colleges based on score
-            const topFiveColleges = [...colleges]
-              .sort((a, b) => b.score - a.score)
-              .slice(0, 5)
-              .filter(college => college.score > 0);
-             // Check if there are fewer than 5 colleges with scores
-              if (topFiveColleges.length < 5) {
-                alert("There are fewer than 5 colleges with scores. Please ensure at least 5 colleges have scores before showing the leaderboard.");
-                return; // Stop execution if the condition is not met
-              }
-            // Send the top 5 colleges to main process
-            await window.ipcRenderer.invoke('show-top5', topFiveColleges);
-            
-            // If we're already in Finals mode, immediately refresh to show top 5
-            if (category === 'Finals') {
-              await window.ipcRenderer.invoke('sync-category', 'Finals');
-            }
-            
-            // Also log in the control view console
-            console.log("TOP 5 COLLEGES:");
-            topFiveColleges.forEach((college, index) => {
-              console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
-            });
-          }}
-        >
-          Show Leaderboard
-        </button>
-
-          {/* Close Leaderboard Button */}
-  <button
-    className="bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer"
-    onClick={async () => {
-      // Invoke the main process to close the leaderboard
-      await window.ipcRenderer.invoke('close-top5');
-      console.log("Leaderboard closed.");
-    }}
-  >
-    Close Leaderboard
-  </button>
-
-
-        
-        {/* Display of top 5 colleges based on scores */}
-        <div className='flex flex-row space-x-2 flex-grow'>
-          {[...colleges]
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 5)
-            .filter(college => college.score > 0)
-            .map((college, index) => (
-              <div
-                key={college.id}
-                className='p-2 bg-black text-white rounded border-2 border-red-900 flex flex-col items-center'
-              >
-                <div>{index + 1}</div>
-                <div>{college.shorthand}</div>
-              </div>
-            ))
-          }
-        </div>
-      </div>
+{/* Bottom section removed as requested */}
     </div>
   );
 }
