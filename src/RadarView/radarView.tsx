@@ -13,8 +13,8 @@ function RadarView({ colleges }: { colleges: College[] }) {
   const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<Record<string, number>>({});
   // Keep track of previous scores to determine if score is increasing or decreasing
   const [prevScores, setPrevScores] = useState<Record<string, number>>({});
-  // NEW: Track which colleges should show red logos
-  const [redLogoColleges, setRedLogoColleges] = useState<Record<string, boolean>>({});
+  // Track which colleges should show red logos with opacity for fading
+  const [redLogoOpacity, setRedLogoOpacity] = useState<Record<string, number>>({});
   
   // Sort colleges by score to determine rankings (top 5)
   const rankedColleges = useMemo(() => {
@@ -91,7 +91,7 @@ function RadarView({ colleges }: { colleges: College[] }) {
     setPrevScores(initialScores);
   }, []);
 
-  // Add a listener for college-specific radius updates
+  // Improved animation for college logos with smooth fading
   useEffect(() => {
     // Set up event listener for when a college's score is updated
     window.ipcRenderer.on('score-updated', (_, shorthand, newScore) => {
@@ -128,19 +128,42 @@ function RadarView({ colleges }: { colleges: College[] }) {
         [shorthand]: newScore
       }));
       
-      // NEW: Set the red logo flag for this college
-      setRedLogoColleges(prev => ({
+      // Fade in the red logo by setting opacity to 1
+      setRedLogoOpacity(prev => ({
         ...prev,
-        [shorthand]: true
+        [shorthand]: 1
       }));
       
-      // NEW: Set a timeout to revert back to the original logo after 2 seconds
+      // Create a smooth fade-out effect
+      const fadeOutDuration = 2000; // 2 seconds total
+      const fadeSteps = 20;
+      const stepTime = fadeOutDuration / fadeSteps;
+      
+      // Start fading out after a small delay to ensure full visibility first
       setTimeout(() => {
-        setRedLogoColleges(prev => ({
-          ...prev,
-          [shorthand]: false
-        }));
-      }, 2000);
+        let step = 0;
+        const fadeInterval = setInterval(() => {
+          step++;
+          setRedLogoOpacity(prev => {
+            // Calculate new opacity - gradually decreasing
+            const newOpacity = 1 - (step / fadeSteps);
+            
+            // Stop the interval when done fading
+            if (step >= fadeSteps) {
+              clearInterval(fadeInterval);
+              return {
+                ...prev,
+                [shorthand]: 0
+              };
+            }
+            
+            return {
+              ...prev,
+              [shorthand]: newOpacity
+            };
+          });
+        }, stepTime);
+      }, 500); // Short delay before starting fade out
       
       // Log rank changes
       console.log(`Score updated for ${shorthand}: ${oldScore} -> ${newScore}`);
@@ -155,8 +178,8 @@ function RadarView({ colleges }: { colleges: College[] }) {
         resetScores[college.shorthand] = 0;
       });
       setPrevScores(resetScores);
-      // NEW: Clear all red logo flags
-      setRedLogoColleges({});
+      // Clear all red logo opacities
+      setRedLogoOpacity({});
       console.log("All college positions reset");
     });
 
@@ -196,8 +219,6 @@ function RadarView({ colleges }: { colleges: College[] }) {
   const parentSize = 90;
   // Number of segments
   const numSegments = 320;
-  
-  // circleRefs.current[6].style.opacity = '0.6'; SAMPLE OF HOW TO SET A RED CIRCLE VISIBLE MANUALLY
 
   return (
     <div className='radar-container'>
@@ -281,13 +302,12 @@ function RadarView({ colleges }: { colleges: College[] }) {
               const collegeRank = topFiveColleges.findIndex(c => c.shorthand === college.shorthand) + 1;
               const isInTopFive = collegeRank > 0 && collegeRank <= 5;
               
-              // NEW: Determine if this college should use the red logo
-              const useRedLogo = redLogoColleges[college.shorthand] || false;
+              // Get the red logo opacity for this college (0 to 1)
+              const redOpacity = redLogoOpacity[college.shorthand] || 0;
               
-              // NEW: Modify the image path to use the red version if needed
-              const imagePath = useRedLogo 
-                ? college.imagePath.replace('.png', '-RED.png') 
-                : college.imagePath;
+              // Regular image path and red image path
+              const regularImagePath = college.imagePath;
+              const redImagePath = college.imagePath.replace('.png', '-RED.png');
 
               return (
                 <div
@@ -304,11 +324,35 @@ function RadarView({ colleges }: { colleges: College[] }) {
                     transition: 'transform 0.5s ease-out' // Smooth transition when radius changes
                   }}
                 >
+                  {/* Regular logo with opposite opacity of red logo */}
                   <img 
-                    src={imagePath} 
+                    src={regularImagePath} 
                     alt={`Logo ${i + 1}`} 
                     style={{
-                      transition: 'all 0.3s ease' // Smooth transition for image changes
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      opacity: 1 - redOpacity,
+                      transition: 'opacity 0.3s ease-in-out',
+                      zIndex: 1
+                    }}
+                  />
+                  
+                  {/* Red logo with controlled opacity for fading */}
+                  <img 
+                    src={redImagePath} 
+                    alt={`Logo ${i + 1} Red`} 
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      opacity: redOpacity,
+                      transition: 'opacity 0.3s ease-in-out',
+                      zIndex: 2
                     }}
                   />
                   
