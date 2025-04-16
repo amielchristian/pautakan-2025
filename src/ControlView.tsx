@@ -34,14 +34,18 @@ export default function ControlView() {
 
   // Update colleges on change
   // ...then sync to DB
-  async function updateScore(college: College, offset: number, adjustRadius: boolean = false) {
+  async function updateScore(
+    college: College,
+    offset: number,
+    adjustRadius: boolean = false
+  ) {
     const collegeUpdated = { ...college, score: college.score + offset };
     setColleges(
       colleges.map((x: College) =>
         x.name === collegeUpdated.name ? collegeUpdated : x
       )
     );
-    
+
     await window.ipcRenderer.invoke(
       'update-college-score',
       collegeUpdated.shorthand,
@@ -64,24 +68,26 @@ export default function ControlView() {
     const topFiveColleges = [...colleges]
       .sort((a, b) => b.score - a.score)
       .slice(0, 5)
-      .filter(college => college.score > 0);
-    
+      .filter((college) => college.score > 0);
+
     // Check if there are fewer than 5 colleges with scores
     if (topFiveColleges.length < 5) {
-      alert("There are fewer than 5 colleges with scores. Please ensure at least 5 colleges have scores before showing the leaderboard.");
+      alert(
+        'There are fewer than 5 colleges with scores. Please ensure at least 5 colleges have scores before showing the leaderboard.'
+      );
       return; // Stop execution if the condition is not met
     }
-    
+
     // Send the top 5 colleges to main process
-    await window.ipcRenderer.invoke('show-top5', topFiveColleges);
-    
+    await window.ipcRenderer.invoke('show-top-five', topFiveColleges);
+
     // If we're already in Finals mode, immediately refresh to show top 5
     if (category === 'Finals') {
       await window.ipcRenderer.invoke('sync-category', 'Finals');
     }
-    
+
     // Also log in the control view console
-    console.log("TOP 5 COLLEGES:");
+    console.log('TOP 5 COLLEGES:');
     topFiveColleges.forEach((college, index) => {
       console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
     });
@@ -89,8 +95,8 @@ export default function ControlView() {
 
   async function closeLeaderboard() {
     // Invoke the main process to close the leaderboard
-    await window.ipcRenderer.invoke('close-top5');
-    console.log("Leaderboard closed.");
+    await window.ipcRenderer.invoke('close-top-five');
+    console.log('Leaderboard closed.');
   }
 
   return (
@@ -117,30 +123,32 @@ export default function ControlView() {
             }}
             initialValue={difficulty}
           />
-          <button
-            className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
-            onClick={resetScores}
-          >
-            Reset Scores
-          </button>
-          <button
-            className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
-            onClick={refresh}
-          >
-            Refresh
-          </button>
-          <button 
-            className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
-            onClick={showLeaderboard}
-          >
-            Show Leaderboard
-          </button>
-          <button
-            className="bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer"
-            onClick={closeLeaderboard}
-          >
-            Close Leaderboard
-          </button>
+          <div className='grid grid-cols-2'>
+            <button
+              className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
+              onClick={resetScores}
+            >
+              Reset Scores
+            </button>
+            <button
+              className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
+              onClick={refresh}
+            >
+              Refresh
+            </button>
+            <button
+              className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
+              onClick={showLeaderboard}
+            >
+              Show Leaderboard
+            </button>
+            <button
+              className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
+              onClick={closeLeaderboard}
+            >
+              Close Leaderboard
+            </button>
+          </div>
         </div>
         <div className='bg-gray-300 h-1/4 sharp-edge-box [--bottom-left:2.5px] [--bottom-right:2.5px]'></div>
       </div>
@@ -181,7 +189,7 @@ export default function ControlView() {
         </table>
       </div>
 
-{/* Bottom section removed as requested */}
+      {/* Bottom section removed as requested */}
     </div>
   );
 }
@@ -195,7 +203,11 @@ function ScoreButton({
   college: College;
   add: boolean;
   difficulty: string;
-  updateScore: (college: College, offset: number, adjustRadius?: boolean) => void;
+  updateScore: (
+    college: College,
+    offset: number,
+    adjustRadius?: boolean
+  ) => void;
 }) {
   const changeScore = () => {
     const offset: number =
@@ -215,13 +227,15 @@ function ScoreButton({
             return 1;
         }
       })() * (add ? 1 : -1);
-    
+
     // Only adjust radius when adding points, not when subtracting
     updateScore(college, offset, add);
   };
 
   const styles = `p-2 ${
-    add ? 'bg-green-500 hover:bg-green-700 cursor-pointer' : 'bg-red-500 hover:bg-red-700 cursor-pointer'
+    add
+      ? 'bg-green-500 hover:bg-green-700 cursor-pointer'
+      : 'bg-red-500 hover:bg-red-700 cursor-pointer'
   }`;
   return (
     <button className={styles} onClick={changeScore}>

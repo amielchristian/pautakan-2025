@@ -2,7 +2,7 @@ import { useEffect, useRef, useMemo } from 'react';
 import './radarView.css';
 import './finalsMode.css';
 import { College } from '../types';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 function RadarView({ colleges }: { colleges: College[] }) {
   const radarBaseRef = useRef<HTMLDivElement>(null);
@@ -80,7 +80,7 @@ function RadarView({ colleges }: { colleges: College[] }) {
         setRankChangeEffects(newEffects);
       }
     }
-  }, [rankedColleges, colleges]);
+  }, [rankedColleges, colleges, prevRankings]);
 
   // Store prev scores on initial load
   useEffect(() => {
@@ -89,7 +89,7 @@ function RadarView({ colleges }: { colleges: College[] }) {
       initialScores[college.shorthand] = college.score;
     });
     setPrevScores(initialScores);
-  }, []);
+  }, [colleges]);
 
   // Add a listener for college-specific radius updates
   useEffect(() => {

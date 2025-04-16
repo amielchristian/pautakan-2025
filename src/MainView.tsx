@@ -51,11 +51,11 @@ function MainView() {
     window.ipcRenderer.removeAllListeners('db-updated');
     window.ipcRenderer.removeAllListeners('category-synced');
     window.ipcRenderer.removeAllListeners('difficulty-synced');
-    window.ipcRenderer.removeAllListeners('top5-colleges');
+    window.ipcRenderer.removeAllListeners('top-five-colleges');
     window.ipcRenderer.removeAllListeners('switch-to-finals');
     window.ipcRenderer.removeAllListeners('refresh');
     window.ipcRenderer.removeAllListeners('scores-reset');
-    window.ipcRenderer.removeAllListeners('show-top5');
+    window.ipcRenderer.removeAllListeners('show-top-five');
 
     window.ipcRenderer.on('db-updated', () => {
       getColleges().then((updatedColleges) => {
@@ -106,8 +106,8 @@ function MainView() {
       window.location.reload();
     });
 
-    // Listen for top5 colleges event from control view
-    window.ipcRenderer.on('top5-colleges', (_, topColleges) => {
+    // Listen for top-five colleges event from control view
+    window.ipcRenderer.on('top-five-colleges', (_, topColleges) => {
       setIsPopupVisible(true);
       setTopFiveColleges(topColleges);
       setIsPopupVisible(true);
@@ -123,11 +123,11 @@ function MainView() {
       window.ipcRenderer.removeAllListeners('db-updated');
       window.ipcRenderer.removeAllListeners('category-synced');
       window.ipcRenderer.removeAllListeners('difficulty-synced');
-      window.ipcRenderer.removeAllListeners('top5-colleges');
+      window.ipcRenderer.removeAllListeners('top-five-colleges');
       window.ipcRenderer.removeAllListeners('switch-to-finals');
       window.ipcRenderer.removeAllListeners('refresh');
       window.ipcRenderer.removeAllListeners('scores-reset');
-      window.ipcRenderer.removeAllListeners('show-top5');
+      window.ipcRenderer.removeAllListeners('show-top-five');
     };
   }, [colleges]);
 
@@ -154,15 +154,15 @@ function MainView() {
   }, []);
 
   useEffect(() => {
-    // Listen for the close-top5 event
-    window.ipcRenderer.on('close-top5', () => {
+    // Listen for the close-top-five event
+    window.ipcRenderer.on('close-top-five', () => {
       setIsPopupVisible(false); // Hide the popup
       console.log("Popup closed via ControlView.");
     });
   
     // Clean up the listener when the component unmounts
     return () => {
-      window.ipcRenderer.removeAllListeners('close-top5');
+      window.ipcRenderer.removeAllListeners('close-top-five');
     };
   }, []);
 
