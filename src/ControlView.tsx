@@ -156,7 +156,7 @@ export default function ControlView() {
             <h1 className='text-4xl font-bold'>Score</h1>
           </span>
         </div>
-        {colleges.map((college: College, key: number) => (
+        {colleges.map((college: College) => (
           <div className='bg-white border-2 border-gray-300 w-full px-2 m-[2px] rounded-xl flex flex-row items-center justify-between'>
             <div className='flex flex-row items-center'>
               <h2 className='font-bold'>{college.name}</h2>
