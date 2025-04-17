@@ -101,7 +101,7 @@ export default function ControlView() {
   }
 
   return (
-    <div className='bg-[#232333] w-screen h-screen justify-start items-center flex flex-col'>
+    <div className='bg-[#232333] absolute top-0 left-0 min-h-full w-full justify-start items-center flex flex-col'>
       <div className='w-full flex flex-col p-[1%] bg-red-400'>
         <h1 className='text-6xl font-bold text-center text-white font-[Starter]'>
           Pautakan 2025
@@ -157,7 +157,7 @@ export default function ControlView() {
           </span>
         </div>
         {colleges.map((college: College, key: number) => (
-          <div className='bg-gray-200 w-full px-2 m-[2px] rounded-xl flex flex-row items-center justify-between'>
+          <div className='bg-white border-2 border-gray-300 w-full px-2 m-[2px] rounded-xl flex flex-row items-center justify-between'>
             <div className='flex flex-row items-center'>
               <h2 className='font-bold'>{college.name}</h2>
             </div>
