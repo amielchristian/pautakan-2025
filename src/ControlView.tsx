@@ -7,6 +7,7 @@ export default function ControlView() {
   const [colleges, setColleges] = useState<College[]>([]);
   const [difficulty, setDifficulty] = useState('Easy');
   const [category, setCategory] = useState('Eliminations');
+  const [division, setDivision] = useState('Teams');
 
   // Load colleges
   useEffect(() => {
@@ -131,6 +132,18 @@ export default function ControlView() {
               }}
               initialValue={difficulty}
             />
+
+            <Dropdown
+              options={[
+                'Individual',
+                'Teams',
+              ]}
+              onChange={(selected) => {
+                setDivision(selected);
+              }}
+              initialValue={division}
+            />
+
           </div>
           <div className='grid grid-cols-2 w-4/9 mr-4'>
             <button className={buttonStyles} onClick={resetScores}>
