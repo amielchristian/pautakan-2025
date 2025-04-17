@@ -34,12 +34,13 @@ function MainView() {
         radialLine.className = 'radial-line';
         const angle = i * (360 / collegeCount);
         if (collegeCount === 5) {
-          radialLine.style.transform = `rotate(${angle+54}deg)`;
-        }else{
+          radialLine.style.transform = `rotate(${angle + 54}deg)`;
+        } else {
           radialLine.style.transform = `rotate(${angle}deg)`;
         }
-        radialLine.style.transition = 
-        radialLine.style.animationDelay = `${2 + i * 0.1}s`; // Staggered fade-in effect
+        radialLine.style.transition = radialLine.style.animationDelay = `${
+          2 + i * 0.1
+        }s`; // Staggered fade-in effect
         radialGridContainerRef.current.appendChild(radialLine);
       }
     }
@@ -114,9 +115,7 @@ function MainView() {
       topColleges.forEach((college: College, index: number) => {
         console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
       });
-      
     });
-    
 
     // Clean up listeners when the component unmounts
     return () => {
@@ -157,9 +156,9 @@ function MainView() {
     // Listen for the close-top-five event
     window.ipcRenderer.on('close-top-five', () => {
       setIsPopupVisible(false); // Hide the popup
-      console.log("Popup closed via ControlView.");
+      console.log('Popup closed via ControlView.');
     });
-  
+
     // Clean up the listener when the component unmounts
     return () => {
       window.ipcRenderer.removeAllListeners('close-top-five');
@@ -198,63 +197,69 @@ function MainView() {
             ))}
           </div>
 
-   {/* Top 5 Pop-up */}
-   {isPopupVisible && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[1.5px] z-100">
-          {/* Top Bar */}
-          <div className="fixed top-[25%] left-1/2 transform -translate-x-1/2 w-full">
-            <img src="/images/Top5/BAR TOP.png" alt="BAR TOP" className="w-full" />
-            <div className="absolute top-1/2 left-[43%] transform -translate-x-1/2 -translate-y-1/2 flex justify-center">
-              <h1 className="text-9xl font-[Starter] text-white bg-clip-text font-bold bg-red-200 drop-shadow-[0_0_0.1em_white]">
-                TOP 5
-              </h1>
+          {/* Top 5 Pop-up */}
+          {isPopupVisible && (
+            <div className='fixed inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[1.5px] z-100'>
+              {/* Top Bar */}
+              <div className='fixed top-[25%] left-1/2 transform -translate-x-1/2 w-full'>
+                <img
+                  src='/images/Top5/BAR TOP.png'
+                  alt='BAR TOP'
+                  className='w-full'
+                />
+                <div className='absolute top-1/2 left-[43%] transform -translate-x-1/2 -translate-y-1/2 flex justify-center'>
+                  <h1 className='text-9xl font-[Starter] text-white bg-clip-text font-bold bg-red-200 drop-shadow-[0_0_0.1em_white]'>
+                    TOP 5
+                  </h1>
+                </div>
+              </div>
+
+              {/* Bottom Bar */}
+              <img
+                src='/images/Top5/BAR BOT.png'
+                alt='BAR BOT'
+                className='absolute top-[70%] left-1/2 transform -translate-x-1/2 w-full'
+              />
+
+              {/* Podium Images with Top 5 Colleges */}
+              <div className='fixed top-[58%] left-[42.5%] transform -translate-x-1/2 -translate-y-1/2'>
+                <div className='flex justify-center space-x-4'>
+                  {topFiveColleges.map((college, index) => {
+                    // Extract the file name from the imagePath
+                    const fileName = college.imagePath.split('/').pop(); // Example: 'CRS.png'
+
+                    return (
+                      <div
+                        key={college.id}
+                        className='flex flex-col items-center relative'
+                      >
+                        {/* Podium Image */}
+                        <div className='relative'>
+                          <img
+                            src={`/images/Top5/${index + 1}.png`}
+                            alt={`Podium ${index + 1}`}
+                            className='podium'
+                          />
+                          {/* Ranking Icon */}
+                          <img
+                            src={`/images/Top5/ICONS FOR RANKING/${fileName}`}
+                            alt={`Rank Icon for ${college.name}`}
+                            className='absolute top-[53%] left-[56%] transform -translate-x-1/2 -translate-y-1/2 w-96 h-88'
+                          />
+                        </div>
+                        {/* College Name */}
+                        <div className='mt-4 flex items-center justify-center'>
+                          <span className='text-4xl font-[Starter] text-white bg-clip-text font-bold bg-white-200 drop-shadow-[0_0_0.1em_red]'>
+                            {college.name}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
-
-          {/* Bottom Bar */}
-          <img
-            src="/images/Top5/BAR BOT.png"
-            alt="BAR BOT"
-            className="absolute top-[70%] left-1/2 transform -translate-x-1/2 w-full"
-          />
-
-{/* Podium Images with Top 5 Colleges */}
-<div className="fixed top-[58%] left-[42.5%] transform -translate-x-1/2 -translate-y-1/2">
-  <div className="flex justify-center space-x-4">
-    {topFiveColleges.map((college, index) => {
-      // Extract the file name from the imagePath
-      const fileName = college.imagePath.split('/').pop(); // Example: 'CRS.png'
-
-      return (
-        <div key={college.id} className="flex flex-col items-center relative">
-          {/* Podium Image */}
-          <div className="relative">
-            <img
-              src={`/images/Top5/${index + 1}.png`}
-              alt={`Podium ${index + 1}`}
-              className="podium"
-            />
-            {/* Ranking Icon */}
-            <img
-              src={`/images/Top5/ICONS FOR RANKING/${fileName}`}
-              alt={`Rank Icon for ${college.name}`}
-              className="absolute top-[53%] left-[56%] transform -translate-x-1/2 -translate-y-1/2 w-96 h-88"
-            />
-          </div>
-          {/* College Name */}
-          <div className="mt-4 flex items-center justify-center">
-            <span className="text-4xl font-[Starter] text-white bg-clip-text font-bold bg-white-200 drop-shadow-[0_0_0.1em_red]">
-              {college.name}
-            </span>
-          </div>
-        </div>
-      );
-    })}
-  </div>
-</div>
-    
-        </div>
-      )}
+          )}
 
           {/* Main */}
           <div
@@ -289,10 +294,6 @@ function MainView() {
           />
         </div>
       </div>
-   
-      
-  
-  
     </>
   );
 }

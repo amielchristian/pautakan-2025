@@ -2,6 +2,7 @@ import './App.css';
 import { useEffect, useState } from 'react';
 import { College } from './types';
 
+const buttonStyles = `shrink p-[1%] bg-white hover:bg-gray-200 cursor-pointer m-[1%] rounded-xl border-2 border-gray-300 font-semibold text-gray-700 shadow-sm`;
 export default function ControlView() {
   const [colleges, setColleges] = useState<College[]>([]);
   const [difficulty, setDifficulty] = useState('Easy');
@@ -100,96 +101,84 @@ export default function ControlView() {
   }
 
   return (
-    <div className='grid-pattern bg-[image:var(--grid-pattern)] w-screen h-screen justify-center items-center flex flex-col'>
-      <div className='h-1/10 w-full flex flex-col'>
-        <div className='flex flex-row items-center bg-gray-300 h-full w-full justify-evenly'>
-          <Dropdown
-            options={['Eliminations', 'Finals']}
-            onChange={(selected) => {
-              setCategory(selected);
-            }}
-            initialValue={category}
-          />
-          <Dropdown
-            options={[
-              'Easy',
-              'Average',
-              'Difficult',
-              'Clincher',
-              'Sudden Death',
-            ]}
-            onChange={(selected) => {
-              setDifficulty(selected);
-            }}
-            initialValue={difficulty}
-          />
-          <div className='grid grid-cols-2'>
-            <button
-              className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
-              onClick={resetScores}
-            >
+    <div className='bg-[#232333] w-screen h-screen justify-start items-center flex flex-col'>
+      <div className='w-full flex flex-col p-[1%] bg-red-400'>
+        <h1 className='text-6xl font-bold text-center text-white font-[Starter]'>
+          Pautakan 2025
+        </h1>
+        <h1 className='text-4xl font-bold text-center text-white font-[Starter]'>
+          Control View
+        </h1>
+        <div className='flex flex-row items-center justify-between'>
+          <div className='flex flex-row w-4/9 items-center justify-evenly ml-4'>
+            <Dropdown
+              options={['Eliminations', 'Finals']}
+              onChange={(selected) => {
+                setCategory(selected);
+              }}
+              initialValue={category}
+            />
+            <Dropdown
+              options={[
+                'Easy',
+                'Average',
+                'Difficult',
+                'Clincher',
+                'Sudden Death',
+              ]}
+              onChange={(selected) => {
+                setDifficulty(selected);
+              }}
+              initialValue={difficulty}
+            />
+          </div>
+          <div className='grid grid-cols-2 w-4/9 mr-4'>
+            <button className={buttonStyles} onClick={resetScores}>
               Reset Scores
             </button>
-            <button
-              className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
-              onClick={refresh}
-            >
+            <button className={buttonStyles} onClick={refresh}>
               Refresh
             </button>
-            <button
-              className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
-              onClick={showLeaderboard}
-            >
+            <button className={buttonStyles} onClick={showLeaderboard}>
               Show Leaderboard
             </button>
-            <button
-              className='bg-black p-2 text-white rounded-xl border-4 border-red-900 cursor-pointer'
-              onClick={closeLeaderboard}
-            >
+            <button className={buttonStyles} onClick={closeLeaderboard}>
               Close Leaderboard
             </button>
           </div>
         </div>
-        <div className='bg-gray-300 h-1/4 sharp-edge-box [--bottom-left:2.5px] [--bottom-right:2.5px]'></div>
       </div>
 
-      <div className='bg-white h-4/5 w-7/10 px-[5%] py-[2%]'>
-        <table className='w-full'>
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>College</th>
-              <th colSpan={2}>Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {colleges.map((college: College, index: number) => (
-              <tr key={college.id}>
-                <td>{index + 1}</td>
-                <td>{college.name}</td>
-                <td>{college.score}</td>
-                <td>
-                  <ScoreButton
-                    college={college}
-                    add={false}
-                    difficulty={difficulty}
-                    updateScore={updateScore}
-                  />
-
-                  <ScoreButton
-                    college={college}
-                    add={true}
-                    difficulty={difficulty}
-                    updateScore={updateScore}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className='w-7/10 px-[5%] flex flex-col items-center justify-center'>
+        <div className='text-white w-full p-2 m-1 rounded-xl flex flex-row items-center justify-between'>
+          <span className='flex flex-row items-center justify-between w-full'>
+            <h1 className='text-4xl font-bold'>College</h1>
+            <h1 className='text-4xl font-bold'>Score</h1>
+          </span>
+        </div>
+        {colleges.map((college: College, key: number) => (
+          <div className='bg-gray-200 w-full px-2 m-[2px] rounded-xl flex flex-row items-center justify-between'>
+            <div className='flex flex-row items-center'>
+              <h2 className='font-bold'>{college.name}</h2>
+            </div>
+            <div className='flex flex-row items-center'>
+              <h2 className='font-bold mr-2'>{college.score}</h2>
+              <ScoreButton
+                college={college}
+                add={false}
+                difficulty={difficulty}
+                updateScore={updateScore}
+              />
+              <ScoreButton
+                college={college}
+                add={true}
+                difficulty={difficulty}
+                updateScore={updateScore}
+              />
+            </div>
+          </div>
+        ))}
       </div>
-
-      {/* Bottom section removed as requested */}
     </div>
   );
 }
@@ -232,10 +221,10 @@ function ScoreButton({
     updateScore(college, offset, add);
   };
 
-  const styles = `p-2 ${
+  const styles = `py-1 px-4 rounded-xl m-1 ${
     add
-      ? 'bg-green-500 hover:bg-green-700 cursor-pointer'
-      : 'bg-red-500 hover:bg-red-700 cursor-pointer'
+      ? 'bg-green-400 hover:bg-green-500 cursor-pointer'
+      : 'bg-red-400 hover:bg-red-500 cursor-pointer'
   }`;
   return (
     <button className={styles} onClick={changeScore}>
@@ -263,13 +252,20 @@ function Dropdown({
   };
 
   return (
-    <div className='relative w-64 h-[50%]'>
+    <div className='relative w-64 h-[50%] p-3'>
       {/* Dropdown button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className='w-full p-2 bg-white border rounded flex justify-between items-center cursor-pointer'
+        className='w-full font-semibold py-3 p-2 bg-white border-2 border-gray-300 rounded-xl flex justify-between items-center cursor-pointer'
       >
         <span>{selected}</span>
+        <span
+          className={`ml-2 mr-1 text-xs duration-100 ${
+            isOpen ? 'rotate-180 ' : ''
+          }`}
+        >
+          ▼
+        </span>
       </button>
 
       {/* Dropdown menu */}

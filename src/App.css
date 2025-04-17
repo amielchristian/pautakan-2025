@@ -40,7 +40,7 @@
 
   /* Common Colors */
   --purple: rgb(128, 0, 255);
-  --red: rgba(183, 38, 25, 1);
+  --red: #b72619;
 
   font-family: sans-serif;
   --grid-pattern: repeating-linear-gradient(
@@ -274,7 +274,7 @@
 .podium {
   width: auto;
   height: auto;
-  max-width: 300px; 
+  max-width: 300px;
   max-height: 400px;
   object-fit: contain;
 }
