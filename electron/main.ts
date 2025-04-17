@@ -248,15 +248,15 @@ function initializeIPC() {
 
 // Views
 function createWindow() {
-  // mainView = new BrowserWindow({
-  //   icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
-  //   width: 1920,
-  //   height: 1080,
-  //   webPreferences: {
-  //     preload: path.join(__dirname, 'preload.mjs'),
-  //   },
-  //   frame: false,
-  // });
+  mainView = new BrowserWindow({
+    icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
+    width: 1920,
+    height: 1080,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.mjs'),
+    },
+    frame: false,
+  });
 
   techView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
@@ -269,10 +269,10 @@ function createWindow() {
   });
 
   if (VITE_DEV_SERVER_URL) {
-    // mainView.loadURL(VITE_DEV_SERVER_URL);
+    mainView.loadURL(VITE_DEV_SERVER_URL);
     techView.loadURL(VITE_DEV_SERVER_URL + '/control.html');
   } else {
-    // mainView.loadFile(path.join(RENDERER_DIST, 'index.html'));
+    mainView.loadFile(path.join(RENDERER_DIST, 'index.html'));
     techView.loadFile(path.join(RENDERER_DIST, 'control.html'));
   }
 }
