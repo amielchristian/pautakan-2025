@@ -7,6 +7,8 @@ function MainView() {
   const [colleges, setColleges] = useState<College[]>([]);
   const [difficulty, setDifficulty] = useState<string>('');
   const [category, setCategory] = useState<string>('');
+  const [lastNormalDifficulty, setLastNormalDifficulty] = useState<string>('');
+  const [division, setDivision] = useState<string>('');  
   const [isFinalsMode, setIsFinalsMode] = useState<boolean>(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [topFiveColleges, setTopFiveColleges] = useState<College[]>([]);
@@ -54,6 +56,8 @@ function MainView() {
     window.ipcRenderer.removeAllListeners('db-updated');
     window.ipcRenderer.removeAllListeners('category-synced');
     window.ipcRenderer.removeAllListeners('difficulty-synced');
+    window.ipcRenderer.removeAllListeners('division-synced');
+
     window.ipcRenderer.removeAllListeners('top-five-colleges');
     window.ipcRenderer.removeAllListeners('switch-to-finals');
     window.ipcRenderer.removeAllListeners('refresh');
@@ -72,6 +76,7 @@ function MainView() {
       });
     });
 
+
     window.ipcRenderer.on('scores-reset', () => {
       getColleges().then((updatedColleges) => {
         setColleges(updatedColleges);
@@ -87,6 +92,7 @@ function MainView() {
         });
       }
     });
+
 
     window.ipcRenderer.on('switch-to-finals', (_, topFiveColleges) => {
       setCategory('Finals');
@@ -111,6 +117,11 @@ function MainView() {
       console.log(`DIFFICULTY CHANGED: ${difficulty}`);
     });
 
+    window.ipcRenderer.on('division-synced', (_, division) => {
+      setDivision(division);
+      console.log(`DIVISION CHANGED: ${division}`);
+    });
+
     window.ipcRenderer.on('refresh', () => {
       window.location.reload();
     });
@@ -130,6 +141,7 @@ function MainView() {
       window.ipcRenderer.removeAllListeners('db-updated');
       window.ipcRenderer.removeAllListeners('category-synced');
       window.ipcRenderer.removeAllListeners('difficulty-synced');
+      window.ipcRenderer.removeAllListeners('division-synced');
       window.ipcRenderer.removeAllListeners('top-five-colleges');
       window.ipcRenderer.removeAllListeners('switch-to-finals');
       window.ipcRenderer.removeAllListeners('refresh');
@@ -144,6 +156,7 @@ function MainView() {
       const { category: currentCategory, topFiveColleges } =
         await window.ipcRenderer.invoke('sync-category');
       await window.ipcRenderer.invoke('sync-difficulty');
+      await window.ipcRenderer.invoke('sync-division');
 
       // If we're already in Finals mode and have top 5 colleges, use those
       if (
@@ -173,8 +186,46 @@ function MainView() {
     };
   }, []);
 
+  window.ipcRenderer.on('difficulty-synced', (_, newDifficulty) => {
+    setDifficulty(newDifficulty);
+  
+    // Store last normal difficulty if it's not a special round
+    if (['Easy', 'Average', 'Difficult'].includes(newDifficulty)) {
+      setLastNormalDifficulty(newDifficulty);
+    }
+  
+    console.log(`DIFFICULTY CHANGED: ${newDifficulty}`);
+  });
+
+
+
+
   return (
     <>
+
+<div className="absolute bottom-87 right-30 flex flex-col items-center gap-18 z-[9999] w-[300px]">
+   
+<div className='mt-4 text-transparent text-[80px] font-bold bg-clip-text font-[DS-Digital] bg-white drop-shadow-[0_0_0.1em_white]'>
+  {division}
+</div>
+
+ {/*Normal Difficulties*/}
+<div className='mt-4 text-green-500 text-8xl font-bold bg-clip-text font-[DS-Digital] bg-green-200 drop-shadow-[0_0_0.1em_green]'>
+{lastNormalDifficulty}
+</div>
+
+</div>
+
+<div className="absolute bottom-15 right-30 flex flex-col items-center gap-19 z-[9999] w-[300px]">
+
+  {/*Special Difficulties*/}
+{['Clincher', 'Sudden Death'].includes(difficulty) && (
+<div className='mt-4 text-red-500 text-8xl text-center font-bold bg-clip-text font-[DS-Digital] bg-red-200 drop-shadow-[0_0_0.1em_red]'>
+  {difficulty}
+</div>
+)}
+</div>
+  
       {/* Full-screen frame */}
       <div className='fixed top-0 left-0 w-screen h-screen z-50 pointer-events-none'>
         <img

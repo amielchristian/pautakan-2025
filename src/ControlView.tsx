@@ -34,6 +34,14 @@ export default function ControlView() {
     changeDifficulty();
   }, [difficulty]);
 
+  useEffect(() => {
+    const changeDivision = async () => {
+      await window.ipcRenderer.invoke('sync-division', division);
+      console.log(`Division changed to: ${division}`);
+    };
+    changeDivision();
+  }, [division]);
+
   // Update colleges on change
   // ...then sync to DB
   async function updateScore(

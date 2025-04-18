@@ -24,6 +24,7 @@ let techView: BrowserWindow | null;
 // Data
 let category = 'Eliminations';
 let difficulty = 'Easy';
+let division ='Teams';
 let topFiveColleges: College[] = [];
 
 // Mock colleges data directly in memory
@@ -159,6 +160,11 @@ function initializeIPC() {
     mainView?.webContents.send('difficulty-synced', difficulty);
   });
 
+  ipcMain.handle('sync-division', (_, data) => {
+    if (data) division = data;
+    mainView?.webContents.send('division-synced', division);
+  });
+  
   ipcMain.handle('show-top-five', (_, selectedColleges) => {
     topFiveColleges = selectedColleges;
     mainView?.webContents.send('top-five-colleges', topFiveColleges);
