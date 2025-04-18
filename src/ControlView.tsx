@@ -2,7 +2,7 @@ import './App.css';
 import { useEffect, useState } from 'react';
 import { College } from './types';
 
-const buttonStyles = `shrink p-[1%] bg-white hover:bg-gray-200 cursor-pointer m-[1%] rounded-xl border-2 border-gray-300 font-semibold text-gray-700 shadow-sm disabled:bg-gray-200 disabled:cursor-not-allowed`;
+const buttonStyles = `shrink p-[1%] bg-white hover:bg-gray-200 cursor-pointer m-[1%] rounded-xl border-2 border-gray-300 font-semibold text-gray-700 shadow-sm disabled:bg-gray-400 <disabled:border-gray-500></disabled:border-gray-500> disabled:cursor-not-allowed disabled:text-white`;
 export default function ControlView() {
   const [colleges, setColleges] = useState<College[]>([]);
   const [difficulty, setDifficulty] = useState('Easy');
@@ -120,7 +120,10 @@ export default function ControlView() {
         <div className='flex flex-row items-center justify-between'>
           <div className='flex flex-row w-4/9 items-center justify-evenly ml-4'>
             <Dropdown
-              options={['Eliminations', 'Finals']}
+              options={[
+                { value: 'Eliminations' },
+                { value: 'Finals', disabled: getTopFiveColleges().length < 5 },
+              ]}
               onChange={(selected) => {
                 setCategory(selected);
               }}
@@ -128,11 +131,11 @@ export default function ControlView() {
             />
             <Dropdown
               options={[
-                'Easy',
-                'Average',
-                'Difficult',
-                'Clincher',
-                'Sudden Death',
+                { value: 'Easy' },
+                { value: 'Average' },
+                { value: 'Difficult' },
+                { value: 'Clincher' },
+                { value: 'Sudden Death' },
               ]}
               onChange={(selected) => {
                 setDifficulty(selected);
@@ -141,7 +144,7 @@ export default function ControlView() {
             />
 
             <Dropdown
-              options={['Individual', 'Teams']}
+              options={[{ value: 'Individual' }, { value: 'Teams' }]}
               onChange={(selected) => {
                 setDivision(selected);
               }}
@@ -262,17 +265,20 @@ function Dropdown({
   onChange,
   initialValue,
 }: {
-  options: string[];
+  options: DropdownOption[];
   onChange?: (value: string) => void;
   initialValue?: string;
 }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selected, setSelected] = useState<string>(initialValue || options[0]);
+  const [selected, setSelected] = useState<string>(
+    initialValue || options[0].value
+  );
 
-  const handleSelect = (option: string) => {
-    setSelected(option);
+  const handleSelect = (option: DropdownOption) => {
+    if (option.disabled) return; // Do nothing if the option is disabled
+    setSelected(option.value);
     setIsOpen(false);
-    if (onChange) onChange(option);
+    if (onChange) onChange(option.value);
   };
 
   return (
@@ -298,11 +304,15 @@ function Dropdown({
           <ul>
             {options.map((option) => (
               <li
-                key={option}
-                className='p-2 hover:bg-gray-100 cursor-pointer'
+                key={option.value}
+                className={`p-2 hover:bg-gray-100 ${
+                  option.disabled
+                    ? 'text-gray-400 cursor-not-allowed'
+                    : 'text-black cursor-pointer'
+                }`}
                 onClick={() => handleSelect(option)}
               >
-                {option}
+                {option.value}
               </li>
             ))}
           </ul>
@@ -310,4 +320,9 @@ function Dropdown({
       )}
     </div>
   );
+}
+
+interface DropdownOption {
+  value: string;
+  disabled?: boolean;
 }
