@@ -7,13 +7,24 @@ import { useState } from 'react';
 function RadarView({ colleges,
   collegeRadiusAdjustments,
   setCollegeRadiusAdjustments,
-  circleRefs, }: { colleges: College[], collegeRadiusAdjustments: Record<string, number>;  setCollegeRadiusAdjustments: React.Dispatch<React.SetStateAction<Record<string, number>>>; circleRefs: React.MutableRefObject<(HTMLDivElement | null)[]>; }) {
+  circleRefs, 
+  activeRing,
+  setActiveRing,
+  smallestRingValue,
+  setSmallestRingValue,
+}: { 
+  colleges: College[], 
+  collegeRadiusAdjustments: Record<string, number>;  
+  setCollegeRadiusAdjustments: React.Dispatch<React.SetStateAction<Record<string, number>>>; 
+  circleRefs: React.MutableRefObject<(HTMLDivElement | null)[]>;
+  activeRing: number;
+  setActiveRing: React.Dispatch<React.SetStateAction<number>>;
+  smallestRingValue: number;
+  setSmallestRingValue: React.Dispatch<React.SetStateAction<number>>; }) {
   const [scaleFactor, setScaleFactor] = useState(1);
   const radarBaseRef = useRef<HTMLDivElement>(null);
   const [pings, setPings] = useState<number[]>([]);
   const [booted, setBooted] = useState(false);
-  const [activeRing, setActiveRing] = useState(11);
-  const [smallestRingValue, setSmallestRingValue] = useState(1);
   // Keep track of individual college radius adjustments
   // Keep track of previous scores to determine if score is increasing or decreasing
   const [prevScores, setPrevScores] = useState<Record<string, number>>({});
@@ -244,7 +255,7 @@ function RadarView({ colleges,
       window.ipcRenderer.removeAllListeners('score-updated');
       window.ipcRenderer.removeAllListeners('scores-reset');
     };
-  }, [prevScores, colleges]); // Include dependencies but be cautious of constantly changing values
+  }, [prevScores, colleges, activeRing, smallestRingValue]); // Include dependencies but be cautious of constantly changing values
 
  // circleRefs.current[0]!.style.opacity = "1";
   // Ping sequence using React state - only run when booted changes

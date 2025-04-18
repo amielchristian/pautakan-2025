@@ -14,6 +14,8 @@ function MainView() {
   const [topFiveColleges, setTopFiveColleges] = useState<College[]>([]);
   const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<Record<string, number>>({});
   const circleRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [activeRing, setActiveRing] = useState(11);
+  const [smallestRingValue, setSmallestRingValue] = useState(1);
 
   const radialGridContainerRef = useRef<HTMLDivElement>(null);
 
@@ -109,6 +111,8 @@ function MainView() {
     window.ipcRenderer.on('difficulty-synced', (_, difficulty) => {
       setDifficulty(difficulty);
       setCollegeRadiusAdjustments({});
+      setActiveRing(11)
+      setSmallestRingValue(1)
       circleRefs.current.forEach((circleRef) => {
         if (circleRef) {
           circleRef.style.opacity = "0";
@@ -338,7 +342,11 @@ function MainView() {
               colleges={colleges}
               collegeRadiusAdjustments={collegeRadiusAdjustments}
               setCollegeRadiusAdjustments={setCollegeRadiusAdjustments}
-              circleRefs={circleRefs}>
+              circleRefs={circleRefs}
+              activeRing={activeRing}
+              setActiveRing={setActiveRing}
+              smallestRingValue={smallestRingValue}
+              setSmallestRingValue={setSmallestRingValue}>
               </RadarView>
             {isFinalsMode && (
               <div className='absolute top-0 left-0 w-full p-4 text-center'></div>
