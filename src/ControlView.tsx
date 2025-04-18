@@ -41,7 +41,9 @@ export default function ControlView() {
     offset: number,
     adjustRadius: boolean = false
   ) {
-    const collegeUpdated = { ...college, score: college.score + offset };
+    let newScore = college.score + offset;
+    if (newScore < 0) newScore = 0; // Prevent negative scores
+    const collegeUpdated = { ...college, score: newScore };
     setColleges(
       colleges.map((x: College) =>
         x.name === collegeUpdated.name ? collegeUpdated : x
