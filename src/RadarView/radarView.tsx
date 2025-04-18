@@ -5,6 +5,7 @@ import { College } from '../types';
 import { useState } from 'react';
 
 function RadarView({ colleges }: { colleges: College[] }) {
+  const [scaleFactor, setScaleFactor] = useState(1);
   const radarBaseRef = useRef<HTMLDivElement>(null);
   const [pings, setPings] = useState<number[]>([]);
   const [booted, setBooted] = useState(false);
@@ -16,6 +17,18 @@ function RadarView({ colleges }: { colleges: College[] }) {
   // Track which colleges should show red logos with opacity for fading
   const [redLogoOpacity, setRedLogoOpacity] = useState<Record<string, number>>({});
   
+  useEffect(() => {
+    function updateScale() {
+      const scaleW = window.innerWidth / 1920;
+      const scaleH = window.innerHeight / 1080;
+      setScaleFactor(Math.min(scaleW, scaleH)); // Maintain aspect ratio
+    }
+  
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, []);
+
   // Sort colleges by score to determine rankings (top 5)
   const rankedColleges = useMemo(() => {
     return [...colleges].sort((a, b) => b.score - a.score);
@@ -236,217 +249,219 @@ function RadarView({ colleges }: { colleges: College[] }) {
 
   const isFinalsMode = colleges.length <= 5;
   // Base radius value 
-  const baseRadius = 530;
+  const baseRadius = 430;
   const parentSize = 90;
   // Number of segments
   const numSegments = 320;
 
   return (
-    <div className='radar-container'>
-      <div
-        id='radarBase'
-        ref={radarBaseRef}
-        className={`radar-base ${isFinalsMode ? 'finals-mode' : ''}`}
-      >
-      {Array.from({ length: 12 }).map((_, i) => {
-        const minSize = 180;
-        const gap = 75;
-        const size = minSize + i * gap;
-        let startTime = 7;
-        const customDelays: string[] = []
-        for (let i = 0; i < 12; i++) { 
-          const toString = startTime + 's'
-          customDelays.push(toString);
-          startTime += 0.1;
-        }
-        return (
-          <div
-            key={`red-circle-${i}`}
-            ref={(el) => circleRefs.current[i] = el}
-            className="red-circle"
-            style={{
-              width: `${size}px`,
-              height: `${size}px`,
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              border: '2px solid red', // Set initial border width
-              borderRadius: '50%',
-              transform: `translate(-50%, -50%)`,
-              zIndex: 5,
-              opacity: 0, // Initial opacity, will animate with the `pulseBorder` animation
-              animation: 'pulseBorder 1s ease-in-out', // Apply the pulse animation to border-width
-              animationDelay: customDelays[i], // Use custom delays from the array
-            }}
-          />
-        );
-      })}
+    <div className='radar-wrapper' style={{ transform: `scale(${scaleFactor})` }}>
+      <div className='radar-container'>
+        <div
+          id='radarBase'
+          ref={radarBaseRef}
+          className={`radar-base ${isFinalsMode ? 'finals-mode' : ''}`}
+        >
+        {Array.from({ length: 12 }).map((_, i) => {
+          const minSize = 150;
+          const gap = 60;
+          const size = minSize + i * gap;
+          let startTime = 7;
+          const customDelays: string[] = []
+          for (let i = 0; i < 12; i++) { 
+            const toString = startTime + 's'
+            customDelays.push(toString);
+            startTime += 0.1;
+          }
+          return (
+            <div
+              key={`red-circle-${i}`}
+              ref={(el) => circleRefs.current[i] = el}
+              className="red-circle"
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                border: '2px solid red', // Set initial border width
+                borderRadius: '50%',
+                transform: `translate(-50%, -50%)`,
+                zIndex: 5,
+                opacity: 0, // Initial opacity, will animate with the `pulseBorder` animation
+                animation: 'pulseBorder 1s ease-in-out', // Apply the pulse animation to border-width
+                animationDelay: customDelays[i], // Use custom delays from the array
+              }}
+            />
+          );
+        })}
 
-        {/* Radar Pings */}
-        {pings.map((id) => (
-          <div
-            key={id}
-            className='radar-ping'
-            style={{ 
-              animation: 'radar-ping 4s ease-out',
-              border: '3px solid rgba(160, 32, 240, 0.9)' // Ensure this is set inline
-            }}
-            onAnimationEnd={() =>
-              setPings((p) => p.filter((pingId) => pingId !== id))
-            }
-          />
-        ))}
-
-        <div className='center-image-wrapper'>
-          {/* Logos */}
-          <div id='logosContainer' className='logos-container'>
-            {colleges.map((college, i) => {
-              let angle = ((i * 360) / colleges.length);
-              if(isFinalsMode){
-                angle = angle + 54;
+          {/* Radar Pings */}
+          {pings.map((id) => (
+            <div
+              key={id}
+              className='radar-ping'
+              style={{ 
+                animation: 'radar-ping 4s ease-out',
+                border: '3px solid rgba(160, 32, 240, 0.9)' // Ensure this is set inline
+              }}
+              onAnimationEnd={() =>
+                setPings((p) => p.filter((pingId) => pingId !== id))
               }
-              const angleRad = (angle * Math.PI) / 180;
-              
-              // Apply individual adjustment factor for this specific college
-              const adjustmentFactor = isFinalsMode 
-                ? 0.78  // Custom closer-in value for finals mode
-                : (collegeRadiusAdjustments[college.shorthand] || 1.0);
-              const adjustedRadius = baseRadius * adjustmentFactor;
-              
-              const radiusPercentage = (adjustedRadius / parentSize) * 100;
-              const logoX = radiusPercentage * Math.cos(angleRad);
-              const logoY = radiusPercentage * Math.sin(angleRad);
-              const logosPauseDelay = 2;
-              const logosStartTime = 1 + logosPauseDelay;
+            />
+          ))}
 
-              // Get the rank of this college if it's in the top 5 (1-indexed)
-              const collegeRank = topFiveColleges.findIndex(c => c.shorthand === college.shorthand) + 1;
-              const isInTopFive = collegeRank > 0 && collegeRank <= 5;
-              
-              // Get the red logo opacity for this college (0 to 1)
-              const redOpacity = redLogoOpacity[college.shorthand] || 0;
-              
-              // Regular image path and red image path
-              const regularImagePath = college.imagePath;
-              const redImagePath = college.imagePath.replace('.png', '-RED.png');
+          <div className='center-image-wrapper'>
+            {/* Logos */}
+            <div id='logosContainer' className='logos-container'>
+              {colleges.map((college, i) => {
+                let angle = ((i * 360) / colleges.length);
+                if(isFinalsMode){
+                  angle = angle + 54;
+                }
+                const angleRad = (angle * Math.PI) / 180;
+                
+                // Apply individual adjustment factor for this specific college
+                const adjustmentFactor = isFinalsMode 
+                  ? 0.78  // Custom closer-in value for finals mode
+                  : (collegeRadiusAdjustments[college.shorthand] || 1.0);
+                const adjustedRadius = baseRadius * adjustmentFactor;
+                
+                const radiusPercentage = (adjustedRadius / parentSize) * 100;
+                const logoX = radiusPercentage * Math.cos(angleRad);
+                const logoY = radiusPercentage * Math.sin(angleRad);
+                const logosPauseDelay = 2;
+                const logosStartTime = 1 + logosPauseDelay;
+
+                // Get the rank of this college if it's in the top 5 (1-indexed)
+                const collegeRank = topFiveColleges.findIndex(c => c.shorthand === college.shorthand) + 1;
+                const isInTopFive = collegeRank > 0 && collegeRank <= 5;
+                
+                // Get the red logo opacity for this college (0 to 1)
+                const redOpacity = redLogoOpacity[college.shorthand] || 0;
+                
+                // Regular image path and red image path
+                const regularImagePath = college.imagePath;
+                const redImagePath = college.imagePath.replace('.png', '-RED.png');
+
+                return (
+                  <div
+                    key={i}
+                    className={`logo-container ${isInTopFive ? 'top-five' : ''}`}
+                    style={{
+                      position: 'absolute',
+                      left: '50%',
+                      top: '50%',
+                      transform: `translate(-50%, -50%) translate(${logoX}%, ${logoY}%)`,
+                      animation: `fadeIn 0.8s forwards ${
+                        logosStartTime + i * 0.2
+                      }s`,
+                      transition: 'transform 0.5s ease-out' // Smooth transition when radius changes
+                    }}
+                  >
+                    {/* Regular logo with opposite opacity of red logo */}
+                    <img 
+                      src={regularImagePath} 
+                      alt={`Logo ${i + 1}`} 
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        opacity: 1 - redOpacity,
+                        transition: 'opacity 0.3s ease-in-out',
+                        zIndex: 1
+                      }}
+                    />
+                    
+                    {/* Red logo with controlled opacity for fading */}
+                    <img 
+                      src={redImagePath} 
+                      alt={`Logo ${i + 1} Red`} 
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        opacity: redOpacity,
+                        transition: 'opacity 0.3s ease-in-out',
+                        zIndex: 2
+                      }}
+                    />
+                    
+                    {/* Add rank indicator for top 5 colleges in all modes */}
+                    {isInTopFive && (
+                      <div 
+                        className={`rank-indicator ${rankChangeEffects[college.shorthand] ? 'rank-changed' : ''}`}
+                        style={{
+                          position: 'absolute',
+                          top: '0px',
+                          right: '10px',
+                          width: '40px',
+                          height: '40px',
+                          opacity: 1,
+                          animation: rankChangeEffects[college.shorthand] 
+                            ? 'rankChangeEffect 2s ease-in-out'
+                            : `fadeIn 0.8s forwards ${logosStartTime + i * 0.2 + 0.5}s`,
+                          zIndex: 12
+                        }}
+                      >
+                        <img 
+                          src={`./images/ingameRanks/${collegeRank}.png`} 
+                          alt={`Rank ${collegeRank}`} 
+                          style={{ 
+                            width: '100%', 
+                            height: '100%',
+                            filter: rankChangeEffects[college.shorthand] ? 'brightness(1.5) drop-shadow(0 0 10px gold)' : 'none',
+                            transition: 'filter 0.3s ease-in-out'
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Center image */}
+            <img
+              src='./images/icon.png'
+              alt='Center Vault'
+              className='center-image'
+            />
+
+            {/* Center border container */}
+            <div id='centerBorderContainer' className='center-border-container' />
+          </div>
+
+          {/* Rotating segments - fixed radius for lines */}
+          <div
+            id='rotatingContainer'
+            className='rotating-container'
+            style={{ animation: 'rotate 30s linear infinite' }}
+          >
+            {[...Array(numSegments)].map((_, i) => {
+              const angle = (i * 360) / numSegments - 90;
+              const delay = 3 + (i / numSegments) * 0.5;
 
               return (
                 <div
                   key={i}
-                  className={`logo-container ${isInTopFive ? 'top-five' : ''}`}
+                  className='line-segment'
                   style={{
-                    position: 'absolute',
-                    left: '50%',
-                    top: '50%',
-                    transform: `translate(-50%, -50%) translate(${logoX}%, ${logoY}%)`,
-                    animation: `fadeIn 0.8s forwards ${
-                      logosStartTime + i * 0.2
-                    }s`,
-                    transition: 'transform 0.5s ease-out' // Smooth transition when radius changes
+                    transform: `rotate(${angle}deg) translateX(${baseRadius}px) rotate(90deg)`,
+                    animation: `fadeIn 0.3s forwards ${delay}s`,
                   }}
-                >
-                  {/* Regular logo with opposite opacity of red logo */}
-                  <img 
-                    src={regularImagePath} 
-                    alt={`Logo ${i + 1}`} 
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      opacity: 1 - redOpacity,
-                      transition: 'opacity 0.3s ease-in-out',
-                      zIndex: 1
-                    }}
-                  />
-                  
-                  {/* Red logo with controlled opacity for fading */}
-                  <img 
-                    src={redImagePath} 
-                    alt={`Logo ${i + 1} Red`} 
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      opacity: redOpacity,
-                      transition: 'opacity 0.3s ease-in-out',
-                      zIndex: 2
-                    }}
-                  />
-                  
-                  {/* Add rank indicator for top 5 colleges in all modes */}
-                  {isInTopFive && (
-                    <div 
-                      className={`rank-indicator ${rankChangeEffects[college.shorthand] ? 'rank-changed' : ''}`}
-                      style={{
-                        position: 'absolute',
-                        top: '0px',
-                        right: '10px',
-                        width: '40px',
-                        height: '40px',
-                        opacity: 1,
-                        animation: rankChangeEffects[college.shorthand] 
-                          ? 'rankChangeEffect 2s ease-in-out'
-                          : `fadeIn 0.8s forwards ${logosStartTime + i * 0.2 + 0.5}s`,
-                        zIndex: 12
-                      }}
-                    >
-                      <img 
-                        src={`./images/ingameRanks/${collegeRank}.png`} 
-                        alt={`Rank ${collegeRank}`} 
-                        style={{ 
-                          width: '100%', 
-                          height: '100%',
-                          filter: rankChangeEffects[college.shorthand] ? 'brightness(1.5) drop-shadow(0 0 10px gold)' : 'none',
-                          transition: 'filter 0.3s ease-in-out'
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
+                />
               );
             })}
           </div>
-
-          {/* Center image */}
-          <img
-            src='./images/icon.png'
-            alt='Center Vault'
-            className='center-image'
-          />
-
-          {/* Center border container */}
-          <div id='centerBorderContainer' className='center-border-container' />
         </div>
 
-        {/* Rotating segments - fixed radius for lines */}
-        <div
-          id='rotatingContainer'
-          className='rotating-container'
-          style={{ animation: 'rotate 30s linear infinite' }}
-        >
-          {[...Array(numSegments)].map((_, i) => {
-            const angle = (i * 360) / numSegments - 90;
-            const delay = 3 + (i / numSegments) * 0.5;
-
-            return (
-              <div
-                key={i}
-                className='line-segment'
-                style={{
-                  transform: `rotate(${angle}deg) translateX(${baseRadius}px) rotate(90deg)`,
-                  animation: `fadeIn 0.3s forwards ${delay}s`,
-                }}
-              />
-            );
-          })}
-        </div>
+        <div className='clock-face'></div>
       </div>
-
-      <div className='clock-face'></div>
     </div>
   );
 }

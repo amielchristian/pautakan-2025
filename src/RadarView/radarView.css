@@ -12,10 +12,18 @@ body {
   overflow: hidden;
 }
 
+.radar-wrapper {
+  width: 40vw;
+  height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .radar-container {
   position: relative;
-  width: 800px;
-  height: 800px;
+  width: 1920px;
+  height: 1080px;
   opacity: 0;
   animation: fadeIn 1s forwards 1s;
 }
