@@ -2,7 +2,7 @@ import './App.css';
 import { useEffect, useState } from 'react';
 import { College } from './types';
 
-const buttonStyles = `shrink p-[1%] bg-white hover:bg-gray-200 cursor-pointer m-[1%] rounded-xl border-2 border-gray-300 font-semibold text-gray-700 shadow-sm disabled:bg-gray-400 <disabled:border-gray-500></disabled:border-gray-500> disabled:cursor-not-allowed disabled:text-white`;
+const buttonStyles = `shrink p-[1%] bg-white hover:bg-gray-200 cursor-pointer m-[1%] rounded-xl border-2 border-gray-300 font-semibold text-gray-700 shadow-sm disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:bg-white`;
 export default function ControlView() {
   const [colleges, setColleges] = useState<College[]>([]);
   const [difficulty, setDifficulty] = useState('Easy');
