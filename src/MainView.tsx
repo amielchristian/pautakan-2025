@@ -168,20 +168,19 @@ function MainView() {
   return (
     <>
       {/* Full-screen frame */}
-      <div className='screen-frame absolute inset-0 w-full h-full pointer-events-none z-50'>
+      <div className='fixed top-0 left-0 w-screen h-screen z-50 pointer-events-none'>
         <img
           src='./images/NEW SCREEN FRAME.png'
           alt='Screen Frame'
-          className='w-95 h-95'
+          className='w-screen h-screen object-fill'
         />
       </div>
 
       {/* Body - flex row */}
-      <div className='overflow-hidden bg-gray-300 flex flex-row h-screen w-screen p-8 pr-23 space-x-[1%] inset-shadow-custom'>
+      <div className='overflow-hidden bg-black flex flex-row h-screen w-screen p-8 space-x-[1%]'>
         {/* Main */}
         <div
-          className='sharp-edge-box flex flex-row w-[98%] p-5 space-x-4
-          [--border-width:2px] border-[2px] border-r-[4px] border-r-[var(--red)]
+          className='flex flex-row w-[83%] p-5 space-x-4
           [--all:20px]'
         >
           {/* Scores */}
@@ -278,20 +277,9 @@ function MainView() {
             ></div>
             <RadarView colleges={colleges}></RadarView>
             {isFinalsMode && (
-              <div className='absolute top-0 left-0 w-full p-4 text-center'>
-                {/* <h1 className='text-6xl font-[Starter] font-bold text-transparent bg-clip-text bg-red-200 drop-shadow-[0_0_0.2em_red]'>
-                  FINALS
-                </h1> */}
-              </div>
+              <div className='absolute top-0 left-0 w-full p-4 text-center'></div>
             )}
           </div>
-        </div>
-        <div className='flex flex-col w-3/20 space-y-[5%] mr-3'>
-          <Sidebar
-            difficulty={difficulty}
-            category={category}
-            colleges={colleges}
-          />
         </div>
       </div>
     </>
@@ -331,54 +319,6 @@ function Score({ college }: { college: College }) {
         {college.shorthand}
       </span>
     </div>
-  );
-}
-
-// Difficulty and Category
-function SettingContainer({ content }: { content: string }) {
-  return (
-    <div
-      className='sharp-edge-box bg-black w-auto h-111/1280 [--bottom-left:20px] [--top-right:20px]
-    [--img:linear-gradient(#222,#111)] font-[DS-Digital]
-    text-4xl flex items-center justify-center
-    [--border-width:2px] border-[2px]
-    [--border-color:var(--red)] border-[var(--red)]'
-    >
-      {content}
-    </div>
-  );
-}
-
-function Sidebar({
-  colleges,
-  difficulty,
-  category,
-}: {
-  colleges: College[];
-  difficulty: string;
-  category: string;
-}) {
-  return (
-    <>
-      <div
-        className='sharp-edge-box text-white text-4xl font-[Starter] font-bold
-      flex items-center justify-center
-      w-auto h-240/1280 [--all:20px] grid-pattern shadow-custom'
-      >
-        <img src='./images/logo.png' />
-      </div>
-      <div className='sharp-edge-box h-460/1280 p-[10%] [--all:20px] grid-pattern grid grid-cols-4 gap-x-2 gap-y-0 items-center'>
-        {colleges.map((college) => (
-          <img
-            key={college.id}
-            className='object-cover scale-200'
-            src={college.imagePath}
-          />
-        ))}
-      </div>
-      <SettingContainer content={category} />
-      <SettingContainer content={difficulty} />
-    </>
   );
 }
 
