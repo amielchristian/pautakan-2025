@@ -167,14 +167,14 @@ function MainView() {
 
   return (
     <>
-      {/* Full-screen frame */}
-      <div className='screen-frame absolute inset-0 w-full h-full pointer-events-none z-50'>
-        <img
-          src='./images/NEW SCREEN FRAME.png'
-          alt='Screen Frame'
-          className='w-95 h-95'
-        />
-      </div>
+{/* Full-screen frame */}
+<div className='fixed top-0 left-0 w-screen h-screen z-50 pointer-events-none'>
+  <img
+    src='./images/NEW SCREEN FRAME.png'
+    alt='Screen Frame'
+    className='w-screen h-screen object-fill'
+  />
+</div>
 
       {/* Body - flex row */}
       <div className='overflow-hidden bg-gray-300 flex flex-row h-screen w-screen p-8 pr-23 space-x-[1%] inset-shadow-custom'>

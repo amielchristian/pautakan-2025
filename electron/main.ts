@@ -258,6 +258,15 @@ function createWindow() {
     frame: false,
   });
 
+  mainView.webContents.on('before-input-event', (event, input) => {
+    if (
+      (input.control || input.meta) &&
+      (input.key === '+' || input.key === '-' || input.key === '=' || input.key === '0')
+    ) {
+      event.preventDefault();
+    }
+  });
+
   techView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
     webPreferences: {
