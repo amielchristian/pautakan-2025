@@ -133,36 +133,39 @@ function RadarView({ colleges,
         
         if (newScore > oldScore) {
           // Score increasing - move toward center
-          if (ringToUse != -1){
-            newFactor = Math.max(currentFactor - 0.065);
-            console.log(`College ${shorthand} moving inward: ${currentFactor} -> ${newFactor}`);
-            if (newFactor < smallestRingValue){
+          newFactor = currentFactor - 0.065;
+            if (ringToUse != -1 && newFactor < smallestRingValue){
               circleRefs.current[ringToUse]!.style.transition = "opacity 0.5s ease";
               circleRefs.current[ringToUse]!.style.opacity = "1";
               setActiveRing(ringToUse - 1);
               setSmallestRingValue(newFactor)
+            } else if (ringToUse >= -1 && newFactor >= smallestRingValue) {
+              console.log('placeholder')
+            } else {
+              newFactor = currentFactor
             }
-          } else {
-            newFactor = currentFactor
-          }
         } else {
           // Score decreasing - move away from center
           // Cap at 1.0 to prevent going beyond original position
-          if (ringToUse != 11){
-            newFactor = Math.min(currentFactor + 0.065);
-            console.log(`College ${shorthand} moving outward: ${currentFactor} -> ${newFactor}`);
+            newFactor = currentFactor + 0.065;
             const ringToHide = ringToUse + 1;
-            if (currentFactor == smallestRingValue){
+            const isSharedFactor = Object.entries(prev).some(([key, value]) => {
+              return key !== shorthand && value === currentFactor;
+            });
+            console.log('IS SHARED FACTOR', isSharedFactor)
+            if (ringToHide != 12 && currentFactor == smallestRingValue && !isSharedFactor){
               circleRefs.current[ringToHide]!.style.transition = "opacity 0.5s ease";
               circleRefs.current[ringToHide]!.style.opacity = "0";
               setActiveRing(ringToHide);
               setSmallestRingValue(newFactor)
+            } else if (ringToHide != 12 && newFactor <= 1) {
+              console.log('placeholder')
+            } else {
+              newFactor = currentFactor
             }
-          } else {
-            newFactor = currentFactor
-          }
         }
 
+        console.log('SMALLEST RING VALUE IS', smallestRingValue)
         console.log("NEW FACTOR IS:", newFactor)
         
         return {
