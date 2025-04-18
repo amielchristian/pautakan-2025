@@ -4,14 +4,17 @@ import './finalsMode.css';
 import { College } from '../types';
 import { useState } from 'react';
 
-function RadarView({ colleges }: { colleges: College[] }) {
+function RadarView({ colleges,
+  collegeRadiusAdjustments,
+  setCollegeRadiusAdjustments,
+  circleRefs, }: { colleges: College[], collegeRadiusAdjustments: Record<string, number>;  setCollegeRadiusAdjustments: React.Dispatch<React.SetStateAction<Record<string, number>>>; circleRefs: React.MutableRefObject<(HTMLDivElement | null)[]>; }) {
   const [scaleFactor, setScaleFactor] = useState(1);
   const radarBaseRef = useRef<HTMLDivElement>(null);
   const [pings, setPings] = useState<number[]>([]);
   const [booted, setBooted] = useState(false);
-  const circleRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [activeRing, setActiveRing] = useState(11);
+  const [smallestRingValue, setSmallestRingValue] = useState(1);
   // Keep track of individual college radius adjustments
-  const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<Record<string, number>>({});
   // Keep track of previous scores to determine if score is increasing or decreasing
   const [prevScores, setPrevScores] = useState<Record<string, number>>({});
   // Track which colleges should show red logos with opacity for fading
@@ -125,17 +128,42 @@ function RadarView({ colleges }: { colleges: College[] }) {
         // If score is increasing, move toward center (reduce radius)
         // If score is decreasing, move away from center (increase radius)
         let newFactor;
+        const ringToUse = activeRing
+        console.log('RING TO USE IS', ringToUse)
         
         if (newScore > oldScore) {
           // Score increasing - move toward center
-          newFactor = Math.max(currentFactor * 0.95, 0.05);
-          console.log(`College ${shorthand} moving inward: ${currentFactor} -> ${newFactor}`);
+          if (ringToUse != -1){
+            newFactor = Math.max(currentFactor - 0.065);
+            console.log(`College ${shorthand} moving inward: ${currentFactor} -> ${newFactor}`);
+            if (newFactor < smallestRingValue){
+              circleRefs.current[ringToUse]!.style.transition = "opacity 0.5s ease";
+              circleRefs.current[ringToUse]!.style.opacity = "1";
+              setActiveRing(ringToUse - 1);
+              setSmallestRingValue(newFactor)
+            }
+          } else {
+            newFactor = currentFactor
+          }
         } else {
           // Score decreasing - move away from center
           // Cap at 1.0 to prevent going beyond original position
-          newFactor = Math.min(currentFactor * 1.05, 1.0);
-          console.log(`College ${shorthand} moving outward: ${currentFactor} -> ${newFactor}`);
+          if (ringToUse != 11){
+            newFactor = Math.min(currentFactor + 0.065);
+            console.log(`College ${shorthand} moving outward: ${currentFactor} -> ${newFactor}`);
+            const ringToHide = ringToUse + 1;
+            if (currentFactor == smallestRingValue){
+              circleRefs.current[ringToHide]!.style.transition = "opacity 0.5s ease";
+              circleRefs.current[ringToHide]!.style.opacity = "0";
+              setActiveRing(ringToHide);
+              setSmallestRingValue(newFactor)
+            }
+          } else {
+            newFactor = currentFactor
+          }
         }
+
+        console.log("NEW FACTOR IS:", newFactor)
         
         return {
           ...prev,
@@ -215,6 +243,7 @@ function RadarView({ colleges }: { colleges: College[] }) {
     };
   }, [prevScores, colleges]); // Include dependencies but be cautious of constantly changing values
 
+ // circleRefs.current[0]!.style.opacity = "1";
   // Ping sequence using React state - only run when booted changes
   useEffect(() => {
     if (!booted) return;
@@ -263,8 +292,8 @@ function RadarView({ colleges }: { colleges: College[] }) {
           className={`radar-base ${isFinalsMode ? 'finals-mode' : ''}`}
         >
         {Array.from({ length: 12 }).map((_, i) => {
-          const minSize = 150;
-          const gap = 60;
+          const minSize = 200;
+          const gap = 55;
           const size = minSize + i * gap;
           let startTime = 7;
           const customDelays: string[] = []

@@ -10,6 +10,8 @@ function MainView() {
   const [isFinalsMode, setIsFinalsMode] = useState<boolean>(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [topFiveColleges, setTopFiveColleges] = useState<College[]>([]);
+  const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<Record<string, number>>({});
+  const circleRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const radialGridContainerRef = useRef<HTMLDivElement>(null);
 
@@ -100,6 +102,12 @@ function MainView() {
 
     window.ipcRenderer.on('difficulty-synced', (_, difficulty) => {
       setDifficulty(difficulty);
+      setCollegeRadiusAdjustments({});
+      circleRefs.current.forEach((circleRef) => {
+        if (circleRef) {
+          circleRef.style.opacity = "0";
+        }
+      });
       console.log(`DIFFICULTY CHANGED: ${difficulty}`);
     });
 
@@ -275,7 +283,12 @@ function MainView() {
               ref={radialGridContainerRef}
               className='radial-grid-container'
             ></div>
-            <RadarView colleges={colleges}></RadarView>
+            <RadarView 
+              colleges={colleges}
+              collegeRadiusAdjustments={collegeRadiusAdjustments}
+              setCollegeRadiusAdjustments={setCollegeRadiusAdjustments}
+              circleRefs={circleRefs}>
+              </RadarView>
             {isFinalsMode && (
               <div className='absolute top-0 left-0 w-full p-4 text-center'></div>
             )}
