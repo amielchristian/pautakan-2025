@@ -30,6 +30,7 @@ function RadarView({ colleges }: { colleges: College[] }) {
   const [prevRankings, setPrevRankings] = useState<Record<string, number>>({});
   const [rankChangeEffects, setRankChangeEffects] = useState<Record<string, boolean>>({});
 
+  // Initialize bootup sequence - this should only run once
   useEffect(() => {
     const totalBootupTime = 10 * 1000;
 
@@ -39,9 +40,20 @@ function RadarView({ colleges }: { colleges: College[] }) {
     }, totalBootupTime + 200);
 
     return () => clearTimeout(bootupTimer);
-  }, []);
+  }, []); // Empty dependency array ensures this only runs once
 
-  // Update previous rankings and detect changes - for ALL modes
+  // Store initial scores - only run once on component mount
+  useEffect(() => {
+    if (colleges.length > 0) {
+      const initialScores: Record<string, number> = {};
+      colleges.forEach(college => {
+        initialScores[college.shorthand] = college.score;
+      });
+      setPrevScores(initialScores);
+    }
+  }, []); // Empty dependency array ensures this only runs once
+
+  // Update previous rankings and detect changes - use a stable dependency list
   useEffect(() => {
     if (colleges.length > 0) {
       const newRankings: Record<string, number> = {};
@@ -62,39 +74,35 @@ function RadarView({ colleges }: { colleges: College[] }) {
         if (prevRank !== 0 && prevRank !== newRank) {
           console.log(`Rank changed for ${college.shorthand}: ${prevRank} -> ${newRank}`);
           newEffects[college.shorthand] = true;
-          
-          // Clear the effect after animation completes
-          setTimeout(() => {
-            setRankChangeEffects(prev => ({
-              ...prev,
-              [college.shorthand]: false
-            }));
-          }, 2000);
         }
       });
       
-      setPrevRankings(newRankings);
-      
-      // Only set effects if there are any
-      if (Object.keys(newEffects).length > 0) {
-        setRankChangeEffects(newEffects);
+      // Only update state if rankings have changed
+      if (JSON.stringify(newRankings) !== JSON.stringify(prevRankings)) {
+        setPrevRankings(newRankings);
+        
+        // Only set effects if there are any
+        if (Object.keys(newEffects).length > 0) {
+          setRankChangeEffects(newEffects);
+          
+          // Clear rank change effects after animation completes
+          Object.keys(newEffects).forEach(shorthand => {
+            setTimeout(() => {
+              setRankChangeEffects(prev => ({
+                ...prev,
+                [shorthand]: false
+              }));
+            }, 2000);
+          });
+        }
       }
     }
-  }, [rankedColleges, colleges, prevRankings]);
+  }, [rankedColleges]); // Only depend on rankedColleges which is derived from colleges
 
-  // Store prev scores on initial load
-  useEffect(() => {
-    const initialScores: Record<string, number> = {};
-    colleges.forEach(college => {
-      initialScores[college.shorthand] = college.score;
-    });
-    setPrevScores(initialScores);
-  }, [colleges]);
-
-  // Improved animation for college logos with smooth fading
+  // Setup event listeners for score updates and resets
   useEffect(() => {
     // Set up event listener for when a college's score is updated
-    window.ipcRenderer.on('score-updated', (_, shorthand, newScore) => {
+    const handleScoreUpdate = (_, shorthand: string, newScore: number) => {
       // Get previous score to determine if we're increasing or decreasing
       const oldScore = prevScores[shorthand] || 0;
       
@@ -167,10 +175,10 @@ function RadarView({ colleges }: { colleges: College[] }) {
       
       // Log rank changes
       console.log(`Score updated for ${shorthand}: ${oldScore} -> ${newScore}`);
-    });
+    };
 
     // Reset all adjustments when scores are reset
-    window.ipcRenderer.on('scores-reset', () => {
+    const handleScoresReset = () => {
       setCollegeRadiusAdjustments({});
       // Reset previous scores too
       const resetScores: Record<string, number> = {};
@@ -181,37 +189,50 @@ function RadarView({ colleges }: { colleges: College[] }) {
       // Clear all red logo opacities
       setRedLogoOpacity({});
       console.log("All college positions reset");
-    });
+    };
+
+    // Register event listeners
+    window.ipcRenderer.on('score-updated', handleScoreUpdate);
+    window.ipcRenderer.on('scores-reset', handleScoresReset);
 
     // Cleanup
     return () => {
       window.ipcRenderer.removeAllListeners('score-updated');
       window.ipcRenderer.removeAllListeners('scores-reset');
     };
-  }, [prevScores, colleges]);
+  }, [prevScores, colleges]); // Include dependencies but be cautious of constantly changing values
 
-  // Ping sequence using React state
+  // Ping sequence using React state - only run when booted changes
   useEffect(() => {
     if (!booted) return;
 
     let pingId = 0;
+    let pingTimeout: NodeJS.Timeout;
 
     function createPingSequence() {
       // Original pattern: Three quick pulses followed by a pause
       setPings((p) => [...p, pingId++]);
-      setTimeout(() => setPings((p) => [...p, pingId++]), 300);
-      setTimeout(() => setPings((p) => [...p, pingId++]), 600);
+      
+      const timeout1 = setTimeout(() => setPings((p) => [...p, pingId++]), 300);
+      const timeout2 = setTimeout(() => setPings((p) => [...p, pingId++]), 600);
 
       // Then wait before the next sequence
-      setTimeout(createPingSequence, 8000);
+      pingTimeout = setTimeout(createPingSequence, 8000);
+
+      return () => {
+        clearTimeout(timeout1);
+        clearTimeout(timeout2);
+        clearTimeout(pingTimeout);
+      };
     }
 
-    createPingSequence();
+    const cleanup = createPingSequence();
 
     return () => {
+      cleanup();
       setPings([]);
     };
-  }, [booted]);
+  }, [booted]); // Only depend on booted state
 
   const isFinalsMode = colleges.length <= 5;
   // Base radius value 
