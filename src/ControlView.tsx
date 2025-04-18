@@ -2,7 +2,7 @@ import './App.css';
 import { useEffect, useState } from 'react';
 import { College } from './types';
 
-const buttonStyles = `shrink p-[1%] bg-white hover:bg-gray-200 cursor-pointer m-[1%] rounded-xl border-2 border-gray-300 font-semibold text-gray-700 shadow-sm`;
+const buttonStyles = `shrink p-[1%] bg-white hover:bg-gray-200 cursor-pointer m-[1%] rounded-xl border-2 border-gray-300 font-semibold text-gray-700 shadow-sm disabled:bg-gray-200 disabled:cursor-not-allowed`;
 export default function ControlView() {
   const [colleges, setColleges] = useState<College[]>([]);
   const [difficulty, setDifficulty] = useState('Easy');
@@ -65,12 +65,19 @@ export default function ControlView() {
     await window.ipcRenderer.invoke('refresh');
   }
 
-  async function showLeaderboard() {
+  function getTopFiveColleges() {
     // Get the top 5 colleges based on score
     const topFiveColleges = [...colleges]
       .sort((a, b) => b.score - a.score)
       .slice(0, 5)
       .filter((college) => college.score > 0);
+
+    return topFiveColleges;
+  }
+
+  async function showLeaderboard() {
+    // Get the top 5 colleges based on score
+    const topFiveColleges = getTopFiveColleges();
 
     // Check if there are fewer than 5 colleges with scores
     if (topFiveColleges.length < 5) {
@@ -134,16 +141,12 @@ export default function ControlView() {
             />
 
             <Dropdown
-              options={[
-                'Individual',
-                'Teams',
-              ]}
+              options={['Individual', 'Teams']}
               onChange={(selected) => {
                 setDivision(selected);
               }}
               initialValue={division}
             />
-
           </div>
           <div className='grid grid-cols-2 w-4/9 mr-4'>
             <button className={buttonStyles} onClick={resetScores}>
@@ -152,10 +155,18 @@ export default function ControlView() {
             <button className={buttonStyles} onClick={refresh}>
               Refresh
             </button>
-            <button className={buttonStyles} onClick={showLeaderboard}>
+            <button
+              className={buttonStyles}
+              onClick={showLeaderboard}
+              disabled={getTopFiveColleges().length < 5}
+            >
               Show Leaderboard
             </button>
-            <button className={buttonStyles} onClick={closeLeaderboard}>
+            <button
+              className={buttonStyles}
+              onClick={closeLeaderboard}
+              disabled={getTopFiveColleges().length < 5}
+            >
               Close Leaderboard
             </button>
           </div>
@@ -169,7 +180,7 @@ export default function ControlView() {
             <h1 className='text-4xl font-bold'>Score</h1>
           </span>
         </div>
-        {colleges.map((college: College, key: number) => (
+        {colleges.map((college: College) => (
           <div className='bg-white border-2 border-gray-300 w-full px-2 m-[2px] rounded-xl flex flex-row items-center justify-between'>
             <div className='flex flex-row items-center'>
               <h2 className='font-bold'>{college.name}</h2>
