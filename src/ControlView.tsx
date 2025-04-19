@@ -246,7 +246,7 @@ export default function ControlView() {
   return (
     <div
       className='bg-[#232333] absolute top-0 left-0 min-h-full w-full justify-start items-center flex flex-col'
-      style={{ width: '1280px', height: '720px', overflow: 'auto' }}
+      style={{ width: '100%', height: '100%', overflow: 'auto' }}
     >
       {/* Confirmation Dialog for Reset */}
       {showResetConfirm && (
