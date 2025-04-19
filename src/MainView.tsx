@@ -225,6 +225,7 @@ function MainView() {
     const handleScoresReset = () => {
       getColleges().then((updatedColleges) => {
         setColleges(updatedColleges);
+        setAllColleges(updatedColleges);
       });
       setCollegeRadiusAdjustments({});
       setActiveRing(11)
@@ -241,12 +242,20 @@ function MainView() {
         });
         return resetScores;
       });
+      
+      // Also reset Finals mode
+      setIsFinalsMode(false);
     };
 
     const handleCategorySynced = (_: any, newCategory: string) => {
       setCategory(newCategory);
-      if (category === 'Eliminations') {
+      
+      // Update Finals mode state based on category
+      if (newCategory === 'Finals') {
+        setIsFinalsMode(true);
+      } else {
         setIsFinalsMode(false);
+        // When switching back to Eliminations, fetch all colleges
         getColleges().then((allColleges) => {
           setColleges(allColleges);
           setAllColleges(allColleges);
@@ -262,6 +271,11 @@ function MainView() {
         'Switched to Finals mode with top 5 colleges:',
         topFiveColleges
       );
+      
+      // Store the top five colleges for reference
+      setTopFiveColleges(topFiveColleges);
+      
+      // Reset radar adjustments for clean slate in Finals mode
       setCollegeRadiusAdjustments({});
       setActiveRing(11)
       setSmallestRingValue(1)
@@ -308,6 +322,7 @@ function MainView() {
     };
 
     const handleTopFiveColleges = (_: any, topColleges: College[]) => {
+      // This is ONLY for the leaderboard popup
       setIsPopupVisible(true);
       setTopFiveColleges(topColleges);
       topColleges.forEach((college: College, index: number) => {
@@ -316,6 +331,7 @@ function MainView() {
     };
 
     const handleCloseTopFive = () => {
+      // This only closes the leaderboard popup - doesn't affect Finals mode
       setIsPopupVisible(false);
       console.log('Popup closed via ControlView.');
 
@@ -359,6 +375,12 @@ function MainView() {
       await window.ipcRenderer.invoke('sync-difficulty');
       await window.ipcRenderer.invoke('sync-division');
       
+      // Set category and check if we're in Finals mode
+      setCategory(currentCategory);
+      if (currentCategory === 'Finals') {
+        setIsFinalsMode(true);
+      }
+      
       // If we're already in Finals mode and have top 5 colleges, use those
       if (
         currentCategory === 'Finals' &&
@@ -367,7 +389,9 @@ function MainView() {
       ) {
         setIsFinalsMode(true);
         setColleges(topFiveColleges);
+        setTopFiveColleges(topFiveColleges);
       } else {
+        // Otherwise, get all colleges
         getColleges().then((colleges) => {
           setColleges(colleges);
           setAllColleges(colleges);
@@ -402,105 +426,7 @@ function MainView() {
           [--all:20px]'
         >
 
-<AnimatePresence>
-  {isPopupVisible && (
-    <motion.div
-      key="popup"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 1.5 }}
-      className={`fixed inset-0 bg-black/35 backdrop-blur-[1.5px] z-10 flex flex-col items-center overflow-y-auto pt-[10vh]`}
-    >
-    </motion.div>
-  )}
-</AnimatePresence>
-
-{isFinalsMode && isPopupVisible && (
-  <div className="fixed inset-0 z-10 flex flex-col items-center overflow-y-auto pt-[10vh]">
-    
-    {/* Blur Background Layer */}
-    <div className="absolute inset-0 bg-black/35 backdrop-blur-[1.5px] z-[-1]"></div>
-
-    {/* Top Bar */}
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="relative w-full mt-[10vh]"
-    >
-      <img src="/images/Top5/BAR TOP.png" alt="BAR TOP" className="w-full" />
-      <div className="absolute top-1/2 left-[43%] transform -translate-x-1/2 -translate-y-1/2 flex justify-center">
-        <h1
-          style={{ fontSize: "clamp(2rem, 7vw, 15rem)" }}
-          className="font-[Starter] text-white bg-clip-text font-bold bg-red-200 drop-shadow-[0_0_0.1em_white]"
-        >
-          TOP 3
-        </h1>
-      </div>
-    </motion.div>
-
-    {/* Podium Section */}
-    <div className="w-full mt-8 relative overflow-visible py-6">
-      <div className="flex justify-center gap-6">
-        {topFiveColleges.slice(0, 3).map((college, index) => {
-          const fileName = college.imagePath.split("/").pop();
-          const delay = 1.2 + index * 0.3;
-
-          return (
-            <motion.div
-              key={college.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay, duration: 0.6 }}
-              className="flex flex-col items-center relative w-[30vw] sm:w-[20vw] md:w-[15vw] lg:w-[12vw] min-h-[20px]"
-            >
-              <div className="relative w-full aspect-[1/1]">
-                <img
-                  src={`/images/Top5/${index + 1}.png`}
-                  alt={`Podium ${index + 1}`}
-                  className="absolute top-[50%] left-[-3%] w-full h-full scale-[1.3] transform -translate-x-1/2 -translate-y-1/2 object-contain"
-                />
-                <img
-                  src={`/images/Top5/ICONS FOR RANKING/${fileName}`}
-                  alt={`Icon for ${college.name}`}
-                  className="absolute top-[55%] left-[3%] transform -translate-x-1/2 -translate-y-1/2 object-contain"
-                />
-              </div>
-
-              <motion.span
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: delay + 0.1, duration: 0.4 }}
-                style={{ fontSize: "clamp(.5rem, 2vw, 2.7rem)" }}
-                className="absolute top-[155%] left-[1.5%] text-center transform -translate-x-1/2 -translate-y-1/2 leading-[.9] font-[Starter] text-white font-bold drop-shadow-[0_0_0.1em_red] z-20"
-              >
-                {college.name}
-              </motion.span>
-            </motion.div>
-          );
-        })}
-      </div>
-    </div>
-
-    {/* Bottom Bar */}
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.8, duration: 0.6 }}
-      className="relative w-full mt-8"
-    >
-      <img
-        src="/images/Top5/BAR BOT.png"
-        alt="BAR BOT"
-        className="w-full h-[120%]"
-      />
-    </motion.div>
-  </div>
-)}
-
-
-{isPopupVisible && !isFinalsMode &&(
+{isPopupVisible && (
   <div className='fixed inset-0 bg-black/35 backdrop-blur-[1.5px] z-10 flex flex-col items-center overflow-y-auto pt-[10vh]'>
     
     {/* Top Bar */}
@@ -565,7 +491,6 @@ function MainView() {
     </motion.span>
 
 </motion.div>
-
           );
         })}
       </div>

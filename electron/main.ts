@@ -26,6 +26,7 @@ let category = 'Eliminations';
 let difficulty = 'Easy';
 let division ='Teams';
 let topFiveColleges: College[] = [];
+let leaderboardVisible = false;
 
 // Mock colleges data directly in memory
 const colleges: College[] = [
@@ -142,21 +143,28 @@ function initializeIPC() {
     const oldCategory = category;
     if (data) category = data;
 
-    // Reset scores when changing between Elimination and Finals
-    if (oldCategory !== category) {
-      // Only reset top five when switching back to eliminations
-      if (category === 'Eliminations') {
-        topFiveColleges = [];
+    // If changing from Eliminations to Finals, ensure we have top five colleges
+    if (oldCategory === 'Eliminations' && category === 'Finals') {
+      // If top five colleges are not already set, calculate them now
+      if (topFiveColleges.length === 0) {
+        topFiveColleges = [...colleges]
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 5)
+          .filter(college => college.score > 0);
       }
-    }
-
-    if (
-      oldCategory === 'Eliminations' &&
-      category === 'Finals' &&
-      topFiveColleges.length > 0
-    ) {
-      mainView?.webContents.send('switch-to-finals', topFiveColleges);
+      
+      // Only proceed if we have exactly 5 colleges with scores
+      if (topFiveColleges.length === 5) {
+        // Send signal to switch to finals but don't show leaderboard
+        mainView?.webContents.send('switch-to-finals', topFiveColleges);
+      } else {
+        // Revert to Eliminations if we don't have 5 colleges with scores
+        category = 'Eliminations';
+        mainView?.webContents.send('category-synced', category);
+        return { category, topFiveColleges: [] };
+      }
     } else {
+      // Normal category sync
       mainView?.webContents.send('category-synced', category);
     }
 
@@ -166,26 +174,57 @@ function initializeIPC() {
   ipcMain.handle('sync-difficulty', (_, data) => {
     if (data) difficulty = data;
     mainView?.webContents.send('difficulty-synced', difficulty);
+    return { success: true };
   });
 
   ipcMain.handle('sync-division', (_, data) => {
     if (data) division = data;
     mainView?.webContents.send('division-synced', division);
+    return { success: true };
   });
   
-  ipcMain.handle('show-top-five', (_, selectedColleges) => {
+  ipcMain.handle('update-top-five', (_, selectedColleges) => {
+    // Store the top five colleges for other operations to use
     topFiveColleges = selectedColleges;
+    
+    // If in Finals mode, make sure the main view shows these colleges
+    if (category === 'Finals') {
+      mainView?.webContents.send('switch-to-finals', topFiveColleges);
+    }
+    
+    return { success: true };
+  });
+
+  ipcMain.handle('show-top-five', (_, selectedColleges) => {
+    // Store the top five colleges for other operations to use
+    topFiveColleges = selectedColleges;
+    
+    // If in Finals mode, make sure the main view shows these colleges
+    if (category === 'Finals') {
+      mainView?.webContents.send('switch-to-finals', topFiveColleges);
+    }
+    
+    // Show the leaderboard popup regardless of mode
+    leaderboardVisible = true;
     mainView?.webContents.send('top-five-colleges', topFiveColleges);
+    
+    return { success: true };
+  });
+
+  ipcMain.handle('close-top-five', () => {
+    // Just hide the leaderboard popup, don't change the mode
+    leaderboardVisible = false;
+    mainView?.webContents.send('close-top-five');
     return { success: true };
   });
 
   ipcMain.handle('get-colleges', () => {
-    // If we're in Finals mode and have top five colleges, only return those
-    if (category === 'Finals' && topFiveColleges.length > 0) {
+    // If we're in Finals mode, only return top five colleges
+    if (category === 'Finals' && topFiveColleges.length === 5) {
       return topFiveColleges;
     }
 
-    // Return all colleges
+    // Otherwise return all colleges
     return colleges;
   });
 
@@ -209,7 +248,6 @@ function initializeIPC() {
       }
 
       // Notify all windows about the update
-      // The adjustRadius flag is no longer needed here - RadarView will handle it
       BrowserWindow.getAllWindows().forEach((window) => {
         window.webContents.send('score-updated', shorthand, newScore);
         window.webContents.send('db-updated');
@@ -228,9 +266,15 @@ function initializeIPC() {
       colleges.forEach((college) => {
         college.score = 0;
       });
-      topFiveColleges.forEach((college) => {
-        college.score = 0;
-      });
+      
+      // Clear the top five colleges
+      topFiveColleges = [];
+      
+      // If we were in Finals mode, switch back to Eliminations
+      if (category === 'Finals') {
+        category = 'Eliminations';
+        mainView?.webContents.send('category-synced', category);
+      }
 
       // Notify all windows about the reset
       BrowserWindow.getAllWindows().forEach((window) => {
@@ -245,18 +289,17 @@ function initializeIPC() {
   });
 
   ipcMain.handle('refresh', () => {
-    mainView?.webContents.send('refresh');
+    // If we're in Finals mode, ensure the main view shows the top five
+    if (category === 'Finals' && topFiveColleges.length === 5) {
+      mainView?.webContents.send('switch-to-finals', topFiveColleges);
+    } else {
+      mainView?.webContents.send('refresh');
+    }
+    return { success: true };
   });
 
   ipcMain.handle('get-top-five', () => {
     return topFiveColleges;
-  });
-
-  ipcMain.handle('close-top-five', () => {
-    // Forward the event to the MainView
-    if (mainView) {
-      mainView.webContents.send('close-top-five');
-    }
   });
 }
 
