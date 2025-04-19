@@ -3,8 +3,159 @@ import { useEffect, useState, useRef } from 'react';
 import { College } from './types';
 import RadarView from './RadarView/radarView';
 
+// Position-Locked Logo Grid Component - compressed and moved right
+function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
+  const [visibleLogos, setVisibleLogos] = useState<number[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const initialRenderDone = useRef<boolean>(false);
+  
+  // Animation effect for logos
+  useEffect(() => {
+    // For 5 colleges, show all logos immediately to avoid flickering
+    if (colleges.length === 5) {
+      // If it's already been rendered once, don't change visibleLogos state
+      if (!initialRenderDone.current) {
+        // On first render, show all logos immediately
+        setVisibleLogos([0, 1, 2, 3, 4]);
+        initialRenderDone.current = true;
+      }
+    } else {
+      // For other lengths, use the original staggered animation
+      initialRenderDone.current = false;
+      setVisibleLogos([]);
+      colleges.forEach((_, index) => {
+        setTimeout(() => {
+          setVisibleLogos(prev => [...prev, index]);
+        }, 300 * index);
+      });
+    }
+  }, [colleges.length]); // Only depend on the length changing, not the colleges array itself
+  
+  // Special layout when there are exactly 5 colleges
+  if (colleges.length === 5) {
+    // Define exact fixed positions for each logo slot (percentages of container)
+    const positions = [
+      { top: '8%', left: '15%' },    // Position 1
+      { top: '8%', left: '65%' },    // Position 2
+      { top: '40%', left: '40%' },   // Position 3
+      { top: '72%', left: '15%' },   // Position 4
+      { top: '72%', left: '65%' }    // Position 5
+    ];
+    
+    return (
+      <div 
+        ref={containerRef}
+        className="absolute z-60" 
+        style={{
+          // Drastically compressed and moved right
+          top: '32%',           // Keep vertical position
+          right: '2%',          // Move much closer to right edge
+          width: '18%',         // Drastically reduced width
+          height: '28%',        // Drastically reduced height
+          pointerEvents: 'none' // Allow clicking through
+        }}
+      >
+        {/* Absolutely positioned logos */}
+        {colleges.map((college, index) => {
+          const fileName = college.imagePath.split('/').pop();
+          const position = positions[index];
+          
+          return (
+            <div 
+              key={college.id} 
+              className="absolute flex items-center justify-center"
+              style={{
+                top: position.top,
+                left: position.left,
+                width: '32%',   // Slightly smaller logos
+                height: '32%',  // Square aspect ratio
+                transform: 'translate(18%, -85%)' // Center on position point
+              }}
+            >
+              <img 
+                src={`/images/Top5/ICONS FOR RANKING/${fileName}`}
+                alt={college.shorthand} 
+                className={`w-full h-full object-contain transition-opacity duration-500 ease-in-out ${
+                  visibleLogos.includes(index) ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+  
+  // For regular grid layout - position directly on the 4x4 grid
+  const gridPositions = [
+    // Row 1 - evenly decompressed and symmetrical
+    { top: '4%', left: '10%' },
+    { top: '4%', left: '30%' },
+    { top: '4%', left: '50%' },
+    { top: '4%', left: '70%' },
+    // Row 2 - evenly decompressed and symmetrical
+    { top: '28%', left: '10%' },
+    { top: '28%', left: '30%' },
+    { top: '28%', left: '50%' },
+    { top: '28%', left: '70%' },
+    // Row 3 - evenly decompressed and symmetrical
+    { top: '52%', left: '10%' },
+    { top: '52%', left: '30%' },
+    { top: '52%', left: '50%' },
+    { top: '52%', left: '70%' },
+    // Row 4 - evenly decompressed and symmetrical
+    { top: '76%', left: '10%' },
+    { top: '76%', left: '30%' },
+    { top: '76%', left: '50%' },
+    { top: '76%', left: '70%' }
+  ];
+  
+  return (
+    <div 
+      ref={containerRef}
+      className="absolute z-60" 
+      style={{
+        // Even more drastically compressed and moved right
+        top: '35%',          // Keep vertical position
+        right: '1%',         // Even closer to right edge
+        width: '15%',        // Further reduced width
+        height: '28%',       // Further reduced height
+        pointerEvents: 'none'
+      }}
+    >
+      {colleges.slice(0, 16).map((college, index) => {
+        const fileName = college.imagePath.split('/').pop();
+        const position = gridPositions[index];
+        
+        return (
+          <div 
+            key={college.id} 
+            className="absolute flex items-center justify-center"
+            style={{
+              top: position.top,
+              left: position.left,
+              width: '25%',    // Even smaller logos
+              height: '25%',   // Maintain square aspect ratio
+              transform: 'translate(-23%, -140%)' // Center on position point
+            }}
+          >
+            <img 
+              src={`/images/Top5/ICONS FOR RANKING/${fileName}`}
+              alt={college.shorthand} 
+              className={`w-full h-full object-contain transition-opacity duration-500 ease-in-out ${
+                visibleLogos.includes(index) ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function MainView() {
   const [colleges, setColleges] = useState<College[]>([]);
+  const [allColleges, setAllColleges] = useState<College[]>([]);
   const [difficulty, setDifficulty] = useState<string>('');
   const [category, setCategory] = useState<string>('');
   const [lastNormalDifficulty, setLastNormalDifficulty] = useState<string>('');
@@ -18,7 +169,6 @@ function MainView() {
   const circleRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [activeRing, setActiveRing] = useState(11);
   const [smallestRingValue, setSmallestRingValue] = useState(1);
-
   const radialGridContainerRef = useRef<HTMLDivElement>(null);
 
   const getColleges = async () => {
@@ -34,7 +184,6 @@ function MainView() {
           radialGridContainerRef.current.firstChild
         );
       }
-
       // Create radial lines
       const collegeCount = colleges.length;
       for (let i = 0; i < collegeCount; i++) {
@@ -81,6 +230,7 @@ function MainView() {
         setIsFinalsMode(false);
         getColleges().then((allColleges) => {
           setColleges(allColleges);
+          setAllColleges(allColleges);
         });
       }
     };
@@ -168,7 +318,7 @@ function MainView() {
         await window.ipcRenderer.invoke('sync-category');
       await window.ipcRenderer.invoke('sync-difficulty');
       await window.ipcRenderer.invoke('sync-division');
-
+      
       // If we're already in Finals mode and have top 5 colleges, use those
       if (
         currentCategory === 'Finals' &&
@@ -178,7 +328,10 @@ function MainView() {
         setIsFinalsMode(true);
         setColleges(topFiveColleges);
       } else {
-        getColleges().then((colleges) => setColleges(colleges));
+        getColleges().then((colleges) => {
+          setColleges(colleges);
+          setAllColleges(colleges);
+        });
       }
     };
     retrieveCategoryAndDifficulty();
@@ -214,6 +367,9 @@ function MainView() {
           className='w-screen h-screen object-fill'
         />
       </div>
+
+      {/* College logos OVER the frame (z-index higher than frame) */}
+      <FrameCollegeLogos colleges={isFinalsMode ? colleges : (allColleges.length > 0 ? allColleges : colleges)} />
 
       {/* Body - flex row */}
       <div className='overflow-hidden bg-black flex flex-row h-screen w-screen p-8 space-x-[1%]'>
@@ -265,7 +421,6 @@ function MainView() {
                   {topFiveColleges.map((college, index) => {
                     // Extract the file name from the imagePath
                     const fileName = college.imagePath.split('/').pop(); // Example: 'CRS.png'
-
                     return (
                       <div
                         key={college.id}
