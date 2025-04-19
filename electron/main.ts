@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { College } from '../src/types';
+import colleges from '../public/colleges.json';
 
 // In ES modules, __dirname is not available directly, so we create it
 const __filename = fileURLToPath(import.meta.url);
@@ -27,115 +28,6 @@ let difficulty = 'Easy';
 let division = 'Teams';
 let topFiveColleges: College[] = [];
 let leaderboardVisible = false;
-
-// Mock colleges data directly in memory
-const colleges: College[] = [
-  {
-    id: 1,
-    name: 'College of Rehabilitation Sciences',
-    shorthand: 'CRS',
-    imagePath: './images/colleges/CRS.png',
-    score: 0,
-  },
-  {
-    id: 2,
-    name: 'College of Accountancy',
-    shorthand: 'AMV',
-    imagePath: './images/colleges/ACC.png',
-    score: 0,
-  },
-  {
-    id: 3,
-    name: 'Faculty of Arts and Letters',
-    shorthand: 'AB',
-    imagePath: './images/colleges/AB.png',
-    score: 0,
-  },
-  {
-    id: 4,
-    name: 'College of Commerce and Business Administration',
-    shorthand: 'COMM',
-    imagePath: './images/colleges/COMM.png',
-    score: 0,
-  },
-  {
-    id: 5,
-    name: 'College of Education',
-    shorthand: 'EDUC',
-    imagePath: './images/colleges/EDUC.png',
-    score: 0,
-  },
-  {
-    id: 6,
-    name: 'Faculty of Engineering',
-    shorthand: 'ENGG',
-    imagePath: './images/colleges/ENGG.png',
-    score: 0,
-  },
-  {
-    id: 7,
-    name: 'College of Information and Computing Sciences',
-    shorthand: 'CICS',
-    imagePath: './images/colleges/CICS.png',
-    score: 0,
-  },
-  {
-    id: 8,
-    name: 'Faculty of Medicine and Surgery',
-    shorthand: 'MEDSURG',
-    imagePath: './images/colleges/MED.png',
-    score: 0,
-  },
-  {
-    id: 9,
-    name: 'Conservatory of Music',
-    shorthand: 'MUSIC',
-    imagePath: './images/colleges/MUSIC.png',
-    score: 0,
-  },
-  {
-    id: 10,
-    name: 'College of Nursing',
-    shorthand: 'NURSING',
-    imagePath: './images/colleges/NURSING.png',
-    score: 0,
-  },
-  {
-    id: 11,
-    name: 'Faculty of Pharmacy',
-    shorthand: 'PHARMA',
-    imagePath: './images/colleges/PHARMA.png',
-    score: 0,
-  },
-  {
-    id: 12,
-    name: 'Institute of Physical Education and Athletics',
-    shorthand: 'IPEA',
-    imagePath: './images/colleges/IPEA.png',
-    score: 0,
-  },
-  {
-    id: 13,
-    name: 'College of Science',
-    shorthand: 'COS',
-    imagePath: './images/colleges/COS.png',
-    score: 0,
-  },
-  {
-    id: 14,
-    name: 'College of Tourism and Hospitality Management',
-    shorthand: 'CTHM',
-    imagePath: './images/colleges/CTHM.png',
-    score: 0,
-  },
-  {
-    id: 15,
-    name: 'Faculty of Civil Law',
-    shorthand: 'CIVIL LAW',
-    imagePath: './images/colleges/LAW.png',
-    score: 0,
-  },
-];
 
 // IPC handlers
 function initializeIPC() {
