@@ -265,9 +265,10 @@ function MainView() {
     };
 
     const handleSwitchToFinals = (_: any, topFiveColleges: College[]) => {
+      let isAlreadyFinals = false; // Flag to check if already in Finals mode
+      if (category === 'Finals') isAlreadyFinals = true; // Check if already in Finals mode
+
       setCategory('Finals');
-      setIsFinalsMode(true);
-      setColleges(topFiveColleges);
       console.log(
         'Switched to Finals mode with top 5 colleges:',
         topFiveColleges
@@ -277,21 +278,27 @@ function MainView() {
       setTopFiveColleges(topFiveColleges);
 
       // Reset radar adjustments for clean slate in Finals mode
-      setCollegeRadiusAdjustments({});
-      setActiveRing(11);
-      setSmallestRingValue(1);
-      circleRefs.current.forEach((circleRef) => {
-        if (circleRef) {
-          circleRef.style.opacity = '0';
-        }
-      });
-      setPrevScores((prev) => {
-        const resetScores: Record<string, number> = {};
-        Object.keys(prev).forEach((key) => {
-          resetScores[key] = 0;
+      if (!isAlreadyFinals) {
+        setIsFinalsMode(true);
+        setColleges(topFiveColleges);
+
+        setCollegeRadiusAdjustments({});
+        setActiveRing(11);
+        setSmallestRingValue(1);
+        circleRefs.current.forEach((circleRef) => {
+          if (circleRef) {
+            circleRef.style.opacity = '0';
+          }
         });
-        return resetScores;
-      });
+
+        setPrevScores((prev) => {
+          const resetScores: Record<string, number> = {};
+          Object.keys(prev).forEach((key) => {
+            resetScores[key] = 0;
+          });
+          return resetScores;
+        });
+      }
     };
 
     const handleDifficultySynced = (_: any, newDifficulty: string) => {
