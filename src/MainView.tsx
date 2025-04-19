@@ -113,7 +113,7 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
   return (
     <div 
       ref={containerRef}
-      className="absolute z-60" 
+      className="absolute z-60"
       style={{
         // Even more drastically compressed and moved right
         top: '35%',          // Keep vertical position
@@ -339,26 +339,6 @@ function MainView() {
 
   return (
     <>
-      <div className='absolute bottom-87 right-30 flex flex-col items-center gap-18 z-[9999] w-[300px]'>
-        <div className='mt-4 text-transparent text-[80px] font-bold bg-clip-text font-[DS-Digital] bg-white drop-shadow-[0_0_0.1em_white]'>
-          {division}
-        </div>
-
-        {/*Normal Difficulties*/}
-        <div className='mt-4 text-green-500 text-8xl font-bold bg-clip-text font-[DS-Digital] bg-green-200 drop-shadow-[0_0_0.1em_green]'>
-          {lastNormalDifficulty}
-        </div>
-      </div>
-
-      <div className='absolute bottom-15 right-30 flex flex-col items-center gap-19 z-[9999] w-[300px]'>
-        {/*Special Difficulties*/}
-        {['Clincher', 'Sudden Death'].includes(difficulty) && (
-          <div className='mt-4 text-red-500 text-8xl text-center font-bold bg-clip-text font-[DS-Digital] bg-red-200 drop-shadow-[0_0_0.1em_red]'>
-            {difficulty}
-          </div>
-        )}
-      </div>
-
       {/* Full-screen frame */}
       <div className='fixed top-0 left-0 w-screen h-screen z-50 pointer-events-none'>
         <img
@@ -484,6 +464,53 @@ function MainView() {
             )}
           </div>
         </div>
+ 
+        <div
+    className="sharp-edge-box
+             w-[16%] h-[96.5%]
+             flex flex-col items-center
+             text-white bg-transparent z-[9999]
+             fixed top-[1%] right-[1%]">
+
+{/* Bottom 40% container */}
+<div className="mt-auto w-full h-[39.5%] bg-transparent flex flex-col items-center justify-center">
+
+  {/* Division */}
+  <div
+    style={{ fontSize: 'clamp(1rem, 4vw, 4.7rem)' }} // Fluid resizing for division text
+    className="h-[20%]  w-full flex text-center items-center justify-center bg-clip-text font-[DS-Digital] bg-white drop-shadow-[0_0_0.1em_white]"
+>
+    {division}
+  </div>
+
+  {/* Last Normal Difficulty */}
+  <div
+    style={{ fontSize: 'clamp(1rem, 4vw, 5rem)' }} // Fluid resizing for difficulty text
+    className="h-[40%] w-full flex items-center justify-center bg-clip-text text-green-500 font-[DS-Digital] bg-green-200 drop-shadow-[0_0_0.1em_green]"
+  >
+    {lastNormalDifficulty}
+  </div>
+
+  {/* Special Difficulty */}
+ <div className="h-[40%] w-[80%] flex items-center justify-center text-center ">
+  {['Clincher', 'Sudden Death'].includes(difficulty) && (
+    <div
+      style={{ fontSize: 'clamp(1rem, 4vw, 6rem)' }} // Fluid resizing for special difficulty text
+      className="leading-[.9] text-red-500 bg-clip-text font-[DS-Digital] bg-red-200 drop-shadow-[0_0_0.1em_red]"
+    >
+      {difficulty}
+    </div>
+  )}
+   </div>
+
+</div>
+
+
+</div>
+  
+
+
+
       </div>
     </>
   );
