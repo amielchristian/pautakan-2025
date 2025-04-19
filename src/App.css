@@ -198,16 +198,20 @@
 
   @keyframes glow {
     from {
-      background-color: var(--color-red-200);
+      background-color: white;
+      filter: drop-shadow(0 0 0.1em white);
     }
     to {
       background-color: var(--color-red-900);
+      filter: drop-shadow(0 0 0.1em red);
     }
     from {
       background-color: var(--color-red-900);
+      filter: drop-shadow(0 0 0.1em red);
     }
     to {
-      background-color: var(--color-red-200);
+      background-color: white;
+      filter: drop-shadow(0 0 0.1em white);
     }
   }
 }
@@ -279,7 +283,9 @@
   object-fit: contain;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   width: 100%;
   height: 100%;
   margin: 0;
