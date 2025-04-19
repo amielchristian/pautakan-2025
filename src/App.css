@@ -199,19 +199,19 @@
   @keyframes glow {
     from {
       background-color: white;
-      filter: drop-shadow(0 0 0.1em white);
-    }
-    to {
-      background-color: var(--color-red-900);
-      filter: drop-shadow(0 0 0.1em red);
-    }
-    from {
-      background-color: var(--color-red-900);
-      filter: drop-shadow(0 0 0.1em red);
+      filter: drop-shadow(0 0 0.1em rgba(255, 255, 255, 1));
     }
     to {
       background-color: white;
-      filter: drop-shadow(0 0 0.1em white);
+      filter: drop-shadow(1px 0 0.5em rgba(255, 255, 255, 1));
+    }
+    from {
+      background-color: white;
+      filter: drop-shadow(1px 0 0.5em rgba(255, 255, 255, 1));
+    }
+    to {
+      background-color: white;
+      filter: drop-shadow(0 0 0.1em rgba(255, 255, 255, 1));
     }
   }
 }

@@ -48,56 +48,61 @@ export default function ControlView() {
     return topFiveColleges;
   }
 
-// File: src/ControlView.tsx
-// Inside the useEffect hook that watches for category changes
+  // File: src/ControlView.tsx
+  // Inside the useEffect hook that watches for category changes
 
-useEffect(() => {
-  const changeCategory = async () => {
-    // Get the latest data from main process
-    const allColleges = await fetchColleges();
+  useEffect(() => {
+    const changeCategory = async () => {
+      // Get the latest data from main process
+      const allColleges = await fetchColleges();
 
-    if (category === 'Eliminations') {
-      // Always show all colleges in Eliminations mode
-      setDisplayedColleges(allColleges);
-      console.log('Switched to Eliminations mode, showing all colleges');
-    } else if (category === 'Finals') {
-      // Get top 5 colleges
-      const topFiveColleges = getTopFiveColleges();
-      if (topFiveColleges.length === 5) {
-        // Reset scores to 0 for the top five colleges before displaying
-        const resetTopFiveColleges = topFiveColleges.map(college => ({
-          ...college,
-          score: 0
-        }));
-        
-        // Update scores in the displayed colleges
-        setDisplayedColleges(resetTopFiveColleges);
-        
-        // Reset scores in the main colleges state
-        setColleges(prev => 
-          prev.map(college => 
-            resetTopFiveColleges.some(c => c.id === college.id) 
-              ? { ...college, score: 0 } 
-              : college
-          )
-        );
-        
-        console.log('Switched to Finals mode, showing top 5 colleges with reset scores');
-        
-        // Update the top five colleges in main process WITHOUT showing leaderboard
-        await window.ipcRenderer.invoke('update-top-five', resetTopFiveColleges);
-      } else {
-        alert('Need 5 colleges with scores to enter Finals mode');
-        setCategory('Eliminations');
-        return;
+      if (category === 'Eliminations') {
+        // Always show all colleges in Eliminations mode
+        setDisplayedColleges(allColleges);
+        console.log('Switched to Eliminations mode, showing all colleges');
+      } else if (category === 'Finals') {
+        // Get top 5 colleges
+        const topFiveColleges = getTopFiveColleges();
+        if (topFiveColleges.length === 5) {
+          // Reset scores to 0 for the top five colleges before displaying
+          const resetTopFiveColleges = topFiveColleges.map((college) => ({
+            ...college,
+            score: 0,
+          }));
+
+          // Update scores in the displayed colleges
+          setDisplayedColleges(resetTopFiveColleges);
+
+          // Reset scores in the main colleges state
+          setColleges((prev) =>
+            prev.map((college) =>
+              resetTopFiveColleges.some((c) => c.id === college.id)
+                ? { ...college, score: 0 }
+                : college
+            )
+          );
+
+          console.log(
+            'Switched to Finals mode, showing top 5 colleges with reset scores'
+          );
+
+          // Update the top five colleges in main process WITHOUT showing leaderboard
+          await window.ipcRenderer.invoke(
+            'update-top-five',
+            resetTopFiveColleges
+          );
+        } else {
+          alert('Need 5 colleges with scores to enter Finals mode');
+          setCategory('Eliminations');
+          return;
+        }
       }
-    }
 
-    const result = await window.ipcRenderer.invoke('sync-category', category);
-    console.log('Category changed to:', category, 'Result:', result);
-  };
-  changeCategory();
-}, [category]);
+      const result = await window.ipcRenderer.invoke('sync-category', category);
+      console.log('Category changed to:', category, 'Result:', result);
+    };
+    changeCategory();
+  }, [category]);
 
   useEffect(() => {
     const changeDifficulty = async () => {
@@ -223,13 +228,21 @@ useEffect(() => {
       console.log('Leaderboard closed.');
     } else {
       setShowLeaderboard(true);
-      // Get the top 5 colleges based on score
+
+      // 5 if elims, 3 if finals
+      // will rename later for clarity
       const topFiveColleges = getTopFiveColleges();
 
       // Check if there are fewer than 5 colleges with scores
-      if (topFiveColleges.length < 5) {
+      if (topFiveColleges.length < 5 && category !== 'Finals') {
         alert(
           'There are fewer than 5 colleges with scores. Please ensure at least 5 colleges have scores before showing the leaderboard.'
+        );
+        setShowLeaderboard(false);
+        return; // Stop execution if the condition is not met
+      } else if (topFiveColleges.length < 3 && category === 'Finals') {
+        alert(
+          'There are fewer than 3 colleges with scores. Please ensure at least 3 colleges have scores before showing the leaderboard.'
         );
         setShowLeaderboard(false);
         return; // Stop execution if the condition is not met
@@ -237,7 +250,11 @@ useEffect(() => {
 
       // Send the top 5 colleges to main process for leaderboard display only
       // This should NOT affect the category/mode
-      await window.ipcRenderer.invoke('show-top-five', topFiveColleges);
+      if (category !== 'Finals') {
+        await window.ipcRenderer.invoke('show-top-five', topFiveColleges);
+      } else {
+        await window.ipcRenderer.invoke('show-top-three', topFiveColleges);
+      }
 
       // Also log in the control view console
       console.log('TOP 5 COLLEGES:');
@@ -373,7 +390,10 @@ useEffect(() => {
             <button
               className={buttonStyles + ' col-span-2'}
               onClick={toggleLeaderboard}
-              disabled={getTopFiveColleges().length < 5}
+              disabled={
+                (category !== 'Finals' && getTopFiveColleges().length < 5) ||
+                (category === 'Finals' && getTopFiveColleges().length < 3)
+              }
             >
               Toggle Leaderboard
             </button>

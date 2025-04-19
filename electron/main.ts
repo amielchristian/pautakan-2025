@@ -24,7 +24,7 @@ let techView: BrowserWindow | null;
 // Data
 let category = 'Eliminations';
 let difficulty = 'Easy';
-let division ='Teams';
+let division = 'Teams';
 let topFiveColleges: College[] = [];
 let leaderboardVisible = false;
 
@@ -139,54 +139,54 @@ const colleges: College[] = [
 
 // IPC handlers
 function initializeIPC() {
-// File: electron/main.ts
-// Function: ipcMain.handle('sync-category')
+  // File: electron/main.ts
+  // Function: ipcMain.handle('sync-category')
 
-ipcMain.handle('sync-category', (_, data?) => {
-  const oldCategory = category;
-  if (data) category = data;
+  ipcMain.handle('sync-category', (_, data?) => {
+    const oldCategory = category;
+    if (data) category = data;
 
-  // If changing from Eliminations to Finals, ensure we have top five colleges
-  if (oldCategory === 'Eliminations' && category === 'Finals') {
-    // If top five colleges are not already set, calculate them now
-    if (topFiveColleges.length === 0) {
-      topFiveColleges = [...colleges]
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 5)
-        .filter(college => college.score > 0);
-    }
-    
-    // Only proceed if we have exactly 5 colleges with scores
-    if (topFiveColleges.length === 5) {
-      // Reset scores for the top five colleges
-      topFiveColleges = topFiveColleges.map(college => ({
-        ...college,
-        score: 0
-      }));
-      
-      // Update the scores in the main colleges array
-      topFiveColleges.forEach(college => {
-        const index = colleges.findIndex(c => c.id === college.id);
-        if (index !== -1) {
-          colleges[index].score = 0;
-        }
-      });
-      
-      // Send signal to switch to finals but don't show leaderboard
-      mainView?.webContents.send('switch-to-finals', topFiveColleges);
+    // If changing from Eliminations to Finals, ensure we have top five colleges
+    if (oldCategory === 'Eliminations' && category === 'Finals') {
+      // If top five colleges are not already set, calculate them now
+      if (topFiveColleges.length === 0) {
+        topFiveColleges = [...colleges]
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 5)
+          .filter((college) => college.score > 0);
+      }
+
+      // Only proceed if we have exactly 5 colleges with scores
+      if (topFiveColleges.length === 5) {
+        // Reset scores for the top five colleges
+        topFiveColleges = topFiveColleges.map((college) => ({
+          ...college,
+          score: 0,
+        }));
+
+        // Update the scores in the main colleges array
+        topFiveColleges.forEach((college) => {
+          const index = colleges.findIndex((c) => c.id === college.id);
+          if (index !== -1) {
+            colleges[index].score = 0;
+          }
+        });
+
+        // Send signal to switch to finals but don't show leaderboard
+        mainView?.webContents.send('switch-to-finals', topFiveColleges);
+      } else {
+        // Revert to Eliminations if we don't have 5 colleges with scores
+        category = 'Eliminations';
+        mainView?.webContents.send('category-synced', category);
+        return { category, topFiveColleges: [] };
+      }
     } else {
-      // Revert to Eliminations if we don't have 5 colleges with scores
-      category = 'Eliminations';
+      // Normal category sync
       mainView?.webContents.send('category-synced', category);
-      return { category, topFiveColleges: [] };
     }
-  } else {
-    // Normal category sync
-    mainView?.webContents.send('category-synced', category);
-  }
 
-  return { category, topFiveColleges };
-});
+    return { category, topFiveColleges };
+  });
 
   ipcMain.handle('sync-difficulty', (_, data) => {
     if (data) difficulty = data;
@@ -199,32 +199,41 @@ ipcMain.handle('sync-category', (_, data?) => {
     mainView?.webContents.send('division-synced', division);
     return { success: true };
   });
-  
+
   ipcMain.handle('update-top-five', (_, selectedColleges) => {
     // Store the top five colleges for other operations to use
     topFiveColleges = selectedColleges;
-    
+
     // If in Finals mode, make sure the main view shows these colleges
     if (category === 'Finals') {
       mainView?.webContents.send('switch-to-finals', topFiveColleges);
     }
-    
+
     return { success: true };
   });
 
+  // for eliminations
   ipcMain.handle('show-top-five', (_, selectedColleges) => {
     // Store the top five colleges for other operations to use
     topFiveColleges = selectedColleges;
-    
+
     // If in Finals mode, make sure the main view shows these colleges
     if (category === 'Finals') {
       mainView?.webContents.send('switch-to-finals', topFiveColleges);
     }
-    
+
     // Show the leaderboard popup regardless of mode
     leaderboardVisible = true;
     mainView?.webContents.send('top-five-colleges', topFiveColleges);
-    
+
+    return { success: true };
+  });
+
+  ipcMain.handle('show-top-three', (_, selectedColleges) => {
+    mainView?.webContents.send('switch-to-finals', topFiveColleges);
+
+    mainView?.webContents.send('top-three-colleges', selectedColleges);
+
     return { success: true };
   });
 
@@ -283,10 +292,10 @@ ipcMain.handle('sync-category', (_, data?) => {
       colleges.forEach((college) => {
         college.score = 0;
       });
-      
+
       // Clear the top five colleges
       topFiveColleges = [];
-      
+
       // If we were in Finals mode, switch back to Eliminations
       if (category === 'Finals') {
         category = 'Eliminations';
@@ -335,7 +344,10 @@ function createWindow() {
   mainView.webContents.on('before-input-event', (event, input) => {
     if (
       (input.control || input.meta) &&
-      (input.key === '+' || input.key === '-' || input.key === '=' || input.key === '0')
+      (input.key === '+' ||
+        input.key === '-' ||
+        input.key === '=' ||
+        input.key === '0')
     ) {
       event.preventDefault();
     }
@@ -343,15 +355,15 @@ function createWindow() {
 
   techView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
-    width: 880,              // Fixed width
-    height: 880,             // Fixed height
-    resizable: false,        // Prevent resizing
-    useContentSize: true,    // Use content dimensions exactly as specified
+    width: 880, // Fixed width
+    height: 880, // Fixed height
+    resizable: false, // Prevent resizing
+    useContentSize: true, // Use content dimensions exactly as specified
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
     },
   });
-  
+
   techView.on('close', () => {
     app.quit();
   });

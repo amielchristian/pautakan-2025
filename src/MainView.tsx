@@ -164,7 +164,8 @@ function MainView() {
   const [isFinalsMode, setIsFinalsMode] = useState<boolean>(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
-  const [topFiveColleges, setTopFiveColleges] = useState<College[]>([]);
+  const [topFiveColleges, setTopFiveColleges] = useState<College[]>([]); // these are the colleges used for the leaderboard popup in Elims AND the set of colleges shown in Finals
+  const [topThreeColleges, setTopThreeColleges] = useState<College[]>([]);
   const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<
     Record<string, number>
   >({});
@@ -342,6 +343,15 @@ function MainView() {
       }, 500); // duration matches fade-out time
     };
 
+    const handleTopThreeColleges = (_: any, topColleges: College[]) => {
+      // This is ONLY for the leaderboard popup
+      setIsPopupVisible(true);
+      setTopThreeColleges(topColleges);
+      topColleges.forEach((college: College, index: number) => {
+        console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
+      });
+    };
+
     // Register all event listeners
     window.ipcRenderer.on('db-updated', handleDbUpdated);
     window.ipcRenderer.on('scores-reset', handleScoresReset);
@@ -351,6 +361,7 @@ function MainView() {
     window.ipcRenderer.on('division-synced', handleDivisionSynced);
     window.ipcRenderer.on('refresh', handleRefresh);
     window.ipcRenderer.on('top-five-colleges', handleTopFiveColleges);
+    window.ipcRenderer.on('top-three-colleges', handleTopThreeColleges);
     window.ipcRenderer.on('close-top-five', handleCloseTopFive);
 
     // Clean up all listeners when the component unmounts or re-renders
@@ -473,43 +484,48 @@ function MainView() {
               {/* Podium Section */}
               <div className='w-full mt-8 relative overflow-visible py-6'>
                 <div className='flex justify-center gap-6'>
-                  {topFiveColleges.slice(0, 3).map((college, index) => {
-                    const fileName = college.imagePath.split('/').pop();
-                    const delay = 1.2 + index * 0.3;
+                  {topFiveColleges
+                    .sort((a, b) => {
+                      return b.score - a.score;
+                    })
+                    .slice(0, 3)
+                    .map((college, index) => {
+                      const fileName = college.imagePath.split('/').pop();
+                      const delay = 1.2 + index * 0.3;
 
-                    return (
-                      <motion.div
-                        key={college.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay, duration: 0.6 }}
-                        className='flex flex-col items-center relative w-[30vw] sm:w-[20vw] md:w-[15vw] lg:w-[12vw] min-h-[20px]'
-                      >
-                        <div className='relative w-full aspect-[1/1]'>
-                          <img
-                            src={`/images/Top5/${index + 1}.png`}
-                            alt={`Podium ${index + 1}`}
-                            className='absolute top-[50%] left-[-3%] w-full h-full scale-[1.3] transform -translate-x-1/2 -translate-y-1/2 object-contain'
-                          />
-                          <img
-                            src={`/images/Top5/ICONS FOR RANKING/${fileName}`}
-                            alt={`Icon for ${college.name}`}
-                            className='absolute top-[55%] left-[3%] transform -translate-x-1/2 -translate-y-1/2 object-contain'
-                          />
-                        </div>
-
-                        <motion.span
-                          initial={{ opacity: 0, y: 10 }}
+                      return (
+                        <motion.div
+                          key={college.id}
+                          initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: delay + 0.1, duration: 0.4 }}
-                          style={{ fontSize: 'clamp(.5rem, 2vw, 2.7rem)' }}
-                          className='absolute top-[155%] left-[1.5%] text-center transform -translate-x-1/2 -translate-y-1/2 leading-[.9] font-[Starter] text-white font-bold drop-shadow-[0_0_0.1em_red] z-20'
+                          transition={{ delay, duration: 0.6 }}
+                          className='flex flex-col items-center relative w-[30vw] sm:w-[20vw] md:w-[15vw] lg:w-[12vw] min-h-[20px]'
                         >
-                          {college.name}
-                        </motion.span>
-                      </motion.div>
-                    );
-                  })}
+                          <div className='relative w-full aspect-[1/1]'>
+                            <img
+                              src={`/images/Top5/${index + 1}.png`}
+                              alt={`Podium ${index + 1}`}
+                              className='absolute top-[50%] left-[-3%] w-full h-full scale-[1.3] transform -translate-x-1/2 -translate-y-1/2 object-contain'
+                            />
+                            <img
+                              src={`/images/Top5/ICONS FOR RANKING/${fileName}`}
+                              alt={`Icon for ${college.name}`}
+                              className='absolute top-[55%] left-[3%] transform -translate-x-1/2 -translate-y-1/2 object-contain'
+                            />
+                          </div>
+
+                          <motion.span
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: delay + 0.1, duration: 0.4 }}
+                            style={{ fontSize: 'clamp(.5rem, 2vw, 2.7rem)' }}
+                            className='absolute top-[155%] left-[1.5%] text-center transform -translate-x-1/2 -translate-y-1/2 leading-[.9] font-[Starter] text-white font-bold drop-shadow-[0_0_0.1em_red] z-20'
+                          >
+                            {college.name}
+                          </motion.span>
+                        </motion.div>
+                      );
+                    })}
                 </div>
               </div>
 
@@ -735,7 +751,7 @@ function Score({ college }: { college: College }) {
         {college.score.toString().padStart(3, '0')}
       </div>
       <span
-        className={`text-4xl font-[Starter] text-transparent bg-clip-text font-bold bg-white drop-shadow-[0_0_0.1em_white] ${
+        className={`text-4xl font-[Starter] text-transparent bg-clip-text font-bold bg-white drop-shadow-[0px_0px_0.1em_rgba(255,255,255,1)] ${
           showGlow ? 'text-glow' : ''
         }`}
       >
