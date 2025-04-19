@@ -3,25 +3,20 @@ import { useEffect, useState, useRef } from 'react';
 import { College } from './types';
 import RadarView from './RadarView/radarView';
 import { AnimatePresence, motion } from 'framer-motion';
+import { IpcRendererEvent } from 'electron';
 
-// Position-Locked Logo Grid Component - compressed and moved right
 function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
   const [visibleLogos, setVisibleLogos] = useState<number[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const initialRenderDone = useRef<boolean>(false);
 
-  // Animation effect for logos
   useEffect(() => {
-    // For 5 colleges, show all logos immediately to avoid flickering
     if (colleges.length === 5) {
-      // If it's already been rendered once, don't change visibleLogos state
       if (!initialRenderDone.current) {
-        // On first render, show all logos immediately
         setVisibleLogos([0, 1, 2, 3, 4]);
         initialRenderDone.current = true;
       }
     } else {
-      // For other lengths, use the original staggered animation
       initialRenderDone.current = false;
       setVisibleLogos([]);
       colleges.forEach((_, index) => {
@@ -30,17 +25,15 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
         }, 300 * index);
       });
     }
-  }, [colleges.length]); // Only depend on the length changing, not the colleges array itself
+  }, [colleges.length]);
 
-  // Special layout when there are exactly 5 colleges
   if (colleges.length === 5) {
-    // Define exact fixed positions for each logo slot (percentages of container)
     const positions = [
-      { top: '8%', left: '15%' }, // Position 1
-      { top: '8%', left: '65%' }, // Position 2
-      { top: '40%', left: '40%' }, // Position 3
-      { top: '72%', left: '15%' }, // Position 4
-      { top: '72%', left: '65%' }, // Position 5
+      { top: '8%', left: '15%' },
+      { top: '8%', left: '65%' },
+      { top: '40%', left: '40%' },
+      { top: '72%', left: '15%' },
+      { top: '72%', left: '65%' },
     ];
 
     return (
@@ -48,12 +41,11 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
         ref={containerRef}
         className='absolute z-60'
         style={{
-          // Drastically compressed and moved right
-          top: '32%', // Keep vertical position
-          right: '2%', // Move much closer to right edge
-          width: '18%', // Drastically reduced width
-          height: '28%', // Drastically reduced height
-          pointerEvents: 'none', // Allow clicking through
+          top: '32%',
+          right: '2%',
+          width: '18%',
+          height: '28%',
+          pointerEvents: 'none',
         }}
       >
         {/* Absolutely positioned logos */}
@@ -68,9 +60,9 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
               style={{
                 top: position.top,
                 left: position.left,
-                width: '32%', // Slightly smaller logos
-                height: '32%', // Square aspect ratio
-                transform: 'translate(18%, -85%)', // Center on position point
+                width: '32%',
+                height: '32%',
+                transform: 'translate(18%, -85%)',
               }}
             >
               <img
@@ -87,24 +79,22 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
     );
   }
 
-  // For regular grid layout - position directly on the 4x4 grid
   const gridPositions = [
-    // Row 1 - evenly decompressed and symmetrical
     { top: '4%', left: '10%' },
     { top: '4%', left: '30%' },
     { top: '4%', left: '50%' },
     { top: '4%', left: '70%' },
-    // Row 2 - evenly decompressed and symmetrical
+
     { top: '28%', left: '10%' },
     { top: '28%', left: '30%' },
     { top: '28%', left: '50%' },
     { top: '28%', left: '70%' },
-    // Row 3 - evenly decompressed and symmetrical
+
     { top: '52%', left: '10%' },
     { top: '52%', left: '30%' },
     { top: '52%', left: '50%' },
     { top: '52%', left: '70%' },
-    // Row 4 - evenly decompressed and symmetrical
+
     { top: '76%', left: '10%' },
     { top: '76%', left: '30%' },
     { top: '76%', left: '50%' },
@@ -116,11 +106,10 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
       ref={containerRef}
       className='absolute z-60'
       style={{
-        // Even more drastically compressed and moved right
-        top: '35%', // Keep vertical position
-        right: '1%', // Even closer to right edge
-        width: '15%', // Further reduced width
-        height: '28%', // Further reduced height
+        top: '35%',
+        right: '1%',
+        width: '15%',
+        height: '28%',
         pointerEvents: 'none',
       }}
     >
@@ -135,9 +124,9 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
             style={{
               top: position.top,
               left: position.left,
-              width: '25%', // Even smaller logos
-              height: '25%', // Maintain square aspect ratio
-              transform: 'translate(-23%, -140%)', // Center on position point
+              width: '25%',
+              height: '25%',
+              transform: 'translate(-23%, -140%)',
             }}
           >
             <img
@@ -163,9 +152,7 @@ function MainView() {
   const [division, setDivision] = useState<string>('');
   const [isFinalsMode, setIsFinalsMode] = useState<boolean>(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
-  const [isFadingOut, setIsFadingOut] = useState(false);
-  const [topFiveColleges, setTopFiveColleges] = useState<College[]>([]); // these are the colleges used for the leaderboard popup in Elims AND the set of colleges shown in Finals
-  const [topThreeColleges, setTopThreeColleges] = useState<College[]>([]);
+  const [topFiveColleges, setTopFiveColleges] = useState<College[]>([]);
   const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<
     Record<string, number>
   >({});
@@ -180,16 +167,14 @@ function MainView() {
     return await window.ipcRenderer.invoke('get-colleges');
   };
 
-  // Create radial lines
   useEffect(() => {
     if (colleges.length > 0 && radialGridContainerRef.current) {
-      // Clear existing radial lines
       while (radialGridContainerRef.current.firstChild) {
         radialGridContainerRef.current.removeChild(
           radialGridContainerRef.current.firstChild
         );
       }
-      // Create radial lines
+
       const collegeCount = colleges.length;
       for (let i = 0; i < collegeCount; i++) {
         const radialLine = document.createElement('div');
@@ -202,15 +187,13 @@ function MainView() {
         }
         radialLine.style.transition = radialLine.style.animationDelay = `${
           2 + i * 0.1
-        }s`; // Staggered fade-in effect
+        }s`;
         radialGridContainerRef.current.appendChild(radialLine);
       }
     }
   }, [colleges]);
 
-  // Listen for updates - consolidated all IPC listeners in one effect
   useEffect(() => {
-    // Setup all event handlers
     const handleDbUpdated = () => {
       getColleges().then((updatedColleges) => {
         setColleges(
@@ -244,19 +227,17 @@ function MainView() {
         return resetScores;
       });
 
-      // Also reset Finals mode
       setIsFinalsMode(false);
     };
 
-    const handleCategorySynced = (_: any, newCategory: string) => {
+    const handleCategorySynced = (_: IpcRendererEvent, newCategory: string) => {
       setCategory(newCategory);
 
-      // Update Finals mode state based on category
       if (newCategory === 'Finals') {
         setIsFinalsMode(true);
       } else {
         setIsFinalsMode(false);
-        // When switching back to Eliminations, fetch all colleges
+
         getColleges().then((allColleges) => {
           setColleges(allColleges);
           setAllColleges(allColleges);
@@ -264,9 +245,12 @@ function MainView() {
       }
     };
 
-    const handleSwitchToFinals = (_: any, topFiveColleges: College[]) => {
-      let isAlreadyFinals = false; // Flag to check if already in Finals mode
-      if (category === 'Finals') isAlreadyFinals = true; // Check if already in Finals mode
+    const handleSwitchToFinals = (
+      _: IpcRendererEvent,
+      topFiveColleges: College[]
+    ) => {
+      let isAlreadyFinals = false;
+      if (category === 'Finals') isAlreadyFinals = true;
 
       setCategory('Finals');
       console.log(
@@ -274,10 +258,8 @@ function MainView() {
         topFiveColleges
       );
 
-      // Store the top five colleges for reference
       setTopFiveColleges(topFiveColleges);
 
-      // Reset radar adjustments for clean slate in Finals mode
       if (!isAlreadyFinals) {
         setIsFinalsMode(true);
         setColleges(topFiveColleges);
@@ -301,7 +283,10 @@ function MainView() {
       }
     };
 
-    const handleDifficultySynced = (_: any, newDifficulty: string) => {
+    const handleDifficultySynced = (
+      _: IpcRendererEvent,
+      newDifficulty: string
+    ) => {
       setDifficulty(newDifficulty);
       setCollegeRadiusAdjustments({});
       setActiveRing(11);
@@ -312,7 +297,6 @@ function MainView() {
         }
       });
 
-      // Store last normal difficulty if it's not a special round
       if (['Easy', 'Average', 'Difficult'].includes(newDifficulty)) {
         setLastNormalDifficulty(newDifficulty);
       }
@@ -320,7 +304,7 @@ function MainView() {
       console.log(`DIFFICULTY CHANGED: ${newDifficulty}`);
     };
 
-    const handleDivisionSynced = (_: any, newDivision: string) => {
+    const handleDivisionSynced = (_: IpcRendererEvent, newDivision: string) => {
       setDivision(newDivision);
       console.log(`DIVISION CHANGED: ${newDivision}`);
     };
@@ -329,8 +313,10 @@ function MainView() {
       window.location.reload();
     };
 
-    const handleTopFiveColleges = (_: any, topColleges: College[]) => {
-      // This is ONLY for the leaderboard popup
+    const handleTopFiveColleges = (
+      _: IpcRendererEvent,
+      topColleges: College[]
+    ) => {
       setIsPopupVisible(true);
       setTopFiveColleges(topColleges);
       topColleges.forEach((college: College, index: number) => {
@@ -339,27 +325,25 @@ function MainView() {
     };
 
     const handleCloseTopFive = () => {
-      // This only closes the leaderboard popup - doesn't affect Finals mode
       setIsPopupVisible(false);
       console.log('Popup closed via ControlView.');
 
       setTimeout(() => {
-        setIsPopupVisible(false); // Actually hide it after animation
-        setIsFadingOut(false); // Reset for next open
+        setIsPopupVisible(false);
         console.log('Popup closed via ControlView.');
-      }, 500); // duration matches fade-out time
+      }, 500);
     };
 
-    const handleTopThreeColleges = (_: any, topColleges: College[]) => {
-      // This is ONLY for the leaderboard popup
+    const handleTopThreeColleges = (
+      _: IpcRendererEvent,
+      topColleges: College[]
+    ) => {
       setIsPopupVisible(true);
-      setTopThreeColleges(topColleges);
       topColleges.forEach((college: College, index: number) => {
         console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
       });
     };
 
-    // Register all event listeners
     window.ipcRenderer.on('db-updated', handleDbUpdated);
     window.ipcRenderer.on('scores-reset', handleScoresReset);
     window.ipcRenderer.on('category-synced', handleCategorySynced);
@@ -371,7 +355,6 @@ function MainView() {
     window.ipcRenderer.on('top-three-colleges', handleTopThreeColleges);
     window.ipcRenderer.on('close-top-five', handleCloseTopFive);
 
-    // Clean up all listeners when the component unmounts or re-renders
     return () => {
       window.ipcRenderer.removeAllListeners('db-updated');
       window.ipcRenderer.removeAllListeners('scores-reset');
@@ -383,9 +366,8 @@ function MainView() {
       window.ipcRenderer.removeAllListeners('top-five-colleges');
       window.ipcRenderer.removeAllListeners('close-top-five');
     };
-  }, [colleges, category]); // Only include stable dependencies
+  }, [colleges, category]);
 
-  // Initial load
   useEffect(() => {
     const retrieveCategoryAndDifficulty = async () => {
       const { category: currentCategory, topFiveColleges } =
@@ -393,13 +375,11 @@ function MainView() {
       await window.ipcRenderer.invoke('sync-difficulty');
       await window.ipcRenderer.invoke('sync-division');
 
-      // Set category and check if we're in Finals mode
       setCategory(currentCategory);
       if (currentCategory === 'Finals') {
         setIsFinalsMode(true);
       }
 
-      // If we're already in Finals mode and have top 5 colleges, use those
       if (
         currentCategory === 'Finals' &&
         topFiveColleges &&
@@ -409,7 +389,6 @@ function MainView() {
         setColleges(topFiveColleges);
         setTopFiveColleges(topFiveColleges);
       } else {
-        // Otherwise, get all colleges
         getColleges().then((colleges) => {
           setColleges(colleges);
           setAllColleges(colleges);
@@ -581,7 +560,7 @@ function MainView() {
                 <div className='flex justify-center gap-6'>
                   {topFiveColleges.map((college, index) => {
                     const fileName = college.imagePath.split('/').pop();
-                    const delay = 1.2 + index * 0.3; // animation starts after TOP & BOTTOM bars
+                    const delay = 1.2 + index * 0.3;
 
                     return (
                       <motion.div
@@ -701,7 +680,7 @@ function MainView() {
         <div className='mt-auto w-full h-[39.5%] bg-transparent flex flex-col items-center justify-center'>
           {/* Division */}
           <div
-            style={{ fontSize: 'clamp(1rem, 3vw, 3.7rem)' }} // Fluid resizing for division text
+            style={{ fontSize: 'clamp(1rem, 3vw, 3.7rem)' }}
             className='h-[20%]  w-full flex text-center items-center justify-center bg-clip-text font-[DS-Digital] bg-white drop-shadow-[0_0_0.1em_white]'
           >
             {division}
@@ -709,7 +688,7 @@ function MainView() {
 
           {/* Last Normal Difficulty */}
           <div
-            style={{ fontSize: 'clamp(1rem, 3vw, 4rem)' }} // Fluid resizing for difficulty text
+            style={{ fontSize: 'clamp(1rem, 3vw, 4rem)' }}
             className='h-[40%] w-full flex items-center justify-center bg-clip-text text-green-500 font-[DS-Digital] bg-green-200 drop-shadow-[0_0_0.1em_green]'
           >
             {lastNormalDifficulty}
@@ -719,7 +698,7 @@ function MainView() {
           <div className='h-[40%] w-[80%] flex items-center justify-center text-center '>
             {['Clincher', 'Sudden Death'].includes(difficulty) && (
               <div
-                style={{ fontSize: 'clamp(1rem, 3vw, 5rem)' }} // Fluid resizing for special difficulty text
+                style={{ fontSize: 'clamp(1rem, 3vw, 5rem)' }}
                 className='leading-[.9] text-red-500 bg-clip-text font-[DS-Digital] bg-red-200 drop-shadow-[0_0_0.1em_red]'
               >
                 {difficulty}
@@ -732,7 +711,6 @@ function MainView() {
   );
 }
 
-// Scores
 function Score({ college }: { college: College }) {
   const [showGlow, setShowGlow] = useState(false);
 
