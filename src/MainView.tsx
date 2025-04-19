@@ -52,21 +52,10 @@ function MainView() {
     }
   }, [colleges]);
 
-  // Listen for updates
+  // Listen for updates - consolidated all IPC listeners in one effect
   useEffect(() => {
-    // Clean up previous listeners first
-    window.ipcRenderer.removeAllListeners('db-updated');
-    window.ipcRenderer.removeAllListeners('category-synced');
-    window.ipcRenderer.removeAllListeners('difficulty-synced');
-    window.ipcRenderer.removeAllListeners('division-synced');
-
-    window.ipcRenderer.removeAllListeners('top-five-colleges');
-    window.ipcRenderer.removeAllListeners('switch-to-finals');
-    window.ipcRenderer.removeAllListeners('refresh');
-    window.ipcRenderer.removeAllListeners('scores-reset');
-    window.ipcRenderer.removeAllListeners('show-top-five');
-
-    window.ipcRenderer.on('db-updated', () => {
+    // Setup all event handlers
+    const handleDbUpdated = () => {
       getColleges().then((updatedColleges) => {
         setColleges(
           updatedColleges.map((updatedCollege: College, i: number) => {
@@ -76,16 +65,15 @@ function MainView() {
           })
         );
       });
-    });
+    };
 
-
-    window.ipcRenderer.on('scores-reset', () => {
+    const handleScoresReset = () => {
       getColleges().then((updatedColleges) => {
         setColleges(updatedColleges);
       });
-    });
+    };
 
-    window.ipcRenderer.on('category-synced', (_, newCategory) => {
+    const handleCategorySynced = (_: any, newCategory: string) => {
       setCategory(newCategory);
       if (newCategory === 'Eliminations') {
         setIsFinalsMode(false);
@@ -93,66 +81,80 @@ function MainView() {
           setColleges(allColleges);
         });
       }
-    });
+    };
 
-
-    window.ipcRenderer.on('switch-to-finals', (_, topFiveColleges) => {
+    const handleSwitchToFinals = (_: any, topFiveColleges: College[]) => {
       setCategory('Finals');
       setIsFinalsMode(true);
       setColleges(topFiveColleges);
+      console.log('Switched to Finals mode with top 5 colleges:', topFiveColleges);
+    };
 
-      // Refresh the view to reflect changes
-      console.log(
-        'Switched to Finals mode with top 5 colleges:',
-        topFiveColleges
-      );
-    });
-
-    window.ipcRenderer.on('difficulty-synced', (_, difficulty) => {
-      setDifficulty(difficulty);
+    const handleDifficultySynced = (_: any, newDifficulty: string) => {
+      setDifficulty(newDifficulty);
       setCollegeRadiusAdjustments({});
-      setActiveRing(11)
-      setSmallestRingValue(1)
+      setActiveRing(11);
+      setSmallestRingValue(1);
       circleRefs.current.forEach((circleRef) => {
         if (circleRef) {
           circleRef.style.opacity = "0";
         }
       });
-      console.log(`DIFFICULTY CHANGED: ${difficulty}`);
-    });
 
-    window.ipcRenderer.on('division-synced', (_, division) => {
-      setDivision(division);
-      console.log(`DIVISION CHANGED: ${division}`);
-    });
+      // Store last normal difficulty if it's not a special round
+      if (['Easy', 'Average', 'Difficult'].includes(newDifficulty)) {
+        setLastNormalDifficulty(newDifficulty);
+      }
+      
+      console.log(`DIFFICULTY CHANGED: ${newDifficulty}`);
+    };
 
-    window.ipcRenderer.on('refresh', () => {
+    const handleDivisionSynced = (_: any, newDivision: string) => {
+      setDivision(newDivision);
+      console.log(`DIVISION CHANGED: ${newDivision}`);
+    };
+
+    const handleRefresh = () => {
       window.location.reload();
-    });
+    };
 
-    // Listen for top-five colleges event from control view
-    window.ipcRenderer.on('top-five-colleges', (_, topColleges) => {
+    const handleTopFiveColleges = (_: any, topColleges: College[]) => {
       setIsPopupVisible(true);
       setTopFiveColleges(topColleges);
-      setIsPopupVisible(true);
       topColleges.forEach((college: College, index: number) => {
         console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
       });
-    });
+    };
 
-    // Clean up listeners when the component unmounts
+    const handleCloseTopFive = () => {
+      setIsPopupVisible(false);
+      console.log('Popup closed via ControlView.');
+    };
+
+    // Register all event listeners
+    window.ipcRenderer.on('db-updated', handleDbUpdated);
+    window.ipcRenderer.on('scores-reset', handleScoresReset);
+    window.ipcRenderer.on('category-synced', handleCategorySynced);
+    window.ipcRenderer.on('switch-to-finals', handleSwitchToFinals);
+    window.ipcRenderer.on('difficulty-synced', handleDifficultySynced);
+    window.ipcRenderer.on('division-synced', handleDivisionSynced);
+    window.ipcRenderer.on('refresh', handleRefresh);
+    window.ipcRenderer.on('top-five-colleges', handleTopFiveColleges);
+    window.ipcRenderer.on('close-top-five', handleCloseTopFive);
+
+    // Clean up all listeners when the component unmounts or re-renders
     return () => {
       window.ipcRenderer.removeAllListeners('db-updated');
+      window.ipcRenderer.removeAllListeners('scores-reset');
       window.ipcRenderer.removeAllListeners('category-synced');
+      window.ipcRenderer.removeAllListeners('switch-to-finals');
       window.ipcRenderer.removeAllListeners('difficulty-synced');
       window.ipcRenderer.removeAllListeners('division-synced');
-      window.ipcRenderer.removeAllListeners('top-five-colleges');
-      window.ipcRenderer.removeAllListeners('switch-to-finals');
       window.ipcRenderer.removeAllListeners('refresh');
-      window.ipcRenderer.removeAllListeners('scores-reset');
-      window.ipcRenderer.removeAllListeners('show-top-five');
+      window.ipcRenderer.removeAllListeners('top-five-colleges');
+      window.ipcRenderer.removeAllListeners('close-top-five');
     };
-  }, [colleges]);
+  }, [colleges]); // Only include stable dependencies
 
   // Initial load
   useEffect(() => {
@@ -177,58 +179,27 @@ function MainView() {
     retrieveCategoryAndDifficulty();
   }, []);
 
-  useEffect(() => {
-    // Listen for the close-top-five event
-    window.ipcRenderer.on('close-top-five', () => {
-      setIsPopupVisible(false); // Hide the popup
-      console.log('Popup closed via ControlView.');
-    });
-
-    // Clean up the listener when the component unmounts
-    return () => {
-      window.ipcRenderer.removeAllListeners('close-top-five');
-    };
-  }, []);
-
-  window.ipcRenderer.on('difficulty-synced', (_, newDifficulty) => {
-    setDifficulty(newDifficulty);
-  
-    // Store last normal difficulty if it's not a special round
-    if (['Easy', 'Average', 'Difficult'].includes(newDifficulty)) {
-      setLastNormalDifficulty(newDifficulty);
-    }
-  
-    console.log(`DIFFICULTY CHANGED: ${newDifficulty}`);
-  });
-
-
-
-
   return (
     <>
+      <div className="absolute bottom-87 right-30 flex flex-col items-center gap-18 z-[9999] w-[300px]">
+        <div className='mt-4 text-transparent text-[80px] font-bold bg-clip-text font-[DS-Digital] bg-white drop-shadow-[0_0_0.1em_white]'>
+          {division}
+        </div>
 
-<div className="absolute bottom-87 right-30 flex flex-col items-center gap-18 z-[9999] w-[300px]">
-   
-<div className='mt-4 text-transparent text-[80px] font-bold bg-clip-text font-[DS-Digital] bg-white drop-shadow-[0_0_0.1em_white]'>
-  {division}
-</div>
+        {/*Normal Difficulties*/}
+        <div className='mt-4 text-green-500 text-8xl font-bold bg-clip-text font-[DS-Digital] bg-green-200 drop-shadow-[0_0_0.1em_green]'>
+          {lastNormalDifficulty}
+        </div>
+      </div>
 
- {/*Normal Difficulties*/}
-<div className='mt-4 text-green-500 text-8xl font-bold bg-clip-text font-[DS-Digital] bg-green-200 drop-shadow-[0_0_0.1em_green]'>
-{lastNormalDifficulty}
-</div>
-
-</div>
-
-<div className="absolute bottom-15 right-30 flex flex-col items-center gap-19 z-[9999] w-[300px]">
-
-  {/*Special Difficulties*/}
-{['Clincher', 'Sudden Death'].includes(difficulty) && (
-<div className='mt-4 text-red-500 text-8xl text-center font-bold bg-clip-text font-[DS-Digital] bg-red-200 drop-shadow-[0_0_0.1em_red]'>
-  {difficulty}
-</div>
-)}
-</div>
+      <div className="absolute bottom-15 right-30 flex flex-col items-center gap-19 z-[9999] w-[300px]">
+        {/*Special Difficulties*/}
+        {['Clincher', 'Sudden Death'].includes(difficulty) && (
+          <div className='mt-4 text-red-500 text-8xl text-center font-bold bg-clip-text font-[DS-Digital] bg-red-200 drop-shadow-[0_0_0.1em_red]'>
+            {difficulty}
+          </div>
+        )}
+      </div>
   
       {/* Full-screen frame */}
       <div className='fixed top-0 left-0 w-screen h-screen z-50 pointer-events-none'>
