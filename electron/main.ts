@@ -283,8 +283,8 @@ function createWindow() {
 
   techView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
-    width: 1160,
-    height: 1000,
+    width: 880,
+    height: 800,
     resizable: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
