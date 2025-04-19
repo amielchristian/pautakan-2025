@@ -170,6 +170,8 @@ function MainView() {
   const circleRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [activeRing, setActiveRing] = useState(11);
   const [smallestRingValue, setSmallestRingValue] = useState(1);
+  const [prevScores, setPrevScores] = useState<Record<string, number>>({});
+
   const radialGridContainerRef = useRef<HTMLDivElement>(null);
 
   const getColleges = async () => {
@@ -223,6 +225,21 @@ function MainView() {
       getColleges().then((updatedColleges) => {
         setColleges(updatedColleges);
       });
+      setCollegeRadiusAdjustments({});
+      setActiveRing(11)
+      setSmallestRingValue(1)
+      circleRefs.current.forEach((circleRef) => {
+        if (circleRef) {
+          circleRef.style.opacity = "0";
+        }
+      });
+      setPrevScores(prev => {
+        const resetScores: Record<string, number> = {};
+        Object.keys(prev).forEach(key => {
+          resetScores[key] = 0;
+        });
+        return resetScores;
+      });
     };
 
     const handleCategorySynced = (_: any, newCategory: string) => {
@@ -244,6 +261,21 @@ function MainView() {
         'Switched to Finals mode with top 5 colleges:',
         topFiveColleges
       );
+      setCollegeRadiusAdjustments({});
+      setActiveRing(11)
+      setSmallestRingValue(1)
+      circleRefs.current.forEach((circleRef) => {
+        if (circleRef) {
+          circleRef.style.opacity = "0";
+        }
+      });
+      setPrevScores(prev => {
+        const resetScores: Record<string, number> = {};
+        Object.keys(prev).forEach(key => {
+          resetScores[key] = 0;
+        });
+        return resetScores;
+      });
     };
 
     const handleDifficultySynced = (_: any, newDifficulty: string) => {
@@ -495,7 +527,9 @@ function MainView() {
               setActiveRing={setActiveRing}
               smallestRingValue={smallestRingValue}
               setSmallestRingValue={setSmallestRingValue}
-            ></RadarView>
+              prevScores={prevScores}
+              setPrevScores={setPrevScores}>
+              </RadarView>
             {isFinalsMode && (
               <div className='absolute top-0 left-0 w-full p-4 text-center'></div>
             )}

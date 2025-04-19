@@ -12,6 +12,8 @@ function RadarView({ colleges,
   setActiveRing,
   smallestRingValue,
   setSmallestRingValue,
+  prevScores,
+  setPrevScores,
 }: { 
   colleges: College[], 
   collegeRadiusAdjustments: Record<string, number>;  
@@ -20,14 +22,16 @@ function RadarView({ colleges,
   activeRing: number;
   setActiveRing: React.Dispatch<React.SetStateAction<number>>;
   smallestRingValue: number;
-  setSmallestRingValue: React.Dispatch<React.SetStateAction<number>>; }) {
+  setSmallestRingValue: React.Dispatch<React.SetStateAction<number>>;
+  prevScores: Record<string, number>
+  setPrevScores: React.Dispatch<React.SetStateAction<Record<string, number>>>;
+}) {
   const [scaleFactor, setScaleFactor] = useState(1);
   const radarBaseRef = useRef<HTMLDivElement>(null);
   const [pings, setPings] = useState<number[]>([]);
   const [booted, setBooted] = useState(false);
   // Keep track of individual college radius adjustments
   // Keep track of previous scores to determine if score is increasing or decreasing
-  const [prevScores, setPrevScores] = useState<Record<string, number>>({});
   // Track which colleges should show red logos with opacity for fading
   const [redLogoOpacity, setRedLogoOpacity] = useState<Record<string, number>>({});
   
@@ -132,10 +136,14 @@ function RadarView({ colleges,
     const handleScoreUpdate = (_, shorthand: string, newScore: number) => {
       // Get previous score to determine if we're increasing or decreasing
       const oldScore = prevScores[shorthand] || 0;
+      console.log('PREVIOUS SCORE IS:', prevScores[shorthand])
       
       setCollegeRadiusAdjustments(prev => {
-        const currentFactor = prev[shorthand] || 1.0;
-        
+        console.log('CURRENT COLLEGE RADIUS ADJUSTMENT', collegeRadiusAdjustments)
+        const currentFactor = isFinalsMode ?
+          prev[shorthand] || 0.78 : 
+          prev[shorthand] || 1.0;
+        console.log('COLLEGE SHORTHAND IS: ', shorthand)
         // If score is increasing, move toward center (reduce radius)
         // If score is decreasing, move away from center (increase radius)
         let newFactor;
@@ -144,7 +152,7 @@ function RadarView({ colleges,
         
         if (newScore > oldScore) {
           // Score increasing - move toward center
-          newFactor = currentFactor - 0.065;
+          newFactor = currentFactor - 0.046;
             if (ringToUse != -1 && newFactor < smallestRingValue){
               circleRefs.current[ringToUse]!.style.transition = "opacity 0.5s ease";
               circleRefs.current[ringToUse]!.style.opacity = "1";
@@ -158,7 +166,7 @@ function RadarView({ colleges,
         } else {
           // Score decreasing - move away from center
           // Cap at 1.0 to prevent going beyond original position
-            newFactor = currentFactor + 0.065;
+            newFactor = currentFactor + 0.046;
             const ringToHide = ringToUse + 1;
             const isSharedFactor = Object.entries(prev).some(([key, value]) => {
               return key !== shorthand && value === currentFactor;
@@ -255,7 +263,7 @@ function RadarView({ colleges,
       window.ipcRenderer.removeAllListeners('score-updated');
       window.ipcRenderer.removeAllListeners('scores-reset');
     };
-  }, [prevScores, colleges, activeRing, smallestRingValue]); // Include dependencies but be cautious of constantly changing values
+  }, [prevScores, colleges, setActiveRing, activeRing, smallestRingValue, circleRefs, setSmallestRingValue, setCollegeRadiusAdjustments]); // Include dependencies but be cautious of constantly changing values
 
  // circleRefs.current[0]!.style.opacity = "1";
   // Ping sequence using React state - only run when booted changes
@@ -306,8 +314,8 @@ function RadarView({ colleges,
           className={`radar-base ${isFinalsMode ? 'finals-mode' : ''}`}
         >
         {Array.from({ length: 12 }).map((_, i) => {
-          const minSize = 200;
-          const gap = 55;
+          const minSize = isFinalsMode ? 260 : 400;
+          const gap = isFinalsMode ? 50.5 : 38.5;
           const size = minSize + i * gap;
           let startTime = 7;
           const customDelays: string[] = []
@@ -320,14 +328,14 @@ function RadarView({ colleges,
             <div
               key={`red-circle-${i}`}
               ref={(el) => circleRefs.current[i] = el}
-              className="red-circle"
+              className="white-circle"
               style={{
                 width: `${size}px`,
                 height: `${size}px`,
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
-                border: '2px solid red', // Set initial border width
+                border: '0.1px solid rgba(255, 255, 255, 0.60)', // Set initial border width
                 borderRadius: '50%',
                 transform: `translate(-50%, -50%)`,
                 zIndex: 5,
@@ -366,8 +374,8 @@ function RadarView({ colleges,
                 
                 // Apply individual adjustment factor for this specific college
                 const adjustmentFactor = isFinalsMode 
-                  ? 0.78  // Custom closer-in value for finals mode
-                  : (collegeRadiusAdjustments[college.shorthand] || 1.0);
+                  ? collegeRadiusAdjustments[college.shorthand] || 0.78  // Custom closer-in value for finals mode
+                  : collegeRadiusAdjustments[college.shorthand] || 1.0;
                 const adjustedRadius = baseRadius * adjustmentFactor;
                 
                 const radiusPercentage = (adjustedRadius / parentSize) * 100;
