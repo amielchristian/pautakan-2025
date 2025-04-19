@@ -8,11 +8,13 @@ function MainView() {
   const [difficulty, setDifficulty] = useState<string>('');
   const [category, setCategory] = useState<string>('');
   const [lastNormalDifficulty, setLastNormalDifficulty] = useState<string>('');
-  const [division, setDivision] = useState<string>('');  
+  const [division, setDivision] = useState<string>('');
   const [isFinalsMode, setIsFinalsMode] = useState<boolean>(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [topFiveColleges, setTopFiveColleges] = useState<College[]>([]);
-  const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<Record<string, number>>({});
+  const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<
+    Record<string, number>
+  >({});
   const circleRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [activeRing, setActiveRing] = useState(11);
   const [smallestRingValue, setSmallestRingValue] = useState(1);
@@ -75,7 +77,7 @@ function MainView() {
 
     const handleCategorySynced = (_: any, newCategory: string) => {
       setCategory(newCategory);
-      if (newCategory === 'Eliminations') {
+      if (category === 'Eliminations') {
         setIsFinalsMode(false);
         getColleges().then((allColleges) => {
           setColleges(allColleges);
@@ -87,7 +89,10 @@ function MainView() {
       setCategory('Finals');
       setIsFinalsMode(true);
       setColleges(topFiveColleges);
-      console.log('Switched to Finals mode with top 5 colleges:', topFiveColleges);
+      console.log(
+        'Switched to Finals mode with top 5 colleges:',
+        topFiveColleges
+      );
     };
 
     const handleDifficultySynced = (_: any, newDifficulty: string) => {
@@ -97,7 +102,7 @@ function MainView() {
       setSmallestRingValue(1);
       circleRefs.current.forEach((circleRef) => {
         if (circleRef) {
-          circleRef.style.opacity = "0";
+          circleRef.style.opacity = '0';
         }
       });
 
@@ -105,7 +110,7 @@ function MainView() {
       if (['Easy', 'Average', 'Difficult'].includes(newDifficulty)) {
         setLastNormalDifficulty(newDifficulty);
       }
-      
+
       console.log(`DIFFICULTY CHANGED: ${newDifficulty}`);
     };
 
@@ -154,7 +159,7 @@ function MainView() {
       window.ipcRenderer.removeAllListeners('top-five-colleges');
       window.ipcRenderer.removeAllListeners('close-top-five');
     };
-  }, [colleges]); // Only include stable dependencies
+  }, [colleges, category]); // Only include stable dependencies
 
   // Initial load
   useEffect(() => {
@@ -181,7 +186,7 @@ function MainView() {
 
   return (
     <>
-      <div className="absolute bottom-87 right-30 flex flex-col items-center gap-18 z-[9999] w-[300px]">
+      <div className='absolute bottom-87 right-30 flex flex-col items-center gap-18 z-[9999] w-[300px]'>
         <div className='mt-4 text-transparent text-[80px] font-bold bg-clip-text font-[DS-Digital] bg-white drop-shadow-[0_0_0.1em_white]'>
           {division}
         </div>
@@ -192,7 +197,7 @@ function MainView() {
         </div>
       </div>
 
-      <div className="absolute bottom-15 right-30 flex flex-col items-center gap-19 z-[9999] w-[300px]">
+      <div className='absolute bottom-15 right-30 flex flex-col items-center gap-19 z-[9999] w-[300px]'>
         {/*Special Difficulties*/}
         {['Clincher', 'Sudden Death'].includes(difficulty) && (
           <div className='mt-4 text-red-500 text-8xl text-center font-bold bg-clip-text font-[DS-Digital] bg-red-200 drop-shadow-[0_0_0.1em_red]'>
@@ -200,7 +205,7 @@ function MainView() {
           </div>
         )}
       </div>
-  
+
       {/* Full-screen frame */}
       <div className='fixed top-0 left-0 w-screen h-screen z-50 pointer-events-none'>
         <img
@@ -309,7 +314,7 @@ function MainView() {
               ref={radialGridContainerRef}
               className='radial-grid-container'
             ></div>
-            <RadarView 
+            <RadarView
               colleges={colleges}
               collegeRadiusAdjustments={collegeRadiusAdjustments}
               setCollegeRadiusAdjustments={setCollegeRadiusAdjustments}
@@ -317,8 +322,8 @@ function MainView() {
               activeRing={activeRing}
               setActiveRing={setActiveRing}
               smallestRingValue={smallestRingValue}
-              setSmallestRingValue={setSmallestRingValue}>
-              </RadarView>
+              setSmallestRingValue={setSmallestRingValue}
+            ></RadarView>
             {isFinalsMode && (
               <div className='absolute top-0 left-0 w-full p-4 text-center'></div>
             )}
