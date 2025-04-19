@@ -8,7 +8,7 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
   const [visibleLogos, setVisibleLogos] = useState<number[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const initialRenderDone = useRef<boolean>(false);
-  
+
   // Animation effect for logos
   useEffect(() => {
     // For 5 colleges, show all logos immediately to avoid flickering
@@ -25,56 +25,56 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
       setVisibleLogos([]);
       colleges.forEach((_, index) => {
         setTimeout(() => {
-          setVisibleLogos(prev => [...prev, index]);
+          setVisibleLogos((prev) => [...prev, index]);
         }, 300 * index);
       });
     }
   }, [colleges.length]); // Only depend on the length changing, not the colleges array itself
-  
+
   // Special layout when there are exactly 5 colleges
   if (colleges.length === 5) {
     // Define exact fixed positions for each logo slot (percentages of container)
     const positions = [
-      { top: '8%', left: '15%' },    // Position 1
-      { top: '8%', left: '65%' },    // Position 2
-      { top: '40%', left: '40%' },   // Position 3
-      { top: '72%', left: '15%' },   // Position 4
-      { top: '72%', left: '65%' }    // Position 5
+      { top: '8%', left: '15%' }, // Position 1
+      { top: '8%', left: '65%' }, // Position 2
+      { top: '40%', left: '40%' }, // Position 3
+      { top: '72%', left: '15%' }, // Position 4
+      { top: '72%', left: '65%' }, // Position 5
     ];
-    
+
     return (
-      <div 
+      <div
         ref={containerRef}
-        className="absolute z-60" 
+        className='absolute z-60'
         style={{
           // Drastically compressed and moved right
-          top: '32%',           // Keep vertical position
-          right: '2%',          // Move much closer to right edge
-          width: '18%',         // Drastically reduced width
-          height: '28%',        // Drastically reduced height
-          pointerEvents: 'none' // Allow clicking through
+          top: '32%', // Keep vertical position
+          right: '2%', // Move much closer to right edge
+          width: '18%', // Drastically reduced width
+          height: '28%', // Drastically reduced height
+          pointerEvents: 'none', // Allow clicking through
         }}
       >
         {/* Absolutely positioned logos */}
         {colleges.map((college, index) => {
           const fileName = college.imagePath.split('/').pop();
           const position = positions[index];
-          
+
           return (
-            <div 
-              key={college.id} 
-              className="absolute flex items-center justify-center"
+            <div
+              key={college.id}
+              className='absolute flex items-center justify-center'
               style={{
                 top: position.top,
                 left: position.left,
-                width: '32%',   // Slightly smaller logos
-                height: '32%',  // Square aspect ratio
-                transform: 'translate(18%, -85%)' // Center on position point
+                width: '32%', // Slightly smaller logos
+                height: '32%', // Square aspect ratio
+                transform: 'translate(18%, -85%)', // Center on position point
               }}
             >
-              <img 
+              <img
                 src={`/images/Top5/ICONS FOR RANKING/${fileName}`}
-                alt={college.shorthand} 
+                alt={college.shorthand}
                 className={`w-full h-full object-contain transition-opacity duration-500 ease-in-out ${
                   visibleLogos.includes(index) ? 'opacity-100' : 'opacity-0'
                 }`}
@@ -85,7 +85,7 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
       </div>
     );
   }
-  
+
   // For regular grid layout - position directly on the 4x4 grid
   const gridPositions = [
     // Row 1 - evenly decompressed and symmetrical
@@ -107,41 +107,41 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
     { top: '76%', left: '10%' },
     { top: '76%', left: '30%' },
     { top: '76%', left: '50%' },
-    { top: '76%', left: '70%' }
+    { top: '76%', left: '70%' },
   ];
-  
+
   return (
-    <div 
+    <div
       ref={containerRef}
-      className="absolute z-60"
+      className='absolute z-60'
       style={{
         // Even more drastically compressed and moved right
-        top: '35%',          // Keep vertical position
-        right: '1%',         // Even closer to right edge
-        width: '15%',        // Further reduced width
-        height: '28%',       // Further reduced height
-        pointerEvents: 'none'
+        top: '35%', // Keep vertical position
+        right: '1%', // Even closer to right edge
+        width: '15%', // Further reduced width
+        height: '28%', // Further reduced height
+        pointerEvents: 'none',
       }}
     >
       {colleges.slice(0, 16).map((college, index) => {
         const fileName = college.imagePath.split('/').pop();
         const position = gridPositions[index];
-        
+
         return (
-          <div 
-            key={college.id} 
-            className="absolute flex items-center justify-center"
+          <div
+            key={college.id}
+            className='absolute flex items-center justify-center'
             style={{
               top: position.top,
               left: position.left,
-              width: '25%',    // Even smaller logos
-              height: '25%',   // Maintain square aspect ratio
-              transform: 'translate(-23%, -140%)' // Center on position point
+              width: '25%', // Even smaller logos
+              height: '25%', // Maintain square aspect ratio
+              transform: 'translate(-23%, -140%)', // Center on position point
             }}
           >
-            <img 
+            <img
               src={`/images/Top5/ICONS FOR RANKING/${fileName}`}
-              alt={college.shorthand} 
+              alt={college.shorthand}
               className={`w-full h-full object-contain transition-opacity duration-500 ease-in-out ${
                 visibleLogos.includes(index) ? 'opacity-100' : 'opacity-0'
               }`}
@@ -225,16 +225,16 @@ function MainView() {
         setColleges(updatedColleges);
       });
       setCollegeRadiusAdjustments({});
-      setActiveRing(11)
-      setSmallestRingValue(1)
+      setActiveRing(11);
+      setSmallestRingValue(1);
       circleRefs.current.forEach((circleRef) => {
         if (circleRef) {
-          circleRef.style.opacity = "0";
+          circleRef.style.opacity = '0';
         }
       });
-      setPrevScores(prev => {
+      setPrevScores((prev) => {
         const resetScores: Record<string, number> = {};
-        Object.keys(prev).forEach(key => {
+        Object.keys(prev).forEach((key) => {
           resetScores[key] = 0;
         });
         return resetScores;
@@ -261,16 +261,16 @@ function MainView() {
         topFiveColleges
       );
       setCollegeRadiusAdjustments({});
-      setActiveRing(11)
-      setSmallestRingValue(1)
+      setActiveRing(11);
+      setSmallestRingValue(1);
       circleRefs.current.forEach((circleRef) => {
         if (circleRef) {
-          circleRef.style.opacity = "0";
+          circleRef.style.opacity = '0';
         }
       });
-      setPrevScores(prev => {
+      setPrevScores((prev) => {
         const resetScores: Record<string, number> = {};
-        Object.keys(prev).forEach(key => {
+        Object.keys(prev).forEach((key) => {
           resetScores[key] = 0;
         });
         return resetScores;
@@ -350,7 +350,7 @@ function MainView() {
         await window.ipcRenderer.invoke('sync-category');
       await window.ipcRenderer.invoke('sync-difficulty');
       await window.ipcRenderer.invoke('sync-division');
-      
+
       // If we're already in Finals mode and have top 5 colleges, use those
       if (
         currentCategory === 'Finals' &&
@@ -381,7 +381,15 @@ function MainView() {
       </div>
 
       {/* College logos OVER the frame (z-index higher than frame) */}
-      <FrameCollegeLogos colleges={isFinalsMode ? colleges : (allColleges.length > 0 ? allColleges : colleges)} />
+      <FrameCollegeLogos
+        colleges={
+          isFinalsMode
+            ? colleges
+            : allColleges.length > 0
+            ? allColleges
+            : colleges
+        }
+      />
 
       {/* Body - flex row */}
       <div className='overflow-hidden bg-black flex flex-row h-screen w-screen p-8 space-x-[1%]'>
@@ -491,60 +499,52 @@ function MainView() {
               smallestRingValue={smallestRingValue}
               setSmallestRingValue={setSmallestRingValue}
               prevScores={prevScores}
-              setPrevScores={setPrevScores}>
-              </RadarView>
+              setPrevScores={setPrevScores}
+            ></RadarView>
             {isFinalsMode && (
               <div className='absolute top-0 left-0 w-full p-4 text-center'></div>
             )}
           </div>
         </div>
- 
+
         <div
-    className="sharp-edge-box
+          className='sharp-edge-box
              w-[16%] h-[96.5%]
              flex flex-col items-center
              text-white bg-transparent z-[9999]
-             fixed top-[1%] right-[1%]">
+             fixed top-[1%] right-[1%]'
+        >
+          {/* Bottom 40% container */}
+          <div className='mt-auto w-full h-[39.5%] bg-transparent flex flex-col items-center justify-center'>
+            {/* Division */}
+            <div
+              style={{ fontSize: 'clamp(1rem, 4vw, 4.7rem)' }} // Fluid resizing for division text
+              className='h-[20%]  w-full flex text-center items-center justify-center bg-clip-text font-[DS-Digital] bg-white drop-shadow-[0_0_0.1em_white]'
+            >
+              {division}
+            </div>
 
-{/* Bottom 40% container */}
-<div className="mt-auto w-full h-[39.5%] bg-transparent flex flex-col items-center justify-center">
+            {/* Last Normal Difficulty */}
+            <div
+              style={{ fontSize: 'clamp(1rem, 4vw, 5rem)' }} // Fluid resizing for difficulty text
+              className='h-[40%] w-full flex items-center justify-center bg-clip-text text-green-500 font-[DS-Digital] bg-green-200 drop-shadow-[0_0_0.1em_green]'
+            >
+              {lastNormalDifficulty}
+            </div>
 
-  {/* Division */}
-  <div
-    style={{ fontSize: 'clamp(1rem, 4vw, 4.7rem)' }} // Fluid resizing for division text
-    className="h-[20%]  w-full flex text-center items-center justify-center bg-clip-text font-[DS-Digital] bg-white drop-shadow-[0_0_0.1em_white]"
->
-    {division}
-  </div>
-
-  {/* Last Normal Difficulty */}
-  <div
-    style={{ fontSize: 'clamp(1rem, 4vw, 5rem)' }} // Fluid resizing for difficulty text
-    className="h-[40%] w-full flex items-center justify-center bg-clip-text text-green-500 font-[DS-Digital] bg-green-200 drop-shadow-[0_0_0.1em_green]"
-  >
-    {lastNormalDifficulty}
-  </div>
-
-  {/* Special Difficulty */}
- <div className="h-[40%] w-[80%] flex items-center justify-center text-center ">
-  {['Clincher', 'Sudden Death'].includes(difficulty) && (
-    <div
-      style={{ fontSize: 'clamp(1rem, 4vw, 6rem)' }} // Fluid resizing for special difficulty text
-      className="leading-[.9] text-red-500 bg-clip-text font-[DS-Digital] bg-red-200 drop-shadow-[0_0_0.1em_red]"
-    >
-      {difficulty}
-    </div>
-  )}
-   </div>
-
-</div>
-
-
-</div>
-  
-
-
-
+            {/* Special Difficulty */}
+            <div className='h-[40%] w-[80%] flex items-center justify-center text-center '>
+              {['Clincher', 'Sudden Death'].includes(difficulty) && (
+                <div
+                  style={{ fontSize: 'clamp(1rem, 4vw, 6rem)' }} // Fluid resizing for special difficulty text
+                  className='leading-[.9] text-red-500 bg-clip-text font-[DS-Digital] bg-red-200 drop-shadow-[0_0_0.1em_red]'
+                >
+                  {difficulty}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
@@ -567,16 +567,16 @@ function Score({ college }: { college: College }) {
     <div className='flex flex-row space-x-4'>
       <div
         className='sharp-edge-box w-20 h-10 [--img:linear-gradient(#222,#111)] font-[DS-Digital] text-3xl
-    inset-shadow-custom [--inset-shadow-color:var(--red)] [--inset-shadow-size:0.2em]
+    inset-shadow-custom [--inset-shadow-color:#ffffff] [--inset-shadow-size:0.2em]
     flex items-center justify-center
     [--top-left:10px] [--bottom-right:10px]
     [--border-width:2px] border-[2px]
-    [--border-color:var(--red)] border-[var(--red)]'
+    [--border-color:#ffffff] border-white'
       >
         {college.score.toString().padStart(3, '0')}
       </div>
       <span
-        className={`text-4xl font-[Starter] text-transparent bg-clip-text font-bold bg-red-200 drop-shadow-[0_0_0.1em_red] ${
+        className={`text-4xl font-[Starter] text-transparent bg-clip-text font-bold bg-white drop-shadow-[0_0_0.1em_white] ${
           showGlow ? 'text-glow' : ''
         }`}
       >
