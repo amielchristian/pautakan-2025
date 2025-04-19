@@ -2,7 +2,7 @@ import './App.css';
 import { useEffect, useState, useRef } from 'react';
 import { College } from './types';
 import RadarView from './RadarView/radarView';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 // Position-Locked Logo Grid Component - compressed and moved right
 function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
@@ -163,6 +163,7 @@ function MainView() {
   const [division, setDivision] = useState<string>('');
   const [isFinalsMode, setIsFinalsMode] = useState<boolean>(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [isFadingOut, setIsFadingOut] = useState(false);
   const [topFiveColleges, setTopFiveColleges] = useState<College[]>([]);
   const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<
     Record<string, number>
@@ -317,6 +318,12 @@ function MainView() {
     const handleCloseTopFive = () => {
       setIsPopupVisible(false);
       console.log('Popup closed via ControlView.');
+
+      setTimeout(() => {
+        setIsPopupVisible(false); // Actually hide it after animation
+        setIsFadingOut(false); // Reset for next open
+        console.log('Popup closed via ControlView.');
+      }, 500); // duration matches fade-out time
     };
 
     // Register all event listeners
@@ -394,6 +401,19 @@ function MainView() {
           className='flex flex-row w-[83%] p-5 space-x-4
           [--all:20px]'
         >
+<AnimatePresence>
+  {isPopupVisible && (
+    <motion.div
+      key="popup"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 1.5 }}
+      className={`fixed inset-0 bg-black/35 backdrop-blur-[1.5px] z-10 flex flex-col items-center overflow-y-auto pt-[10vh]`}
+    >
+    </motion.div>
+  )}
+</AnimatePresence>
 
 {isPopupVisible && (
   <div className='fixed inset-0 bg-black/35 backdrop-blur-[1.5px] z-10 flex flex-col items-center overflow-y-auto pt-[10vh]'>
