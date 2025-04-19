@@ -283,13 +283,15 @@ function createWindow() {
 
   techView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
-    width: 880,
-    height: 800,
-    resizable: false,
+    width: 880,              // Fixed width
+    height: 800,             // Fixed height
+    resizable: false,        // Prevent resizing
+    useContentSize: true,    // Use content dimensions exactly as specified
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
     },
   });
+  
   techView.on('close', () => {
     app.quit();
   });
