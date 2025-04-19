@@ -224,6 +224,7 @@ function MainView() {
     const handleScoresReset = () => {
       getColleges().then((updatedColleges) => {
         setColleges(updatedColleges);
+        setAllColleges(updatedColleges);
       });
       setCollegeRadiusAdjustments({});
       setActiveRing(11)
@@ -240,12 +241,20 @@ function MainView() {
         });
         return resetScores;
       });
+      
+      // Also reset Finals mode
+      setIsFinalsMode(false);
     };
 
     const handleCategorySynced = (_: any, newCategory: string) => {
       setCategory(newCategory);
-      if (category === 'Eliminations') {
+      
+      // Update Finals mode state based on category
+      if (newCategory === 'Finals') {
+        setIsFinalsMode(true);
+      } else {
         setIsFinalsMode(false);
+        // When switching back to Eliminations, fetch all colleges
         getColleges().then((allColleges) => {
           setColleges(allColleges);
           setAllColleges(allColleges);
@@ -261,6 +270,11 @@ function MainView() {
         'Switched to Finals mode with top 5 colleges:',
         topFiveColleges
       );
+      
+      // Store the top five colleges for reference
+      setTopFiveColleges(topFiveColleges);
+      
+      // Reset radar adjustments for clean slate in Finals mode
       setCollegeRadiusAdjustments({});
       setActiveRing(11)
       setSmallestRingValue(1)
@@ -307,6 +321,7 @@ function MainView() {
     };
 
     const handleTopFiveColleges = (_: any, topColleges: College[]) => {
+      // This is ONLY for the leaderboard popup
       setIsPopupVisible(true);
       setTopFiveColleges(topColleges);
       topColleges.forEach((college: College, index: number) => {
@@ -315,6 +330,7 @@ function MainView() {
     };
 
     const handleCloseTopFive = () => {
+      // This only closes the leaderboard popup - doesn't affect Finals mode
       setIsPopupVisible(false);
       console.log('Popup closed via ControlView.');
     };
@@ -352,6 +368,12 @@ function MainView() {
       await window.ipcRenderer.invoke('sync-difficulty');
       await window.ipcRenderer.invoke('sync-division');
       
+      // Set category and check if we're in Finals mode
+      setCategory(currentCategory);
+      if (currentCategory === 'Finals') {
+        setIsFinalsMode(true);
+      }
+      
       // If we're already in Finals mode and have top 5 colleges, use those
       if (
         currentCategory === 'Finals' &&
@@ -360,7 +382,9 @@ function MainView() {
       ) {
         setIsFinalsMode(true);
         setColleges(topFiveColleges);
+        setTopFiveColleges(topFiveColleges);
       } else {
+        // Otherwise, get all colleges
         getColleges().then((colleges) => {
           setColleges(colleges);
           setAllColleges(colleges);
@@ -395,6 +419,7 @@ function MainView() {
           [--all:20px]'
         >
 
+{/* Leaderboard Popup - ONLY visible when leaderboard is toggled */}
 {isPopupVisible && (
   <div className='fixed inset-0 bg-black/35 backdrop-blur-[1.5px] z-10 flex flex-col items-center overflow-y-auto pt-[10vh]'>
     
@@ -460,7 +485,6 @@ function MainView() {
     </motion.span>
 
 </motion.div>
-
           );
         })}
       </div>
