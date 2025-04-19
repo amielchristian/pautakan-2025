@@ -37,6 +37,17 @@ export default function ControlView() {
     }
   };
 
+  // Function to get top 5 colleges - used in multiple places
+  function getTopFiveColleges() {
+    // Get the top 5 colleges based on score
+    const topFiveColleges = [...colleges]
+      .sort((a: College, b: College) => b.score - a.score)
+      .slice(0, 5)
+      .filter((college: College) => college.score > 0);
+
+    return topFiveColleges;
+  }
+
   useEffect(() => {
     const changeCategory = async () => {
       // Get the latest data from main process
@@ -52,6 +63,9 @@ export default function ControlView() {
         if (topFiveColleges.length === 5) {
           setDisplayedColleges(topFiveColleges);
           console.log('Switched to Finals mode, showing top 5 colleges');
+          
+          // Just update the top five colleges in main process WITHOUT showing leaderboard
+          await window.ipcRenderer.invoke('update-top-five', topFiveColleges);
         } else {
           alert('Need 5 colleges with scores to enter Finals mode');
           setCategory('Eliminations');
@@ -181,16 +195,6 @@ export default function ControlView() {
     console.log('Application refreshed');
   }
 
-  function getTopFiveColleges() {
-    // Get the top 5 colleges based on score
-    const topFiveColleges = [...colleges]
-      .sort((a: College, b: College) => b.score - a.score)
-      .slice(0, 5)
-      .filter((college: College) => college.score > 0);
-
-    return topFiveColleges;
-  }
-
   async function toggleLeaderboard() {
     if (showLeaderboard) {
       setShowLeaderboard(false);
@@ -207,16 +211,13 @@ export default function ControlView() {
         alert(
           'There are fewer than 5 colleges with scores. Please ensure at least 5 colleges have scores before showing the leaderboard.'
         );
+        setShowLeaderboard(false);
         return; // Stop execution if the condition is not met
       }
 
-      // Send the top 5 colleges to main process
+      // Send the top 5 colleges to main process for leaderboard display only
+      // This should NOT affect the category/mode
       await window.ipcRenderer.invoke('show-top-five', topFiveColleges);
-
-      // If we're already in Finals mode, immediately refresh to show top 5
-      if (category === 'Finals') {
-        await window.ipcRenderer.invoke('sync-category', 'Finals');
-      }
 
       // Also log in the control view console
       console.log('TOP 5 COLLEGES:');
