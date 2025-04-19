@@ -27,7 +27,6 @@ let category = 'Eliminations';
 let difficulty = 'Easy';
 let division = 'Teams';
 let topFiveColleges: College[] = [];
-let leaderboardVisible = false;
 
 // IPC handlers
 function initializeIPC() {
@@ -114,8 +113,6 @@ function initializeIPC() {
       mainView?.webContents.send('switch-to-finals', topFiveColleges);
     }
 
-    // Show the leaderboard popup regardless of mode
-    leaderboardVisible = true;
     mainView?.webContents.send('top-five-colleges', topFiveColleges);
 
     return { success: true };
@@ -131,7 +128,6 @@ function initializeIPC() {
 
   ipcMain.handle('close-top-five', () => {
     // Just hide the leaderboard popup, don't change the mode
-    leaderboardVisible = false;
     mainView?.webContents.send('close-top-five');
     return { success: true };
   });
