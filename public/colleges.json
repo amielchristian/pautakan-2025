@@ -1,16 +1,16 @@
 [
   {
     "id": 1,
-    "name": "College of Rehabilitation Sciences",
-    "shorthand": "CRS",
-    "imagePath": "./images/colleges/CRS.png",
-    "score": 0
-  },
-  {
-    "id": 2,
     "name": "College of Accountancy",
     "shorthand": "AMV",
     "imagePath": "./images/colleges/ACC.png",
+    "score": 0
+  },
+  {
+    "id": 16,
+    "name": "College of Architecture",
+    "shorthand": "ARCHI",
+    "imagePath": "./images/colleges/ARKI.png",
     "score": 0
   },
   {
@@ -18,6 +18,13 @@
     "name": "Faculty of Arts and Letters",
     "shorthand": "AB",
     "imagePath": "./images/colleges/AB.png",
+    "score": 0
+  },
+  {
+    "id": 15,
+    "name": "Faculty of Civil Law",
+    "shorthand": "LAW",
+    "imagePath": "./images/colleges/LAW.png",
     "score": 0
   },
   {
@@ -37,10 +44,11 @@
   {
     "id": 6,
     "name": "Faculty of Engineering",
-    "shorthand": "ENGG",
+    "shorthand": "ENG",
     "imagePath": "./images/colleges/ENGG.png",
     "score": 0
   },
+
   {
     "id": 7,
     "name": "College of Information and Computing Sciences",
@@ -51,10 +59,11 @@
   {
     "id": 8,
     "name": "Faculty of Medicine and Surgery",
-    "shorthand": "MEDSURG",
+    "shorthand": "MED",
     "imagePath": "./images/colleges/MED.png",
     "score": 0
   },
+
   {
     "id": 9,
     "name": "Conservatory of Music",
@@ -84,6 +93,13 @@
     "score": 0
   },
   {
+    "id": 1,
+    "name": "College of Rehabilitation Sciences",
+    "shorthand": "CRS",
+    "imagePath": "./images/colleges/CRS.png",
+    "score": 0
+  },
+  {
     "id": 13,
     "name": "College of Science",
     "shorthand": "COS",
@@ -95,13 +111,6 @@
     "name": "College of Tourism and Hospitality Management",
     "shorthand": "CTHM",
     "imagePath": "./images/colleges/CTHM.png",
-    "score": 0
-  },
-  {
-    "id": 15,
-    "name": "Faculty of Civil Law",
-    "shorthand": "CIVIL LAW",
-    "imagePath": "./images/colleges/LAW.png",
     "score": 0
   }
 ]

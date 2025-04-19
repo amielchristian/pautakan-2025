@@ -50,7 +50,10 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
       >
         {/* Absolutely positioned logos */}
         {colleges.map((college, index) => {
-          const fileName = college.imagePath.split('/').pop();
+          const fileName = college.imagePath
+            .split('/')
+            .pop()
+            ?.replace('.png', ' - no rings.png');
           const position = positions[index];
 
           return (
@@ -66,7 +69,7 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
               }}
             >
               <img
-                src={`/images/Top5/ICONS FOR RANKING/${fileName}`}
+                src={`/images/colleges/${fileName}`}
                 alt={college.shorthand}
                 className={`w-full h-full object-contain transition-opacity duration-500 ease-in-out ${
                   visibleLogos.includes(index) ? 'opacity-100' : 'opacity-0'
@@ -114,7 +117,10 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
       }}
     >
       {colleges.slice(0, 16).map((college, index) => {
-        const fileName = college.imagePath.split('/').pop();
+        const fileName = college.imagePath
+          .split('/')
+          .pop()
+          ?.replace('.png', ' - no rings.png');
         const position = gridPositions[index];
 
         return (
@@ -130,7 +136,7 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
             }}
           >
             <img
-              src={`/images/Top5/ICONS FOR RANKING/${fileName}`}
+              src={`/images/colleges/${fileName}`}
               alt={college.shorthand}
               className={`w-full h-full object-contain transition-opacity duration-500 ease-in-out ${
                 visibleLogos.includes(index) ? 'opacity-100' : 'opacity-0'
@@ -453,7 +459,7 @@ function MainView() {
                 className='relative w-full mt-[10vh]'
               >
                 <img
-                  src='/images/Top5/BAR TOP.png'
+                  src='/images/topFive/BAR TOP.png'
                   alt='BAR TOP'
                   className='w-full'
                 />
@@ -476,7 +482,10 @@ function MainView() {
                     })
                     .slice(0, 3)
                     .map((college, index) => {
-                      const fileName = college.imagePath.split('/').pop();
+                      const fileName = college.imagePath
+                        .split('/')
+                        .pop()
+                        ?.replace('.png', ' - no rings.png');
                       const delay = 1.2 + index * 0.3;
 
                       return (
@@ -489,12 +498,12 @@ function MainView() {
                         >
                           <div className='relative w-full aspect-[1/1]'>
                             <img
-                              src={`/images/Top5/${index + 1}.png`}
+                              src={`/images/topFive/${index + 1}.png`}
                               alt={`Podium ${index + 1}`}
                               className='absolute top-[50%] left-[-3%] w-full h-full scale-[1.3] transform -translate-x-1/2 -translate-y-1/2 object-contain'
                             />
                             <img
-                              src={`/images/Top5/ICONS FOR RANKING/${fileName}`}
+                              src={`/images/colleges/${fileName}`}
                               alt={`Icon for ${college.name}`}
                               className='absolute top-[55%] left-[3%] transform -translate-x-1/2 -translate-y-1/2 object-contain'
                             />
@@ -523,7 +532,7 @@ function MainView() {
                 className='relative w-full mt-8'
               >
                 <img
-                  src='/images/Top5/BAR BOT.png'
+                  src='/images/topFive/BAR BOT.png'
                   alt='BAR BOT'
                   className='w-full h-[120%]'
                 />
@@ -541,7 +550,7 @@ function MainView() {
                 className='relative w-full mt-[10vh]'
               >
                 <img
-                  src='/images/Top5/BAR TOP.png'
+                  src='/images/topFive/BAR TOP.png'
                   alt='BAR TOP'
                   className='w-full'
                 />
@@ -559,7 +568,10 @@ function MainView() {
               <div className='w-full mt-8 relative overflow-visible py-6'>
                 <div className='flex justify-center gap-6'>
                   {topFiveColleges.map((college, index) => {
-                    const fileName = college.imagePath.split('/').pop();
+                    const fileName = college.imagePath
+                      .split('/')
+                      .pop()
+                      ?.replace('.png', ' - no rings.png');
                     const delay = 1.2 + index * 0.3;
 
                     return (
@@ -573,13 +585,13 @@ function MainView() {
                         <div className='relative w-full aspect-[1/1]'>
                           {/* Podium Image */}
                           <img
-                            src={`/images/Top5/${index + 1}.png`}
+                            src={`/images/topFive/${index + 1}.png`}
                             alt={`Podium ${index + 1}`}
                             className='absolute top-[50%] left-[-3%] w-full h-full scale-[1.3] transform -translate-x-1/2 -translate-y-1/2 object-contain'
                           />
                           {/* College Icon */}
                           <img
-                            src={`/images/Top5/ICONS FOR RANKING/${fileName}`}
+                            src={`/images/colleges/${fileName}`}
                             alt={`Icon for ${college.name}`}
                             className='absolute top-[55%] left-[3%] transform -translate-x-1/2 -translate-y-1/2 object-contain'
                           />
@@ -608,7 +620,7 @@ function MainView() {
                 className='relative w-full mt-8'
               >
                 <img
-                  src='/images/Top5/BAR BOT.png'
+                  src='/images/topFive/BAR BOT.png'
                   alt='BAR BOT'
                   className='w-full h-[120%]'
                 />
