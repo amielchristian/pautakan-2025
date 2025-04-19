@@ -8,11 +8,14 @@ export default function ControlView() {
   const [difficulty, setDifficulty] = useState('Easy');
   const [category, setCategory] = useState('Eliminations');
   const [division, setDivision] = useState('Teams');
+  const [displayedColleges, setDisplayedColleges] = useState<College[]>([]);
 
   // Load colleges
   useEffect(() => {
     const getColleges = async () => {
-      setColleges(await window.ipcRenderer.invoke('get-colleges'));
+      const allColleges = await window.ipcRenderer.invoke('get-colleges');
+      setColleges(allColleges);
+      setDisplayedColleges(allColleges);
     };
     console.log('Getting colleges...');
     getColleges();
@@ -20,6 +23,22 @@ export default function ControlView() {
 
   useEffect(() => {
     const changeCategory = async () => {
+      // Reset scores when changing category
+      if (category === 'Eliminations') {
+        const allColleges = await window.ipcRenderer.invoke('get-colleges');
+        setDisplayedColleges(allColleges);
+      } else if (category === 'Finals') {
+        // Get top 5 colleges
+        const topFiveColleges = getTopFiveColleges();
+        if (topFiveColleges.length === 5) {
+          setDisplayedColleges(topFiveColleges);
+        } else {
+          alert('Need 5 colleges with scores to enter Finals mode');
+          setCategory('Eliminations');
+          return;
+        }
+      }
+      
       const result = await window.ipcRenderer.invoke('sync-category', category);
       console.log('Category changed to:', category, 'Result:', result);
     };
@@ -52,8 +71,16 @@ export default function ControlView() {
     let newScore = college.score + offset;
     if (newScore < 0) newScore = 0; // Prevent negative scores
     const collegeUpdated = { ...college, score: newScore };
+    
+    // Update in both colleges arrays
     setColleges(
       colleges.map((x: College) =>
+        x.name === collegeUpdated.name ? collegeUpdated : x
+      )
+    );
+    
+    setDisplayedColleges(
+      displayedColleges.map((x: College) =>
         x.name === collegeUpdated.name ? collegeUpdated : x
       )
     );
@@ -67,7 +94,9 @@ export default function ControlView() {
   }
 
   async function resetScores() {
+    // Reset scores in both college arrays
     setColleges(colleges.map((x: College) => ({ ...x, score: 0 })));
+    setDisplayedColleges(displayedColleges.map((x: College) => ({ ...x, score: 0 })));
     await window.ipcRenderer.invoke('reset-scores');
   }
 
@@ -119,7 +148,7 @@ export default function ControlView() {
   }
 
   return (
-    <div className='bg-[#232333] absolute top-0 left-0 min-h-full w-full justify-start items-center flex flex-col'>
+    <div className='bg-[#232333] absolute top-0 left-0 min-h-full w-full justify-start items-center flex flex-col' style={{ width: '1280px', height: '720px', overflow: 'auto' }}>
       <div className='w-full flex flex-col p-[1%] bg-red-400'>
         <h1 className='text-6xl font-bold text-center text-white font-[Starter]'>
           Pautakan 2025
@@ -193,8 +222,8 @@ export default function ControlView() {
             <h1 className='text-4xl font-bold'>Score</h1>
           </span>
         </div>
-        {colleges.map((college: College) => (
-          <div className='bg-white border-2 border-gray-300 w-full px-2 m-[2px] rounded-xl flex flex-row items-center justify-between'>
+        {displayedColleges.map((college: College) => (
+          <div className='bg-white border-2 border-gray-300 w-full px-2 m-[2px] rounded-xl flex flex-row items-center justify-between' key={college.id}>
             <div className='flex flex-row items-center'>
               <h2 className='font-bold'>{college.name}</h2>
             </div>

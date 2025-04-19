@@ -142,6 +142,14 @@ function initializeIPC() {
     const oldCategory = category;
     if (data) category = data;
 
+    // Reset scores when changing between Elimination and Finals
+    if (oldCategory !== category) {
+      // Only reset top five when switching back to eliminations
+      if (category === 'Eliminations') {
+        topFiveColleges = [];
+      }
+    }
+
     if (
       oldCategory === 'Eliminations' &&
       category === 'Finals' &&
@@ -275,6 +283,9 @@ function createWindow() {
 
   techView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
+    width: 1160,
+    height: 1000,
+    resizable: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
     },
