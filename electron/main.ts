@@ -87,6 +87,9 @@ function initializeIPC() {
 
   ipcMain.handle('sync-division', (_, data) => {
     if (data) division = data;
+    colleges.forEach((college) => {
+      college.score = 0;
+    });
     mainView?.webContents.send('division-synced', division);
     return { success: true };
   });

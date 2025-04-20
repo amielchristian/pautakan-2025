@@ -286,6 +286,8 @@ function MainView() {
           });
           return resetScores;
         });
+
+        setLastNormalDifficulty('Easy');
       }
     };
 
@@ -313,6 +315,23 @@ function MainView() {
     const handleDivisionSynced = (_: IpcRendererEvent, newDivision: string) => {
       setDivision(newDivision);
       console.log(`DIVISION CHANGED: ${newDivision}`);
+      setCollegeRadiusAdjustments({});
+      setActiveRing(11);
+      setSmallestRingValue(1);
+      circleRefs.current.forEach((circleRef) => {
+        if (circleRef) {
+          circleRef.style.opacity = '0';
+        }
+      });
+      setPrevScores((prev) => {
+        const resetScores: Record<string, number> = {};
+        Object.keys(prev).forEach((key) => {
+          resetScores[key] = 0;
+        });
+        return resetScores;
+      });
+      setIsFinalsMode(false);
+      
     };
 
     const handleRefresh = () => {

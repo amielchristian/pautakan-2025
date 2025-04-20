@@ -356,7 +356,9 @@ export default function ControlView() {
               ]}
               onChange={(selected) => {
                 setCategory(selected);
+                setDifficulty('Easy');
               }}
+              key={category}
               initialValue={category}
             />
             <Dropdown
@@ -370,12 +372,16 @@ export default function ControlView() {
               onChange={(selected) => {
                 setDifficulty(selected);
               }}
+              key={difficulty}
               initialValue={difficulty}
             />
             <Dropdown
               options={[{ value: 'Individual' }, { value: 'Teams' }]}
-              onChange={(selected) => {
+              onChange={async (selected) => {
                 setDivision(selected);
+                setDifficulty('Easy');
+                setCategory('Eliminations');  
+                await performResetScores();
               }}
               initialValue={division}
             />
