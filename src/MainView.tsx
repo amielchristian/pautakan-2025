@@ -158,6 +158,8 @@ function MainView() {
   const [division, setDivision] = useState<string>('');
   const [isFinalsMode, setIsFinalsMode] = useState<boolean>(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [isDifficultyBannerVisible, setIsDifficultyBannerVisible] =
+    useState(false);
   const [topFiveColleges, setTopFiveColleges] = useState<College[]>([]);
   const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<
     Record<string, number>
@@ -166,12 +168,15 @@ function MainView() {
   const [activeRing, setActiveRing] = useState(11);
   const [smallestRingValue, setSmallestRingValue] = useState(1);
   const [prevScores, setPrevScores] = useState<Record<string, number>>({});
-
   const radialGridContainerRef = useRef<HTMLDivElement>(null);
+  const [booted, setBooted] = useState(false);
 
   const getColleges = async () => {
     return await window.ipcRenderer.invoke('get-colleges');
   };
+  function handleBoot(booted: boolean) {
+    setBooted(booted);
+  }
 
   useEffect(() => {
     if (colleges.length > 0 && radialGridContainerRef.current) {
@@ -404,6 +409,18 @@ function MainView() {
     retrieveCategoryAndDifficulty();
   }, []);
 
+  useEffect(() => {
+    if (!booted) {
+      return;
+    }
+
+    setIsDifficultyBannerVisible(true);
+    const timeout = setTimeout(() => {
+      setIsDifficultyBannerVisible(false);
+    }, 2000); // Adjust the duration as needed
+    return () => clearTimeout(timeout);
+  }, [difficulty, booted]);
+
   return (
     <>
       {/* Full-screen frame */}
@@ -428,16 +445,15 @@ function MainView() {
 
       {/* Body - flex row */}
       <div className='overflow-hidden bg-black flex flex-row h-screen w-screen p-8 space-x-[1%]'>
-        {/* Main */}
-
         <div
           className='flex flex-row w-[83%] p-5 space-x-4
           [--all:20px]'
         >
+          {/* Leaderboard Popup */}
           <AnimatePresence>
             {isPopupVisible && (
               <motion.div
-                key='popup'
+                key='leaderboard-popup'
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -628,6 +644,48 @@ function MainView() {
             </div>
           )}
 
+          {/* Difficulty Popup */}
+          <AnimatePresence>
+            {isDifficultyBannerVisible && (
+              <motion.div
+                key='difficulty-banner'
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.33 }}
+                className={`fixed inset-0 bg-black/35 backdrop-blur-[1.5px] z-10 flex flex-col items-center overflow-y-auto pt-[10vh]`}
+              ></motion.div>
+            )}
+          </AnimatePresence>
+          <AnimatePresence>
+            {isDifficultyBannerVisible && (
+              <div className='fixed w-full inset-0 z-10 flex flex-col items-center justify-center'>
+                {/* Top Bar */}
+                <motion.div
+                  initial={{ x: -1100, opacity: 0 }}
+                  animate={{ x: -105, opacity: 1 }}
+                  exit={{ x: 1000, opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className={`bg-black font-[DS-DIGITAL] w-1000 h-[33%] border-2 flex items-center justify-center ${
+                    difficulty !== 'Clincher' && difficulty !== 'Sudden Death'
+                      ? 'border-[var(--green)]'
+                      : 'border-[var(--red)]'
+                  }`}
+                >
+                  <span
+                    className={`text-[160px] ${
+                      difficulty !== 'Clincher' && difficulty !== 'Sudden Death'
+                        ? 'text-green-500 drop-shadow-[0_0_0.1em_green]'
+                        : 'text-red-500 drop-shadow-[0_0_0.1em_red]'
+                    }`}
+                  >
+                    {difficulty}
+                  </span>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
           <div
             className='sharp-edge-box w-[100%] p-3
             box-content
@@ -672,6 +730,7 @@ function MainView() {
                 setSmallestRingValue={setSmallestRingValue}
                 prevScores={prevScores}
                 setPrevScores={setPrevScores}
+                onBoot={handleBoot}
               ></RadarView>
               {isFinalsMode && (
                 <div className='absolute top-0 left-0 w-full p-4 text-center'></div>

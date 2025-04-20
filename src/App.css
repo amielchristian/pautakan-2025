@@ -41,6 +41,7 @@
   /* Common Colors */
   --purple: rgb(128, 0, 255);
   --red: #b72619;
+  --green: rgb(89, 194, 57);
 
   font-family: sans-serif;
   --grid-pattern: repeating-linear-gradient(

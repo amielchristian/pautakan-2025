@@ -16,6 +16,7 @@ function RadarView({
   setSmallestRingValue,
   prevScores,
   setPrevScores,
+  onBoot,
 }: {
   colleges: College[];
   collegeRadiusAdjustments: Record<string, number>;
@@ -29,6 +30,7 @@ function RadarView({
   setSmallestRingValue: React.Dispatch<React.SetStateAction<number>>;
   prevScores: Record<string, number>;
   setPrevScores: React.Dispatch<React.SetStateAction<Record<string, number>>>;
+  onBoot: (booted: boolean) => void;
 }) {
   const [scaleFactor, setScaleFactor] = useState(1);
   const radarBaseRef = useRef<HTMLDivElement>(null);
@@ -40,6 +42,10 @@ function RadarView({
   const [redLogoOpacity, setRedLogoOpacity] = useState<Record<string, number>>(
     {}
   );
+
+  useEffect(() => {
+    onBoot(booted);
+  }, [booted, onBoot]);
 
   useEffect(() => {
     function updateScale() {
