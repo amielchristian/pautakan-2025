@@ -7,7 +7,7 @@
     "score": 0
   },
   {
-    "id": 16,
+    "id": 2,
     "name": "College of Architecture",
     "shorthand": "ARCHI",
     "imagePath": "./images/colleges/ARKI.png",
@@ -21,28 +21,28 @@
     "score": 0
   },
   {
-    "id": 15,
+    "id": 4,
     "name": "Faculty of Civil Law",
     "shorthand": "LAW",
     "imagePath": "./images/colleges/LAW.png",
     "score": 0
   },
   {
-    "id": 4,
+    "id": 5,
     "name": "College of Commerce and Business Administration",
     "shorthand": "COMM",
     "imagePath": "./images/colleges/COMM.png",
     "score": 0
   },
   {
-    "id": 5,
+    "id": 6,
     "name": "College of Education",
     "shorthand": "EDUC",
     "imagePath": "./images/colleges/EDUC.png",
     "score": 0
   },
   {
-    "id": 6,
+    "id": 7,
     "name": "Faculty of Engineering",
     "shorthand": "ENG",
     "imagePath": "./images/colleges/ENGG.png",
@@ -50,14 +50,14 @@
   },
 
   {
-    "id": 7,
+    "id": 8,
     "name": "College of Information and Computing Sciences",
     "shorthand": "CICS",
     "imagePath": "./images/colleges/CICS.png",
     "score": 0
   },
   {
-    "id": 8,
+    "id": 9,
     "name": "Faculty of Medicine and Surgery",
     "shorthand": "MED",
     "imagePath": "./images/colleges/MED.png",
@@ -65,49 +65,49 @@
   },
 
   {
-    "id": 9,
+    "id": 10,
     "name": "Conservatory of Music",
     "shorthand": "MUSIC",
     "imagePath": "./images/colleges/MUSIC.png",
     "score": 0
   },
   {
-    "id": 10,
+    "id": 11,
     "name": "College of Nursing",
     "shorthand": "NURSING",
     "imagePath": "./images/colleges/NURSING.png",
     "score": 0
   },
   {
-    "id": 11,
+    "id": 12,
     "name": "Faculty of Pharmacy",
     "shorthand": "PHARMA",
     "imagePath": "./images/colleges/PHARMA.png",
     "score": 0
   },
   {
-    "id": 12,
+    "id": 13,
     "name": "Institute of Physical Education and Athletics",
     "shorthand": "IPEA",
     "imagePath": "./images/colleges/IPEA.png",
     "score": 0
   },
   {
-    "id": 1,
+    "id": 14,
     "name": "College of Rehabilitation Sciences",
     "shorthand": "CRS",
     "imagePath": "./images/colleges/CRS.png",
     "score": 0
   },
   {
-    "id": 13,
+    "id": 15,
     "name": "College of Science",
     "shorthand": "COS",
     "imagePath": "./images/colleges/COS.png",
     "score": 0
   },
   {
-    "id": 14,
+    "id": 16,
     "name": "College of Tourism and Hospitality Management",
     "shorthand": "CTHM",
     "imagePath": "./images/colleges/CTHM.png",
