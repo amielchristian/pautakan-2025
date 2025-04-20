@@ -242,13 +242,18 @@ function MainView() {
     };
 
     const handleCategorySynced = (_: IpcRendererEvent, newCategory: string) => {
+      // Close any open leaderboard if category changes
+      if (category !== newCategory) {
+        setIsPopupVisible(false);
+      }
+      
       setCategory(newCategory);
-
+    
       if (newCategory === 'Finals') {
         setIsFinalsMode(true);
       } else {
         setIsFinalsMode(false);
-
+    
         getColleges().then((allColleges) => {
           setColleges(allColleges);
           setAllColleges(allColleges);
@@ -262,19 +267,22 @@ function MainView() {
     ) => {
       let isAlreadyFinals = false;
       if (category === 'Finals') isAlreadyFinals = true;
-
+    
+      // Close any open leaderboard
+      setIsPopupVisible(false);
+      
       setCategory('Finals');
       console.log(
         'Switched to Finals mode with top 5 colleges:',
         topFiveColleges
       );
-
+    
       setTopFiveColleges(topFiveColleges);
-
+    
       if (!isAlreadyFinals) {
         setIsFinalsMode(true);
         setColleges(topFiveColleges);
-
+    
         setCollegeRadiusAdjustments({});
         setActiveRing(11);
         setSmallestRingValue(1);
@@ -283,7 +291,7 @@ function MainView() {
             circleRef.style.opacity = '0';
           }
         });
-
+    
         setPrevScores((prev) => {
           const resetScores: Record<string, number> = {};
           Object.keys(prev).forEach((key) => {
@@ -291,6 +299,8 @@ function MainView() {
           });
           return resetScores;
         });
+    
+        setLastNormalDifficulty('Easy');
       }
     };
 
@@ -314,10 +324,30 @@ function MainView() {
 
       console.log(`DIFFICULTY CHANGED: ${newDifficulty}`);
     };
-
+    
     const handleDivisionSynced = (_: IpcRendererEvent, newDivision: string) => {
       setDivision(newDivision);
       console.log(`DIVISION CHANGED: ${newDivision}`);
+      
+      // Close any open leaderboard
+      setIsPopupVisible(false);
+      
+      setCollegeRadiusAdjustments({});
+      setActiveRing(11);
+      setSmallestRingValue(1);
+      circleRefs.current.forEach((circleRef) => {
+        if (circleRef) {
+          circleRef.style.opacity = '0';
+        }
+      });
+      setPrevScores((prev) => {
+        const resetScores: Record<string, number> = {};
+        Object.keys(prev).forEach((key) => {
+          resetScores[key] = 0;
+        });
+        return resetScores;
+      });
+      setIsFinalsMode(false);
     };
 
     const handleRefresh = () => {
