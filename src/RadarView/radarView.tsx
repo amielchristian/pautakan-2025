@@ -42,6 +42,9 @@ function RadarView({
   const [redLogoOpacity, setRedLogoOpacity] = useState<Record<string, number>>(
     {}
   );
+  
+  // Track if rank indicators have already been animated to avoid re-triggering
+  const [rankIndicatorsAnimated, setRankIndicatorsAnimated] = useState(false);
 
   useEffect(() => {
     onBoot(booted);
@@ -64,11 +67,10 @@ function RadarView({
     return [...colleges].sort((a, b) => b.score - a.score);
   }, [colleges]);
 
-  // Track previous rankings to detect changes
-  const [prevRankings, setPrevRankings] = useState<Record<string, number>>({});
-  const [rankChangeEffects, setRankChangeEffects] = useState<
-    Record<string, boolean>
-  >({});
+  // Track previous rankings to detect changes - use a stable reference
+  const prevRankingsRef = useRef<Record<string, number>>({});
+  // Instead of state, use a ref for tracking rank change effects to avoid re-renders
+  const rankChangeEffectsRef = useRef<Record<string, boolean>>({});
 
   // Initialize bootup sequence - this should only run once
   useEffect(() => {
@@ -77,6 +79,10 @@ function RadarView({
     // Bootup complete after timeout
     const bootupTimer = setTimeout(() => {
       setBooted(true);
+      // Set rank indicators as animated after bootup
+      setTimeout(() => {
+        setRankIndicatorsAnimated(true);
+      }, 2000); // Wait for initial animations to complete
     }, totalBootupTime + 200);
 
     return () => clearTimeout(bootupTimer);
@@ -93,9 +99,9 @@ function RadarView({
     }
   }, []); // Empty dependency array ensures this only runs once
 
-  // Update previous rankings and detect changes - use a stable dependency list
+  // Update previous rankings and detect changes - use a stable dependency list and refs
   useEffect(() => {
-    if (colleges.length > 0) {
+    if (colleges.length > 0 && booted) {
       const newRankings: Record<string, number> = {};
       const newEffects: Record<string, boolean> = {};
 
@@ -105,7 +111,7 @@ function RadarView({
         if (college.score <= 0) return;
 
         const newRank = index + 1;
-        const prevRank = prevRankings[college.shorthand] || 0;
+        const prevRank = prevRankingsRef.current[college.shorthand] || 0;
 
         // Store the new rank
         newRankings[college.shorthand] = newRank;
@@ -119,27 +125,27 @@ function RadarView({
         }
       });
 
-      // Only update state if rankings have changed
-      if (JSON.stringify(newRankings) !== JSON.stringify(prevRankings)) {
-        setPrevRankings(newRankings);
+      // Only update if rankings have changed
+      if (JSON.stringify(newRankings) !== JSON.stringify(prevRankingsRef.current)) {
+        prevRankingsRef.current = newRankings;
 
         // Only set effects if there are any
         if (Object.keys(newEffects).length > 0) {
-          setRankChangeEffects(newEffects);
+          rankChangeEffectsRef.current = newEffects;
 
           // Clear rank change effects after animation completes
           Object.keys(newEffects).forEach((shorthand) => {
             setTimeout(() => {
-              setRankChangeEffects((prev) => ({
-                ...prev,
+              rankChangeEffectsRef.current = {
+                ...rankChangeEffectsRef.current,
                 [shorthand]: false,
-              }));
+              };
             }, 2000);
           });
         }
       }
     }
-  }, [rankedColleges]); // Only depend on rankedColleges which is derived from colleges
+  }, [rankedColleges, booted]); // Only depend on rankedColleges and booted state
 
   // Setup event listeners for score updates and resets
   useEffect(() => {
@@ -275,6 +281,9 @@ function RadarView({
       setPrevScores(resetScores);
       // Clear all red logo opacities
       setRedLogoOpacity({});
+      // Reset rank indicators ref
+      prevRankingsRef.current = {};
+      rankChangeEffectsRef.current = {};
       console.log('All college positions reset');
     };
 
@@ -298,7 +307,6 @@ function RadarView({
     setCollegeRadiusAdjustments,
   ]); // Include dependencies but be cautious of constantly changing values
 
-  // circleRefs.current[0]!.style.opacity = "1";
   // Ping sequence using React state - only run when booted changes
   useEffect(() => {
     if (!booted) return;
@@ -437,6 +445,9 @@ function RadarView({
                   '-RED.png'
                 );
 
+                // Check if this college has a rank change effect active
+                const hasRankChangeEffect = rankChangeEffectsRef.current[college.shorthand];
+
                 return (
                   <div
                     key={i}
@@ -448,9 +459,9 @@ function RadarView({
                       left: '50%',
                       top: '50%',
                       transform: `translate(-50%, -50%) translate(${logoX}%, ${logoY}%)`,
-                      animation: `fadeIn 0.8s forwards ${
-                        logosStartTime + i * 0.2
-                      }s`,
+                      animation: !rankIndicatorsAnimated ? 
+                        `fadeIn 0.8s forwards ${logosStartTime + i * 0.2}s` : 'none',
+                      opacity: rankIndicatorsAnimated ? 1 : undefined, // If already animated, just show at full opacity
                       transition: 'transform 0.5s ease-out', // Smooth transition when radius changes
                     }}
                   >
@@ -487,40 +498,38 @@ function RadarView({
                     />
 
                     {/* Add rank indicator for top 5 colleges in all modes */}
-                    <div
-                      className={`rank-indicator ${
-                        rankChangeEffects[college.shorthand]
-                          ? 'rank-changed'
-                          : ''
-                      }`}
-                      style={{
-                        position: 'absolute',
-                        top: '0px',
-                        right: '10px',
-                        width: '40px',
-                        height: '40px',
-                        opacity: 1,
-                        animation: rankChangeEffects[college.shorthand]
-                          ? 'rankChangeEffect 2s ease-in-out'
-                          : `fadeIn 0.8s forwards ${
-                              logosStartTime + i * 0.2 + 0.5
-                            }s`,
-                        zIndex: 12,
-                      }}
-                    >
-                      <img
-                        src={`./images/ingameRanks/${collegeRank}.png`}
-                        alt={`Rank ${collegeRank}`}
+                    {collegeRank > 0 && (
+                      <div
+                        className={`rank-indicator ${
+                          hasRankChangeEffect ? 'rank-changed' : ''
+                        }`}
                         style={{
-                          width: '100%',
-                          height: '100%',
-                          filter: rankChangeEffects[college.shorthand]
-                            ? 'brightness(1.5) drop-shadow(0 0 10px gold)'
-                            : 'none',
-                          transition: 'filter 0.3s ease-in-out',
+                          position: 'absolute',
+                          top: '0px',
+                          right: '10px',
+                          width: '40px',
+                          height: '40px',
+                          opacity: rankIndicatorsAnimated ? 1 : undefined, // If already animated, just show at full opacity
+                          animation: !rankIndicatorsAnimated ? 
+                            `fadeIn 0.8s forwards ${logosStartTime + i * 0.2 + 0.5}s` : 
+                            (hasRankChangeEffect ? 'rankChangeEffect 2s ease-in-out' : 'none'),
+                          zIndex: 12,
                         }}
-                      />
-                    </div>
+                      >
+                        <img
+                          src={`./images/ingameRanks/${collegeRank}.png`}
+                          alt={`Rank ${collegeRank}`}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            filter: hasRankChangeEffect
+                              ? 'brightness(1.5) drop-shadow(0 0 10px gold)'
+                              : 'none',
+                            transition: 'filter 0.3s ease-in-out',
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}
