@@ -528,7 +528,7 @@ function RadarView({
 
             {/* Center image */}
             <img
-              src='./images/icon.png'
+              src='./images/CENTER VAULT.png'
               alt='Center Vault'
               className='center-image'
             />

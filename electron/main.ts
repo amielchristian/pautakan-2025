@@ -223,7 +223,7 @@ function initializeIPC() {
 // Views
 function createWindow() {
   mainView = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
+    icon: path.join(process.env.VITE_PUBLIC, 'CENTER VAULT.png'),
     width: 1920,
     height: 1080,
     webPreferences: {
@@ -245,7 +245,7 @@ function createWindow() {
   });
 
   techView = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, 'icon.png'),
+    icon: path.join(process.env.VITE_PUBLIC, 'CENTER VAULT.png'),
     width: 880, // Fixed width
     height: 880, // Fixed height
     resizable: false, // Prevent resizing
