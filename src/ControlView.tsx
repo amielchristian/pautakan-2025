@@ -12,6 +12,9 @@ export default function ControlView() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showRefreshConfirm, setShowRefreshConfirm] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showTiePrompt, setShowTiePrompt] = useState(false);
+  const [tiedColleges, setTiedColleges] = useState<College[]>([]);
+  const [inClincherRound, setInClincherRound] = useState(false);
 
   // Load colleges - fetch fresh data from main process
   const fetchColleges = async () => {
@@ -184,19 +187,24 @@ export default function ControlView() {
       displayedColleges.map((x: College) => ({ ...x, score: 0 }))
     );
     await window.ipcRenderer.invoke('reset-scores');
-
+  
     // Always fetch and display all colleges after resetting scores
     const allColleges = await fetchColleges();
     setDisplayedColleges(allColleges);
     console.log('Scores reset, refreshed college list');
-
+  
+    // If we're in clincher mode, exit it
+    if (inClincherRound) {
+      setInClincherRound(false);
+      console.log('Exited Clincher round due to score reset');
+    }
+  
     // If we're in Eliminations mode, make sure to sync the category to ensure
     // all processing is complete
     if (category === 'Eliminations') {
       await window.ipcRenderer.invoke('sync-category', 'Eliminations');
     }
   }
-
   async function performRefresh() {
     // Get fresh data
     const allColleges = await fetchColleges();
@@ -227,41 +235,129 @@ export default function ControlView() {
       await window.ipcRenderer.invoke('close-top-five');
       console.log('Leaderboard closed.');
     } else {
-      setShowLeaderboard(true);
-
-      // 5 if elims, 3 if finals
-      // will rename later for clarity
-      const topFiveColleges = getTopFiveColleges();
-
-      // Check if there are fewer than 5 colleges with scores
+      // Get top colleges based on score
+      const sortedColleges = [...colleges].sort((a: College, b: College) => b.score - a.score);
+      
+      // Check if we're already in a clincher round
+      if (inClincherRound) {
+        // In clincher round, just take the current highest scoring colleges
+        const topColleges = sortedColleges.slice(0, 5).filter(college => college.score > 0);
+        
+        if (topColleges.length < 3 && category === 'Finals') {
+          alert('There are fewer than 3 colleges with scores. Please ensure at least 3 colleges have scores before showing the leaderboard.');
+          return;
+        }
+        
+        setShowLeaderboard(true);
+        
+        if (category !== 'Finals') {
+          await window.ipcRenderer.invoke('show-top-five', topColleges);
+        } else {
+          await window.ipcRenderer.invoke('show-top-three', topColleges);
+        }
+        
+        return;
+      }
+      
+      // Regular flow (not in clincher round)
+      // Check if there's a tie for 5th place
+      if (category !== 'Finals' && sortedColleges.length >= 5) {
+        const fifthPlace = sortedColleges[4].score;
+        
+        // Find all colleges with the same score as the 5th place
+        const collegesWithFifthPlaceScore = sortedColleges.filter(
+          college => college.score === fifthPlace
+        );
+        
+        // If more than one college has the 5th place score, there's a tie
+        if (collegesWithFifthPlaceScore.length > 1 && fifthPlace > 0) {
+          setTiedColleges(collegesWithFifthPlaceScore);
+          setShowTiePrompt(true);
+          return; // Don't proceed with showing leaderboard yet
+        }
+      }
+      
+      // Normal case - no tie or in Finals mode
+      const topFiveColleges = sortedColleges
+        .slice(0, 5)
+        .filter((college: College) => college.score > 0);
+  
+      // Check if there are fewer than 5 colleges with scores in eliminations
+      // or fewer than 3 colleges with scores in finals
       if (topFiveColleges.length < 5 && category !== 'Finals') {
         alert(
           'There are fewer than 5 colleges with scores. Please ensure at least 5 colleges have scores before showing the leaderboard.'
         );
-        setShowLeaderboard(false);
-        return; // Stop execution if the condition is not met
+        return;
       } else if (topFiveColleges.length < 3 && category === 'Finals') {
         alert(
           'There are fewer than 3 colleges with scores. Please ensure at least 3 colleges have scores before showing the leaderboard.'
         );
-        setShowLeaderboard(false);
-        return; // Stop execution if the condition is not met
+        return;
       }
-
-      // Send the top 5 colleges to main process for leaderboard display only
-      // This should NOT affect the category/mode
+  
+      setShowLeaderboard(true);
+  
+      // Send the top colleges to main process for leaderboard display
       if (category !== 'Finals') {
         await window.ipcRenderer.invoke('show-top-five', topFiveColleges);
       } else {
         await window.ipcRenderer.invoke('show-top-three', topFiveColleges);
       }
-
-      // Also log in the control view console
+  
+      // Log in the control view console
       console.log('TOP 5 COLLEGES:');
       topFiveColleges.forEach((college, index) => {
         console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
       });
     }
+  }
+
+  async function handleSwitchToClincher() {
+    // Close the tie prompt
+    setShowTiePrompt(false);
+    
+    // Set difficulty to Clincher
+    setDifficulty('Clincher');
+    await window.ipcRenderer.invoke('sync-difficulty', 'Clincher');
+    
+    // Reset scores for the tied colleges
+    const resetTiedColleges = tiedColleges.map(college => ({
+      ...college,
+      score: 0
+    }));
+    
+    // Update scores in the main process
+    resetTiedColleges.forEach(async (college) => {
+      await window.ipcRenderer.invoke(
+        'update-college-score',
+        college.shorthand,
+        0
+      );
+    });
+    
+    // Filter displayed colleges to only show the tied ones
+    setDisplayedColleges(tiedColleges);
+    
+    // Mark that we're in clincher mode
+    setInClincherRound(true);
+    
+    console.log('Switched to Clincher round for tied colleges:', tiedColleges.map(c => c.shorthand).join(', '));
+  }
+  
+  // Add a function to exit clincher mode
+  async function exitClincherRound() {
+    setInClincherRound(false);
+    
+    // Refresh the college list
+    const allColleges = await fetchColleges();
+    setDisplayedColleges(allColleges);
+    
+    // Reset difficulty
+    setDifficulty('Easy');
+    await window.ipcRenderer.invoke('sync-difficulty', 'Easy');
+    
+    console.log('Exited Clincher round, returned to normal mode');
   }
 
   // Set up listener for scores-reset event from main process
@@ -334,6 +430,38 @@ export default function ControlView() {
                 onClick={handleConfirmRefresh}
               >
                 Yes, Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tie Detection Prompt */}
+      {showTiePrompt && (
+        <div className='fixed inset-0 bg-transparent z-50 flex items-center justify-center'>
+          <div className='absolute inset-0 bg-gray-900 opacity-40'></div>
+          <div className='bg-white p-6 rounded-xl shadow-lg max-w-md z-10'>
+            <h2 className='text-xl font-bold mb-4'>College Score Tie Detected</h2>
+            <p className='mb-4'>
+              The following colleges have tied scores for the 5th place:
+            </p>
+            <ul className='mb-6 list-disc pl-6'>
+              {tiedColleges.map(college => (
+                <li key={college.id}>{college.name} ({college.shorthand}): {college.score}</li>
+              ))}
+            </ul>
+            <div className='flex justify-center space-x-4'>
+              <button
+                className='px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400'
+                onClick={() => setShowTiePrompt(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className='px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600'
+                onClick={handleSwitchToClincher}
+              >
+                Switch to Clincher
               </button>
             </div>
           </div>
@@ -476,7 +604,7 @@ function ScoreButton({
           case 'Clincher':
             return 1;
           case 'Sudden Death':
-            return 1;
+            return .5;
           default:
             return 1;
         }
