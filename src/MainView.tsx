@@ -454,6 +454,13 @@ function MainView() {
   return (
     <>
       {/* Full-screen frame */}
+      <div className='fixed top-0 left-0 w-screen h-screen z-50 pointer-events-none'>
+        <img
+          src='./images/SCREENFRAME.png'
+          alt='Above Screen Frame'
+          className='w-screen h-screen object-fill'
+        />
+      </div>
 
       <div className='fixed top-0 left-0 w-screen h-screen z-50 pointer-events-none'>
         <img
@@ -684,9 +691,11 @@ function MainView() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.33 }}
                 className={`fixed inset-0 bg-black/35 backdrop-blur-[1.5px] z-10 flex flex-col items-center overflow-y-auto pt-[10vh]`}
+
               ></motion.div>
             )}
           </AnimatePresence>
+          
           <AnimatePresence>
             {isDifficultyBannerVisible && (
               <div className='fixed w-full inset-0 z-10 flex flex-col items-center justify-center'>
@@ -702,6 +711,7 @@ function MainView() {
                       : 'border-[var(--red)]'
                   }`}
                 >
+                
                   <span
                     className={`text-[160px] ${
                       difficulty !== 'Clincher' && difficulty !== 'Sudden Death'
@@ -716,6 +726,29 @@ function MainView() {
             )}
           </AnimatePresence>
 
+          {/* Red Glow for Clincher and Sudden Death difficulties */}
+         <AnimatePresence>
+          {(difficulty === 'Clincher' || difficulty === 'Sudden Death') && (
+         <div className='fixed w-full inset-0 z-10 flex flex-col items-center justify-center z-150'>
+         
+  <style>
+    {`
+      @keyframes pulseGlow {
+        0%, 100% { opacity: 0.7; }
+        50% { opacity: 1; }
+      }
+    `}
+  </style>
+  <img
+    src='./images/GLOW.png'
+    alt='RED GLOW'
+    className='w-screen h-screen object-fill'
+    style={{ animation: 'pulseGlow 2s ease-in-out infinite' }}
+  />
+
+</div>)}
+         </AnimatePresence>
+       
           <div
             className='sharp-edge-box w-[100%] p-3
             box-content
