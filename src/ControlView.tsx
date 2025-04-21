@@ -474,9 +474,9 @@ function ScoreButton({
           case 'Difficult':
             return 15;
           case 'Clincher':
-            return 20;
+            return 1;
           case 'Sudden Death':
-            return 25;
+            return 1;
           default:
             return 1;
         }
