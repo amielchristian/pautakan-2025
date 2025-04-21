@@ -64,11 +64,6 @@ function RadarView({
     return [...colleges].sort((a, b) => b.score - a.score);
   }, [colleges]);
 
-  // Get just the top 5 colleges
-  const topFiveColleges = useMemo(() => {
-    return rankedColleges.slice(0, 5).filter((college) => college.score > 0);
-  }, [rankedColleges]);
-
   // Track previous rankings to detect changes
   const [prevRankings, setPrevRankings] = useState<Record<string, number>>({});
   const [rankChangeEffects, setRankChangeEffects] = useState<
@@ -427,7 +422,7 @@ function RadarView({
 
                 // Get the rank of this college if it's in the top 5 (1-indexed)
                 const collegeRank =
-                  topFiveColleges.findIndex(
+                  rankedColleges.findIndex(
                     (c) => c.shorthand === college.shorthand
                   ) + 1;
                 const isInTopFive = collegeRank > 0 && collegeRank <= 5;
@@ -492,42 +487,40 @@ function RadarView({
                     />
 
                     {/* Add rank indicator for top 5 colleges in all modes */}
-                    {isInTopFive && (
-                      <div
-                        className={`rank-indicator ${
-                          rankChangeEffects[college.shorthand]
-                            ? 'rank-changed'
-                            : ''
-                        }`}
+                    <div
+                      className={`rank-indicator ${
+                        rankChangeEffects[college.shorthand]
+                          ? 'rank-changed'
+                          : ''
+                      }`}
+                      style={{
+                        position: 'absolute',
+                        top: '0px',
+                        right: '10px',
+                        width: '40px',
+                        height: '40px',
+                        opacity: 1,
+                        animation: rankChangeEffects[college.shorthand]
+                          ? 'rankChangeEffect 2s ease-in-out'
+                          : `fadeIn 0.8s forwards ${
+                              logosStartTime + i * 0.2 + 0.5
+                            }s`,
+                        zIndex: 12,
+                      }}
+                    >
+                      <img
+                        src={`./images/ingameRanks/${collegeRank}.png`}
+                        alt={`Rank ${collegeRank}`}
                         style={{
-                          position: 'absolute',
-                          top: '0px',
-                          right: '10px',
-                          width: '40px',
-                          height: '40px',
-                          opacity: 1,
-                          animation: rankChangeEffects[college.shorthand]
-                            ? 'rankChangeEffect 2s ease-in-out'
-                            : `fadeIn 0.8s forwards ${
-                                logosStartTime + i * 0.2 + 0.5
-                              }s`,
-                          zIndex: 12,
+                          width: '100%',
+                          height: '100%',
+                          filter: rankChangeEffects[college.shorthand]
+                            ? 'brightness(1.5) drop-shadow(0 0 10px gold)'
+                            : 'none',
+                          transition: 'filter 0.3s ease-in-out',
                         }}
-                      >
-                        <img
-                          src={`./images/ingameRanks/${collegeRank}.png`}
-                          alt={`Rank ${collegeRank}`}
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            filter: rankChangeEffects[college.shorthand]
-                              ? 'brightness(1.5) drop-shadow(0 0 10px gold)'
-                              : 'none',
-                            transition: 'filter 0.3s ease-in-out',
-                          }}
-                        />
-                      </div>
-                    )}
+                      />
+                    </div>
                   </div>
                 );
               })}
