@@ -341,10 +341,10 @@ export default function ControlView() {
       )}
 
       <div className='w-full flex flex-col p-[1%] bg-red-400'>
-        <h1 className='text-6xl font-bold text-center text-white font-[Starter]'>
-          Pautakan 2025
+        <h1 className='text-6xl font-bold text-center text-white font-[Nitro-Nova] drop-shadow-[0_0_0.05em_white]'>
+          PAUTAKAN 2025
         </h1>
-        <h1 className='text-4xl font-bold text-center text-white font-[Starter]'>
+        <h1 className='text-4xl font-bold text-center text-white font-[Nitro-Nova] drop-shadow-[0_0_0.05em_white]'>
           Control View
         </h1>
         <div className='flex flex-row items-center justify-between'>
@@ -380,7 +380,7 @@ export default function ControlView() {
               onChange={async (selected) => {
                 setDivision(selected);
                 setDifficulty('Easy');
-                setCategory('Eliminations');  
+                setCategory('Eliminations');
                 await performResetScores();
               }}
               initialValue={division}

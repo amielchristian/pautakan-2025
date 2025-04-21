@@ -35,6 +35,13 @@
   font-style: italic;
 }
 
+@font-face {
+  font-family: 'Nitro-Nova';
+  src: url('../fonts/NitroNovaBold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
 #root {
   /* font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif; */
 
