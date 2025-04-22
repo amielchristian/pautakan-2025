@@ -319,7 +319,6 @@ export default function ControlView() {
     
     // Set difficulty to Clincher
     setDifficulty('Clincher');
-    await window.ipcRenderer.invoke('sync-difficulty', 'Clincher');
     
     // Reset scores for the tied colleges
     const resetTiedColleges = tiedColleges.map(college => ({
@@ -342,10 +341,12 @@ export default function ControlView() {
     // Mark that we're in clincher mode
     setInClincherRound(true);
     
+    // Pass the tiedColleges along with the difficulty change
+    await window.ipcRenderer.invoke('sync-difficulty', 'Clincher', tiedColleges);
+    
     console.log('Switched to Clincher round for tied colleges:', tiedColleges.map(c => c.shorthand).join(', '));
   }
   
-  // Add a function to exit clincher mode
   async function exitClincherRound() {
     setInClincherRound(false);
     
@@ -353,7 +354,7 @@ export default function ControlView() {
     const allColleges = await fetchColleges();
     setDisplayedColleges(allColleges);
     
-    // Reset difficulty
+    // Reset difficulty (without clincher colleges)
     setDifficulty('Easy');
     await window.ipcRenderer.invoke('sync-difficulty', 'Easy');
     

@@ -5,10 +5,11 @@ import RadarView from './RadarView/radarView';
 import { AnimatePresence, motion } from 'framer-motion';
 import { IpcRendererEvent } from 'electron';
 
-function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
+function FrameCollegeLogos({ colleges, clincherColleges }: { colleges: College[], clincherColleges: College[] }) {
   const [visibleLogos, setVisibleLogos] = useState<number[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const initialRenderDone = useRef<boolean>(false);
+  const isClincherMode = clincherColleges.length > 0;
 
   useEffect(() => {
     if (colleges.length === 5) {
@@ -26,6 +27,12 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
       });
     }
   }, [colleges.length]);
+
+  // Helper function to determine if a college is in clincher mode
+  const isInClincherMode = (college: College) => {
+    if (!isClincherMode) return true; // If not in clincher mode, all colleges are shown normally
+    return clincherColleges.some(c => c.id === college.id);
+  };
 
   if (colleges.length === 5) {
     const positions = [
@@ -55,6 +62,7 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
             .pop()
             ?.replace('.png', ' - no rings.png');
           const position = positions[index];
+          const isInClincher = isInClincherMode(college);
 
           return (
             <div
@@ -74,6 +82,9 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
                 className={`w-full h-full object-contain transition-opacity duration-500 ease-in-out ${
                   visibleLogos.includes(index) ? 'opacity-100' : 'opacity-0'
                 }`}
+                style={{
+                  opacity: isInClincher ? 1 : 0.4, // Apply 40% opacity to non-clincher colleges
+                }}
               />
             </div>
           );
@@ -122,6 +133,7 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
           .pop()
           ?.replace('.png', ' - no rings.png');
         const position = gridPositions[index];
+        const isInClincher = isInClincherMode(college);
 
         return (
           <div
@@ -141,6 +153,9 @@ function FrameCollegeLogos({ colleges }: { colleges: College[] }) {
               className={`w-full h-full object-contain transition-opacity duration-500 ease-in-out ${
                 visibleLogos.includes(index) ? 'opacity-100' : 'opacity-0'
               }`}
+              style={{
+                opacity: isInClincher ? 1 : 0.4, // Apply 40% opacity to non-clincher colleges
+              }}
             />
           </div>
         );
@@ -164,6 +179,7 @@ function MainView() {
   const [collegeRadiusAdjustments, setCollegeRadiusAdjustments] = useState<
     Record<string, number>
   >({});
+  const [clincherColleges, setClincherColleges] = useState<College[]>([]);
   const circleRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [activeRing, setActiveRing] = useState(11);
   const [smallestRingValue, setSmallestRingValue] = useState(1);
@@ -306,7 +322,8 @@ function MainView() {
 
     const handleDifficultySynced = (
       _: IpcRendererEvent,
-      newDifficulty: string
+      newDifficulty: string,
+      clincherCollegesData?: College[]
     ) => {
       setDifficulty(newDifficulty);
       setCollegeRadiusAdjustments({});
@@ -320,6 +337,11 @@ function MainView() {
 
       if (['Easy', 'Average', 'Difficult'].includes(newDifficulty)) {
         setLastNormalDifficulty(newDifficulty);
+        // Reset clincher colleges when returning to normal difficulties
+        setClincherColleges([]);
+      } else if (newDifficulty === 'Clincher' && clincherCollegesData && clincherCollegesData.length > 0) {
+        // Store the clincher colleges when difficulty is set to Clincher
+        setClincherColleges(clincherCollegesData);
       }
 
       console.log(`DIFFICULTY CHANGED: ${newDifficulty}`);
@@ -478,6 +500,7 @@ function MainView() {
             ? allColleges
             : colleges
         }
+        clincherColleges={clincherColleges}
       />
 
       {/* Body - flex row */}

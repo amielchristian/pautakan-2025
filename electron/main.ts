@@ -79,9 +79,10 @@ function initializeIPC() {
     return { category, topFiveColleges };
   });
 
-  ipcMain.handle('sync-difficulty', (_, data) => {
+  ipcMain.handle('sync-difficulty', (_, data, clincherColleges) => {
     if (data) difficulty = data;
-    mainView?.webContents.send('difficulty-synced', difficulty);
+    // Send both difficulty and clincher colleges to the main view
+    mainView?.webContents.send('difficulty-synced', difficulty, clincherColleges);
     return { success: true };
   });
 
