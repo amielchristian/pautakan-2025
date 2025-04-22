@@ -519,8 +519,6 @@ export default function ControlView() {
                 { value: 'Sudden Death' },
               ]}
               onChange={(selected) => {
-                console.log('SELECTED IS', selected);
-              
                 if (selected === 'Clincher' || selected === 'Sudden Death') {
                   handleSwitchToClincher();
                 } else {

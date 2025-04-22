@@ -328,7 +328,6 @@ function MainView() {
       setDifficulty(newDifficulty);
       setCollegeRadiusAdjustments({});
       if (newDifficulty === 'Clincher' || newDifficulty === 'Sudden Death'){
-        console.log('THIS RANNN')
         setActiveRing(5);
       } else {
         setActiveRing(11);
@@ -442,7 +441,6 @@ function MainView() {
         await window.ipcRenderer.invoke('sync-category');
       await window.ipcRenderer.invoke('sync-difficulty');
       await window.ipcRenderer.invoke('sync-division');
-
 
       setCategory(currentCategory);
       if (currentCategory === 'Finals') {
