@@ -327,7 +327,12 @@ function MainView() {
     ) => {
       setDifficulty(newDifficulty);
       setCollegeRadiusAdjustments({});
-      setActiveRing(11);
+      if (newDifficulty === 'Clincher' || newDifficulty === 'Sudden Death'){
+        console.log('THIS RANNN')
+        setActiveRing(5);
+      } else {
+        setActiveRing(11);
+      }
       setSmallestRingValue(1);
       circleRefs.current.forEach((circleRef) => {
         if (circleRef) {
@@ -437,6 +442,7 @@ function MainView() {
         await window.ipcRenderer.invoke('sync-category');
       await window.ipcRenderer.invoke('sync-difficulty');
       await window.ipcRenderer.invoke('sync-division');
+
 
       setCategory(currentCategory);
       if (currentCategory === 'Finals') {

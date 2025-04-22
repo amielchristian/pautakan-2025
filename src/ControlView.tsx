@@ -316,38 +316,58 @@ export default function ControlView() {
   async function handleSwitchToClincher() {
     // Close the tie prompt
     setShowTiePrompt(false);
+
+    const sortedColleges = [...colleges].sort(
+      (a: College, b: College) => b.score - a.score
+    );
     
-    // Set difficulty to Clincher
-    setDifficulty('Clincher');
+    let tiedCollegesToReset: College[] = [];
     
-    // Reset scores for the tied colleges
-    const resetTiedColleges = tiedColleges.map(college => ({
-      ...college,
-      score: 0
-    }));
+    if (category !== 'Finals' && sortedColleges.length >= 5) {
+      const fifthPlace = sortedColleges[4].score;
     
-    // Update scores in the main process
-    resetTiedColleges.forEach(async (college) => {
-      await window.ipcRenderer.invoke(
-        'update-college-score',
-        college.shorthand,
-        0
+      const collegesWithFifthPlaceScore = sortedColleges.filter(
+        (college) => college.score === fifthPlace
       );
-    });
+    
+      if (collegesWithFifthPlaceScore.length > 1 && fifthPlace > 0) {
+        setTiedColleges(collegesWithFifthPlaceScore);
+        tiedCollegesToReset = collegesWithFifthPlaceScore;
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+    } else {
+      const thirdPlace = sortedColleges[2].score;
+    
+      const collegesWithThirdPlaceScore = sortedColleges.filter(
+        (college) => college.score === thirdPlace
+      );
+    
+      if (collegesWithThirdPlaceScore.length > 1 && thirdPlace > 0) {
+        setTiedColleges(collegesWithThirdPlaceScore);
+        tiedCollegesToReset = collegesWithThirdPlaceScore;
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+    }
     
     // Filter displayed colleges to only show the tied ones
-    setDisplayedColleges(tiedColleges);
+    setDisplayedColleges(tiedCollegesToReset);
     
     // Mark that we're in clincher mode
     setInClincherRound(true);
     
-    // Pass the tiedColleges along with the difficulty change
-    await window.ipcRenderer.invoke('sync-difficulty', 'Clincher', tiedColleges);
+    // Set difficulty to Clincher
+    setDifficulty('Clincher');
     
-    console.log('Switched to Clincher round for tied colleges:', tiedColleges.map(c => c.shorthand).join(', '));
+    // Pass the tiedColleges along with the difficulty change
+    await window.ipcRenderer.invoke('sync-difficulty', 'Clincher', tiedCollegesToReset);
+    
+    console.log(
+      'Switched to Clincher round for tied colleges:',
+      tiedCollegesToReset.map((c) => c.shorthand).join(', ')
+    );
   }
   
-  async function exitClincherRound() {
+  async function exitClincherRound(difficulty = 'Easy') {
     setInClincherRound(false);
     
     // Refresh the college list
@@ -355,8 +375,8 @@ export default function ControlView() {
     setDisplayedColleges(allColleges);
     
     // Reset difficulty (without clincher colleges)
-    setDifficulty('Easy');
-    await window.ipcRenderer.invoke('sync-difficulty', 'Easy');
+    setDifficulty(difficulty);
+    await window.ipcRenderer.invoke('sync-difficulty', difficulty);
     
     console.log('Exited Clincher round, returned to normal mode');
   }
@@ -499,8 +519,17 @@ export default function ControlView() {
                 { value: 'Sudden Death' },
               ]}
               onChange={(selected) => {
-                setDifficulty(selected);
+                console.log('SELECTED IS', selected);
+              
+                if (selected === 'Clincher' || selected === 'Sudden Death') {
+                  handleSwitchToClincher();
+                } else {
+                  exitClincherRound(selected);
+                  setDifficulty(selected);
+                }
               }}
+              
+              
               key={difficulty}
               initialValue={difficulty}
             />

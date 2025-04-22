@@ -185,7 +185,11 @@ function RadarView({
 
         if (newScore > oldScore) {
           // Score increasing - move toward center
-          newFactor = currentFactor - 0.046;
+          if (isFinalsMode) {
+            newFactor = isClincherMode ? currentFactor - 0.093 : currentFactor - 0.046;
+          } else {
+            newFactor = isClincherMode ? currentFactor - 0.091 : currentFactor - 0.046;
+          }
           if (ringToUse != -1 && newFactor < smallestRingValue) {
             circleRefs.current[ringToUse]!.style.transition =
               'opacity 0.5s ease';
@@ -200,14 +204,20 @@ function RadarView({
         } else {
           // Score decreasing - move away from center
           // Cap at 1.0 to prevent going beyond original position
-          newFactor = currentFactor + 0.046;
+          if (isFinalsMode){
+            newFactor = isClincherMode ? currentFactor + 0.093 : currentFactor + 0.046;
+          } else {
+            newFactor = isClincherMode ? currentFactor + 0.091 : currentFactor + 0.046;
+          }
+          
           const ringToHide = ringToUse + 1;
+          const lastRing = isClincherMode ? 6 : 12
           const isSharedFactor = Object.entries(prev).some(([key, value]) => {
             return key !== shorthand && value === currentFactor;
           });
           console.log('IS SHARED FACTOR', isSharedFactor);
           if (
-            ringToHide != 12 &&
+            ringToHide != lastRing &&
             currentFactor == smallestRingValue &&
             !isSharedFactor
           ) {
@@ -216,7 +226,7 @@ function RadarView({
             circleRefs.current[ringToHide]!.style.opacity = '0';
             setActiveRing(ringToHide);
             setSmallestRingValue(newFactor);
-          } else if (ringToHide != 12 && newFactor <= 1) {
+          } else if (ringToHide != lastRing && newFactor <= 1) {
             console.log('placeholder');
           } else {
             newFactor = currentFactor;
@@ -354,6 +364,7 @@ function RadarView({
   const parentSize = 90;
   // Number of segments
   const numSegments = 320;
+  const ringsToCreate = isClincherMode ? 6 : 12;
 
   return (
     <div
@@ -366,9 +377,15 @@ function RadarView({
           ref={radarBaseRef}
           className={`radar-base ${isFinalsMode ? 'finals-mode' : ''}`}
         >
-          {Array.from({ length: 12 }).map((_, i) => {
+          {Array.from({ length: ringsToCreate }).map((_, i) => {
             const minSize = isFinalsMode ? 260 : 400;
-            const gap = isFinalsMode ? 50.5 : 38.5;
+            let gap
+            if (isClincherMode){
+              gap = isFinalsMode ? 100 : 80;
+            } else {
+              gap = isFinalsMode ? 50.5 : 38.5;
+            }
+            
             const size = minSize + i * gap;
             let startTime = 7;
             const customDelays: string[] = [];
