@@ -786,7 +786,7 @@ function MainView() {
             [--border-color:var(--red)] border-[var(--red)]'
             >
               {colleges.map((college: College) => (
-                <Score key={college.id} college={college} />
+                <Score key={college.id} college={college} clincherColleges={clincherColleges} />
               ))}
             </div>
 
@@ -817,6 +817,7 @@ function MainView() {
                 prevScores={prevScores}
                 setPrevScores={setPrevScores}
                 onBoot={handleBoot}
+                clincherColleges={clincherColleges}
               ></RadarView>
               {isFinalsMode && (
                 <div className='absolute top-0 left-0 w-full p-4 text-center'></div>
@@ -868,8 +869,20 @@ function MainView() {
   );
 }
 
-function Score({ college }: { college: College }) {
+function Score({ college, clincherColleges }: { college: College; clincherColleges: College[] }) {
   const [showGlow, setShowGlow] = useState(false);
+  const isClincherMode = clincherColleges.length > 0;
+  
+  // Helper function to determine if a college is in clincher mode
+  const isInClincherMode = (college: College) => {
+    if (!isClincherMode) return true; // If not in clincher mode, all colleges are shown normally
+    return clincherColleges.some(c => c.id === college.id);
+  };
+  
+  // Check if this college is in clincher mode
+  const isInClincher = isInClincherMode(college);
+  // Base opacity depends on whether the college is in clincher mode
+  const baseOpacity = isInClincher ? 1 : 0.4;
 
   useEffect(() => {
     setShowGlow(true);
@@ -881,7 +894,13 @@ function Score({ college }: { college: College }) {
   }, [college]);
 
   return (
-    <div className='flex flex-row space-x-4'>
+    <div 
+      className='flex flex-row space-x-4'
+      style={{ 
+        opacity: baseOpacity,
+        transition: 'opacity 0.3s ease-in-out'
+      }}
+    >
       <div
         className='sharp-edge-box w-20 h-10 [--img:linear-gradient(#222,#111)] font-[DS-Digital] text-3xl
     inset-shadow-custom [--inset-shadow-color:#ffffff] [--inset-shadow-size:0.2em]

@@ -17,6 +17,7 @@ function RadarView({
   prevScores,
   setPrevScores,
   onBoot,
+  clincherColleges,
 }: {
   colleges: College[];
   collegeRadiusAdjustments: Record<string, number>;
@@ -31,6 +32,7 @@ function RadarView({
   prevScores: Record<string, number>;
   setPrevScores: React.Dispatch<React.SetStateAction<Record<string, number>>>;
   onBoot: (booted: boolean) => void;
+  clincherColleges: College[];
 }) {
   const [scaleFactor, setScaleFactor] = useState(1);
   const radarBaseRef = useRef<HTMLDivElement>(null);
@@ -45,6 +47,13 @@ function RadarView({
   
   // Track if rank indicators have already been animated to avoid re-triggering
   const [rankIndicatorsAnimated, setRankIndicatorsAnimated] = useState(false);
+  const isClincherMode = clincherColleges.length > 0;
+
+  // Helper function to determine if a college is in clincher mode
+  const isInClincherMode = (college: College) => {
+    if (!isClincherMode) return true; // If not in clincher mode, all colleges are shown normally
+    return clincherColleges.some(c => c.id === college.id);
+  };
 
   useEffect(() => {
     onBoot(booted);
@@ -447,6 +456,11 @@ function RadarView({
 
                 // Check if this college has a rank change effect active
                 const hasRankChangeEffect = rankChangeEffectsRef.current[college.shorthand];
+                
+                // Check if college is in clincher mode
+                const isInClincher = isInClincherMode(college);
+                // Base opacity depends on whether the college is in clincher mode
+                const baseOpacity = isInClincher ? 1 : 0.5;
 
                 return (
                   <div
@@ -461,11 +475,11 @@ function RadarView({
                       transform: `translate(-50%, -50%) translate(${logoX}%, ${logoY}%)`,
                       animation: !rankIndicatorsAnimated ? 
                         `fadeIn 0.8s forwards ${logosStartTime + i * 0.2}s` : 'none',
-                      opacity: rankIndicatorsAnimated ? 1 : undefined, // If already animated, just show at full opacity
-                      transition: 'transform 0.5s ease-out', // Smooth transition when radius changes
+                      opacity: rankIndicatorsAnimated ? (isInClincher ? 1 : 0.4) : undefined, // Modified for clincher mode
+                      transition: 'transform 0.5s ease-out, opacity 0.5s ease-out', // Added opacity transition
                     }}
                   >
-                    {/* Regular logo with opposite opacity of red logo */}
+                    {/* Regular logo with adjusted opacity for clincher mode */}
                     <img
                       src={regularImagePath}
                       alt={`Logo ${i + 1}`}
@@ -475,7 +489,7 @@ function RadarView({
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        opacity: 1 - redOpacity,
+                        opacity: (1 - redOpacity) * baseOpacity, // Apply base opacity for clincher
                         transition: 'opacity 0.3s ease-in-out',
                         zIndex: 1,
                       }}
@@ -491,7 +505,7 @@ function RadarView({
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        opacity: redOpacity,
+                        opacity: redOpacity * baseOpacity, // Apply base opacity for clincher
                         transition: 'opacity 0.3s ease-in-out',
                         zIndex: 2,
                       }}
@@ -509,7 +523,7 @@ function RadarView({
                           right: '10px',
                           width: '40px',
                           height: '40px',
-                          opacity: rankIndicatorsAnimated ? 1 : undefined, // If already animated, just show at full opacity
+                          opacity: rankIndicatorsAnimated ? (isInClincher ? 1 : 0.4) : undefined, // Modified for clincher mode
                           animation: !rankIndicatorsAnimated ? 
                             `fadeIn 0.8s forwards ${logosStartTime + i * 0.2 + 0.5}s` : 
                             (hasRankChangeEffect ? 'rankChangeEffect 2s ease-in-out' : 'none'),
