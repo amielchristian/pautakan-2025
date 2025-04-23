@@ -317,7 +317,7 @@ export default function ControlView() {
   async function handleSwitchToClincher(selectedDifficulty = 'Clincher') {
     // Close the tie prompt
     setShowTiePrompt(false);
-
+  
     const sortedColleges = [...colleges].sort(
       (a: College, b: College) => b.score - a.score
     );

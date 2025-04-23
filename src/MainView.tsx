@@ -33,7 +33,7 @@ function FrameCollegeLogos({ colleges, clincherColleges }: { colleges: College[]
     if (!isClincherMode) return true; // If not in clincher mode, all colleges are shown normally
     return clincherColleges.some(c => c.id === college.id);
   };
-
+  
   if (colleges.length === 5) {
     const positions = [
       { top: '8%', left: '15%' },
@@ -338,18 +338,20 @@ function MainView() {
           circleRef.style.opacity = '0';
         }
       });
-
+    
       if (['Easy', 'Average', 'Difficult'].includes(newDifficulty)) {
         setLastNormalDifficulty(newDifficulty);
         // Reset clincher colleges when returning to normal difficulties
         setClincherColleges([]);
-      } else if (newDifficulty === 'Clincher' && clincherCollegesData && clincherCollegesData.length > 0) {
-        // Store the clincher colleges when difficulty is set to Clincher
+      } else if ((newDifficulty === 'Clincher' || newDifficulty === 'Sudden Death') && 
+                 clincherCollegesData && clincherCollegesData.length > 0) {
+        // Store the clincher colleges when difficulty is set to Clincher or Sudden Death
         setClincherColleges(clincherCollegesData);
       }
-
+    
       console.log(`DIFFICULTY CHANGED: ${newDifficulty}`);
     };
+    
 
     const handleDivisionSynced = (_: IpcRendererEvent, newDivision: string) => {
       setDivision(newDivision);
