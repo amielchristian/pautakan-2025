@@ -313,7 +313,8 @@ export default function ControlView() {
     }
   }
 
-  async function handleSwitchToClincher() {
+  // Modified handleSwitchToClincher function to accept a difficulty parameter
+  async function handleSwitchToClincher(selectedDifficulty = 'Clincher') {
     // Close the tie prompt
     setShowTiePrompt(false);
 
@@ -355,14 +356,14 @@ export default function ControlView() {
     // Mark that we're in clincher mode
     setInClincherRound(true);
     
-    // Set difficulty to Clincher
-    setDifficulty('Clincher');
+    // Set difficulty to the selected value (Clincher or Sudden Death)
+    setDifficulty(selectedDifficulty);
     
-    // Pass the tiedColleges along with the difficulty change
-    await window.ipcRenderer.invoke('sync-difficulty', 'Clincher', tiedCollegesToReset);
+    // Pass the selected difficulty and tiedColleges along with the sync
+    await window.ipcRenderer.invoke('sync-difficulty', selectedDifficulty, tiedCollegesToReset);
     
     console.log(
-      'Switched to Clincher round for tied colleges:',
+      `Switched to ${selectedDifficulty} round for tied colleges:`,
       tiedCollegesToReset.map((c) => c.shorthand).join(', ')
     );
   }
@@ -480,7 +481,7 @@ export default function ControlView() {
               </button>
               <button
                 className='px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600'
-                onClick={handleSwitchToClincher}
+                onClick={() => handleSwitchToClincher('Clincher')}
               >
                 Switch to Clincher
               </button>
@@ -520,14 +521,13 @@ export default function ControlView() {
               ]}
               onChange={(selected) => {
                 if (selected === 'Clincher' || selected === 'Sudden Death') {
-                  handleSwitchToClincher();
+                  // Pass the selected difficulty to handleSwitchToClincher
+                  handleSwitchToClincher(selected);
                 } else {
                   exitClincherRound(selected);
                   setDifficulty(selected);
                 }
               }}
-              
-              
               key={difficulty}
               initialValue={difficulty}
             />
