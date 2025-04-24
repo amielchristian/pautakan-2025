@@ -247,8 +247,8 @@ function createWindow() {
 
   techView = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'CENTER VAULT.png'),
-    width: 880, // Fixed width
-    height: 880, // Fixed height
+    width: 1000, // Fixed width
+    height: 1080, // Fixed height
     resizable: false, // Prevent resizing
     useContentSize: true, // Use content dimensions exactly as specified
     webPreferences: {
