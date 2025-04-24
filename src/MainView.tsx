@@ -550,8 +550,8 @@ function MainView() {
               </motion.div>
 
               {/* Podium Section */}
-              <div className='w-full mt-8 relative overflow-visible py-6'>
-                <div className='flex justify-center gap-6'>
+              <div className='w-full mt-8 relative overflow-visible py-9'>
+              <div className='flex justify-center gap-6'>
                   {topFiveColleges
                     .sort((a, b) => {
                       return b.score - a.score;
@@ -563,31 +563,34 @@ function MainView() {
 
                       return (
                         <motion.div
-                          key={college.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay, duration: 0.6 }}
-                          className='flex flex-col items-center relative w-[30vw] sm:w-[20vw] md:w-[15vw] lg:w-[12vw] min-h-[20px]'
-                        >
-                          <div className='relative w-full aspect-[1/1]'>
-                            <img
-                              src={`./images/topFive/${index + 1}.png`}
-                              alt={`Podium ${index + 1}`}
-                              className='absolute top-[50%] left-[-3%] w-full h-full scale-[1.3] transform -translate-x-1/2 -translate-y-1/2 object-contain'
-                            />
-                            <img
-                              src={fileName}
-                              alt={`Icon for ${college.name}`}
-                              className='absolute top-[55%] left-[3%] transform -translate-x-1/2 -translate-y-1/2 object-contain'
-                            />
-                          </div>
+                        key={college.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay, duration: 0.6 }}
+                        className='left-[2%] flex flex-col items-center justify-center relative w-[30vw] sm:w-[20vw] md:w-[15vw] lg:w-[12vw] min-h-[20px] mr-7'
+                      >
+                        <div className='relative w-full aspect-[1/1] mr-9 justify-center flex items-center'>
+                          {/* Podium Image */}
+                          <img
+                            src={`./images/topFive/${index + 1}.png`}
+                            alt={`Podium ${index + 1}`}
+                            className='absolute top-[50%] left-[0%] w-full h-full scale-[1.4] transform -translate-x-1/2 -translate-y-1/2 object-contain'
+                          />
+                          {/* College Icon */}
+                          <img
+                            src={fileName}
+                            alt={`Icon for ${college.name}`}
+                            className='absolute top-[50%] left-[0%] w-full h-full scale-[1.3] transform -translate-x-1/2 -translate-y-1/2 object-contain'
+                          />
+                        </div>
+  
 
                           <motion.span
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: delay + 0.1, duration: 0.4 }}
                             style={{ fontSize: 'clamp(.5rem, 2vw, 2.7rem)' }}
-                            className='absolute top-[155%] left-[1.5%] text-center transform -translate-x-1/2 -translate-y-1/2 leading-[.9] font-[Starter] text-white font-bold drop-shadow-[0_0_0.1em_red] z-20'
+                            className='absolute top-[165%] left-[-5%] w-[110%] text-center transform -translate-x-1/2 -translate-y-1/2 leading-[.9] font-[Starter] text-white font-bold drop-shadow-[0_0_0.1em_red] z-20'
                           >
                             {college.name}
                           </motion.span>
@@ -605,9 +608,9 @@ function MainView() {
                 className='relative w-full mt-8'
               >
                 <img
-                  src='./images/topFive/BAR BOT.png'
-                  alt='BAR BOT'
-                  className='w-full h-[120%]'
+                 src='./images/topFive/BAR BOT.png'
+                 alt='BAR BOT'
+                 className=' w-full h-[140%]'
                 />
               </motion.div>
             </div>
@@ -646,33 +649,33 @@ function MainView() {
 
                     return (
                       <motion.div
-                        key={college.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay, duration: 0.6 }}
-                        className='flex flex-col items-center relative w-[30vw] sm:w-[20vw] md:w-[15vw] lg:w-[12vw] min-h-[20px]'
-                      >
-                        <div className='relative w-full aspect-[1/1]'>
-                          {/* Podium Image */}
-                          <img
-                            src={`./images/topFive/${index + 1}.png`}
-                            alt={`Podium ${index + 1}`}
-                            className='absolute top-[50%] left-[-3%] w-full h-full scale-[1.3] transform -translate-x-1/2 -translate-y-1/2 object-contain'
-                          />
-                          {/* College Icon */}
-                          <img
-                            src={fileName}
-                            alt={`Icon for ${college.name}`}
-                            className='absolute top-[55%] left-[3%] transform -translate-x-1/2 -translate-y-1/2 object-contain'
-                          />
-                        </div>
+                      key={college.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay, duration: 0.6 }}
+                      className='left-[1%] flex flex-col items-center justify-center relative w-[30vw] sm:w-[20vw] md:w-[15vw] lg:w-[12vw] min-h-[20px] mr-7'
+                    >
+                      <div className='relative w-full aspect-[1/1] mr-9 justify-center flex items-center'>
+                        {/* Podium Image */}
+                        <img
+                          src={`./images/topFive/${index + 1}.png`}
+                          alt={`Podium ${index + 1}`}
+                          className='absolute top-[50%] w-full h-full scale-[1.3] transform -translate-x-1/2 -translate-y-1/2 object-contain'
+                        />
+                        {/* College Icon */}
+                        <img
+                          src={fileName}
+                          alt={`Icon for ${college.name}`}
+                          className='absolute top-[50%] left-[0%] w-full h-full scale-[1.1] transform -translate-x-1/2 -translate-y-1/2 object-contain'
+                        />
+                      </div>
 
                         <motion.span
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: delay + 0.1, duration: 0.4 }}
                           style={{ fontSize: 'clamp(.5rem, 2vw, 2.7rem)' }}
-                          className='absolute top-[165%] left-[2%] text-center transform -translate-x-1/2 -translate-y-1/2 leading-[.9] font-[Starter] text-white font-bold drop-shadow-[0_0_0.1em_red] z-20'
+                          className='absolute top-[165%] left-[-6] w-[110%] text-center transform -translate-x-1/2 -translate-y-1/2 leading-[.9] font-[Starter] text-white font-bold drop-shadow-[0_0_0.1em_red] z-20'
                         >
                           {college.name}
                         </motion.span>
