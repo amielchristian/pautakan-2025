@@ -638,7 +638,7 @@ function MainView() {
               </motion.div>
 
               {/* Podium Section */}
-              <div className='w-full mt-8 relative overflow-visible py-6'>
+              <div className='w-full mt-8 relative overflow-visible py-9'>
                 <div className='flex justify-center gap-6'>
                   {topFiveColleges.map((college, index) => {
                     const fileName = college.imagePath.replace('.png', '_norings.png');
@@ -672,7 +672,7 @@ function MainView() {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: delay + 0.1, duration: 0.4 }}
                           style={{ fontSize: 'clamp(.5rem, 2vw, 2.7rem)' }}
-                          className='absolute top-[155%] left-[2%] text-center transform -translate-x-1/2 -translate-y-1/2 leading-[.9] font-[Starter] text-white font-bold drop-shadow-[0_0_0.1em_red] z-20'
+                          className='absolute top-[165%] left-[2%] text-center transform -translate-x-1/2 -translate-y-1/2 leading-[.9] font-[Starter] text-white font-bold drop-shadow-[0_0_0.1em_red] z-20'
                         >
                           {college.name}
                         </motion.span>
@@ -692,7 +692,7 @@ function MainView() {
                 <img
                   src='./images/topFive/BAR BOT.png'
                   alt='BAR BOT'
-                  className='w-full h-[120%]'
+                  className=' w-full h-[150%]'
                 />
               </motion.div>
             </div>
