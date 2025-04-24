@@ -468,7 +468,7 @@ function RadarView({
                 const regularImagePath = college.imagePath;
                 const redImagePath = college.imagePath.replace(
                   '.png',
-                  '-RED.png'
+                  '_RED.png'
                 );
 
                 // Check if this college has a rank change effect active
