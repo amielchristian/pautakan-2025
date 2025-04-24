@@ -260,27 +260,44 @@ export default function ControlView() {
       }
       
       // Regular flow (not in clincher round)
-      // Check if there's a tie for 5th place
-      if (category !== 'Finals' && sortedColleges.length >= 5) {
-        const fifthPlace = sortedColleges[4].score;
+      const topColleges = sortedColleges.filter(college => college.score > 0);
+      
+      // Check for ties only if we have enough colleges with scores
+      // For scenario where multiple colleges are tied for last place(s)
+      if (category !== 'Finals' && topColleges.length >= 5) {
+        // Get the score of the college at position 5 (index 4)
+        const lastPositionScore = topColleges[4].score;
         
-        // Find all colleges with the same score as the 5th place
-        const collegesWithFifthPlaceScore = sortedColleges.filter(
-          college => college.score === fifthPlace
+        // Find all colleges with the same score as the last position
+        const collegesWithLastPositionScore = topColleges.filter(
+          college => college.score === lastPositionScore
         );
         
-        // If more than one college has the 5th place score, there's a tie
-        if (collegesWithFifthPlaceScore.length > 1 && fifthPlace > 0) {
-          setTiedColleges(collegesWithFifthPlaceScore);
+        // If there are THREE OR MORE colleges with the last position score, there's a tie that needs clincher
+        if (collegesWithLastPositionScore.length >= 3 && lastPositionScore > 0) {
+          setTiedColleges(collegesWithLastPositionScore);
+          setShowTiePrompt(true);
+          return; // Don't proceed with showing leaderboard yet
+        }
+      } else if (category === 'Finals' && topColleges.length >= 3) {
+        // For Finals mode, check for ties at the 3rd position
+        const thirdPlaceScore = topColleges[2].score;
+        
+        // Find all colleges with the same score as the 3rd place
+        const collegesWithThirdPlaceScore = topColleges.filter(
+          college => college.score === thirdPlaceScore
+        );
+        
+        // If there are THREE OR MORE colleges with the 3rd place score, there's a tie that needs clincher
+        if (collegesWithThirdPlaceScore.length >= 3 && thirdPlaceScore > 0) {
+          setTiedColleges(collegesWithThirdPlaceScore);
           setShowTiePrompt(true);
           return; // Don't proceed with showing leaderboard yet
         }
       }
       
-      // Normal case - no tie or in Finals mode
-      const topFiveColleges = sortedColleges
-        .slice(0, 5)
-        .filter((college: College) => college.score > 0);
+      // Normal case - no tie or only two colleges tied
+      const topFiveColleges = topColleges.slice(0, 5);
   
       // Check if there are fewer than 5 colleges with scores in eliminations
       // or fewer than 3 colleges with scores in finals
