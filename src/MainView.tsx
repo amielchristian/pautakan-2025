@@ -675,7 +675,7 @@ function MainView() {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: delay + 0.1, duration: 0.4 }}
                           style={{ fontSize: 'clamp(.5rem, 2vw, 2.7rem)' }}
-                          className='absolute top-[165%] left-[-6] w-[110%] text-center transform -translate-x-1/2 -translate-y-1/2 leading-[.9] font-[Starter] text-white font-bold drop-shadow-[0_0_0.1em_red] z-20'
+                          className='absolute top-[165%] left-[-7%] w-[110%] text-center transform -translate-x-1/2 -translate-y-1/2 leading-[.9] font-[Starter] text-white font-bold drop-shadow-[0_0_0.1em_red] z-20'
                         >
                           {college.name}
                         </motion.span>
