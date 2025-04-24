@@ -476,7 +476,7 @@ function MainView() {
   return (
     <>
       {/* Full-screen frame */}
-      <div className='fixed top-0 left-0 w-screen h-screen z-50 pointer-events-none'>
+      <div className='fixed top-0 left-0 w-screen h-screen z-250 pointer-events-none'>
         <img
           src='./images/SCREENFRAME.png'
           alt='Above Screen Frame'
@@ -762,7 +762,7 @@ function MainView() {
   <img
     src='./images/GLOW.png'
     alt='RED GLOW'
-    className='w-screen h-screen object-fill'
+    className="fixed top-0 left-0 w-screen h-screen"
     style={{ animation: 'pulseGlow 2s ease-in-out infinite' }}
   />
 
