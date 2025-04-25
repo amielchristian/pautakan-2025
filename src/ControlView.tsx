@@ -5,6 +5,7 @@ import { College } from './types';
 const buttonStyles = `shrink p-[1%] bg-white hover:bg-gray-200 cursor-pointer m-[1%] rounded-xl border-2 border-gray-300 font-semibold text-gray-700 shadow-sm disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:bg-white h-14 flex items-center justify-center`;
 export default function ControlView() {
   const [colleges, setColleges] = useState<College[]>([]);
+  const [inCollegeSelectionMode, setInCollegeSelectionMode] = useState(false);
   const [difficulty, setDifficulty] = useState('Easy');
   const [category, setCategory] = useState('Eliminations');
   const [division, setDivision] = useState('Teams');
@@ -12,9 +13,68 @@ export default function ControlView() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showRefreshConfirm, setShowRefreshConfirm] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
-  const [showTiePrompt, setShowTiePrompt] = useState(false);
-  const [tiedColleges, setTiedColleges] = useState<College[]>([]);
   const [inClincherRound, setInClincherRound] = useState(false);
+  // Add state for tracking college rankings
+  const [collegeRankings, setCollegeRankings] = useState<{[key: string]: string}>({});
+  // Add state to track selected colleges for leaderboard
+  const [selectedColleges, setSelectedColleges] = useState<{[key: string]: boolean}>({});
+  // Error message for leaderboard validation
+  const [leaderboardError, setLeaderboardError] = useState('');
+  // Add state for category errors
+  const [categoryError, setCategoryError] = useState('');
+  
+  // Function to handle rank selection
+  const handleRankChange = (collegeId: string, rank: string) => {
+    // Create a copy of the current rankings
+    const updatedRankings = { ...collegeRankings };
+    
+    // If this rank is already assigned to another college, clear that assignment
+    Object.keys(updatedRankings).forEach(id => {
+      if (updatedRankings[id] === rank) {
+        delete updatedRankings[id];
+      }
+    });
+    
+    // Assign the new rank
+    updatedRankings[collegeId] = rank;
+    
+    // Update the state
+    setCollegeRankings(updatedRankings);
+    
+    console.log(`College ID ${collegeId} ranked as ${rank}`);
+  };
+
+  // Function to handle college selection via checkbox
+  const handleCollegeSelection = (collegeId: string, isSelected: boolean) => {
+    // Create a copy of the current selections
+    const updatedSelections = { ...selectedColleges };
+    
+    // Update the selection state
+    updatedSelections[collegeId] = isSelected;
+    
+    // If unselecting a college, also remove its ranking
+    if (!isSelected && collegeRankings[collegeId]) {
+      const updatedRankings = { ...collegeRankings };
+      delete updatedRankings[collegeId];
+      setCollegeRankings(updatedRankings);
+    }
+    
+    // Update the state
+    setSelectedColleges(updatedSelections);
+    
+    console.log(`College ID ${collegeId} selection: ${isSelected}`);
+  };
+
+  // Helper function to validate Finals requirements
+  function validateFinalsRequirements() {
+    const selectedCollegeIds = Object.keys(selectedColleges).filter(id => selectedColleges[id]);
+    
+    if (selectedCollegeIds.length === 0) {
+      return 'You must select colleges using the checkboxes before switching to Finals mode.';
+    }
+    
+    return ''; // No error
+  }
 
   // Load colleges - fetch fresh data from main process
   const fetchColleges = async () => {
@@ -40,72 +100,242 @@ export default function ControlView() {
     }
   };
 
-  // Function to get top 5 colleges - used in multiple places
-  function getTopFiveColleges() {
-    // Get the top 5 colleges based on score
-    const topFiveColleges = [...colleges]
-      .sort((a: College, b: College) => b.score - a.score)
-      .slice(0, 5)
-      .filter((college: College) => college.score > 0);
-
-    return topFiveColleges;
+  function getSelectedCollegesWithRanking() {
+    // Get all selected colleges
+    const selectedCollegeIds = Object.keys(selectedColleges).filter(id => selectedColleges[id]);
+    
+    // Debug log to check selected IDs
+    console.log('Selected college IDs:', selectedCollegeIds);
+    
+    // Filter displayed colleges to get only the selected ones
+    const selectedCollegesList = displayedColleges.filter(college => 
+      selectedCollegeIds.includes(String(college.id))
+    );
+    
+    // Debug log to check what colleges were found
+    console.log('Selected colleges before ranking:', selectedCollegesList);
+    
+    // If no selected colleges were found in displayed colleges, find them in the full colleges list
+    if (selectedCollegesList.length === 0 && selectedCollegeIds.length > 0) {
+      console.log('No colleges found in displayed colleges, searching in full colleges list');
+      const selectedFromAllColleges = colleges.filter(college => 
+        selectedCollegeIds.includes(String(college.id))
+      );
+      if (selectedFromAllColleges.length > 0) {
+        console.log('Found colleges in full list:', selectedFromAllColleges);
+        return selectedFromAllColleges;
+      }
+    }
+    
+    // Sort by their manual rankings (1st, 2nd, 3rd, etc.)
+    type RankType = '1st' | '2nd' | '3rd' | '4th' | '5th';
+  
+    const rankOrderMap: Record<RankType, number> = {
+      '1st': 1,
+      '2nd': 2,
+      '3rd': 3,
+      '4th': 4,
+      '5th': 5
+    };
+    
+    const sortedSelectedColleges = [...selectedCollegesList].sort((a, b) => {
+      const rankA = collegeRankings[String(a.id)] || '';
+      const rankB = collegeRankings[String(b.id)] || '';
+      
+      // If both have ranks, sort by rank
+      if (rankA && rankB) {
+        // Type assertion to tell TypeScript these are valid ranks
+        return rankOrderMap[rankA as RankType] - rankOrderMap[rankB as RankType];
+      }
+      // If only one has rank, prioritize the one with rank
+      else if (rankA) return -1;
+      else if (rankB) return 1;
+      // If neither has rank, keep original order
+      else return 0;
+    });
+    
+    // Final debug log
+    console.log('Final sorted selected colleges:', sortedSelectedColleges);
+    
+    return sortedSelectedColleges;
   }
 
-  // File: src/ControlView.tsx
-  // Inside the useEffect hook that watches for category changes
-
-  useEffect(() => {
-    const changeCategory = async () => {
-      // Get the latest data from main process
-      const allColleges = await fetchColleges();
-
-      if (category === 'Eliminations') {
-        // Always show all colleges in Eliminations mode
-        setDisplayedColleges(allColleges);
-        console.log('Switched to Eliminations mode, showing all colleges');
-      } else if (category === 'Finals') {
-        // Get top 5 colleges
-        const topFiveColleges = getTopFiveColleges();
-        if (topFiveColleges.length === 5) {
-          // Reset scores to 0 for the top five colleges before displaying
-          const resetTopFiveColleges = topFiveColleges.map((college) => ({
-            ...college,
-            score: 0,
-          }));
-
-          // Update scores in the displayed colleges
-          setDisplayedColleges(resetTopFiveColleges);
-
-          // Reset scores in the main colleges state
-          setColleges((prev) =>
-            prev.map((college) =>
-              resetTopFiveColleges.some((c) => c.id === college.id)
-                ? { ...college, score: 0 }
-                : college
-            )
-          );
-
-          console.log(
-            'Switched to Finals mode, showing top 5 colleges with reset scores'
-          );
-
-          // Update the top five colleges in main process WITHOUT showing leaderboard
-          await window.ipcRenderer.invoke(
-            'update-top-five',
-            resetTopFiveColleges
-          );
-        } else {
-          alert('Need 5 colleges with scores to enter Finals mode');
-          setCategory('Eliminations');
-          return;
-        }
+  // Function to validate leaderboard requirements
+  function validateLeaderboardRequirements() {
+    // Get selected colleges from the currently displayed colleges
+    const selectedCollegeIds = Object.keys(selectedColleges).filter(id => selectedColleges[id]);
+    
+    // Filter to only include colleges that are currently displayed
+    const displayedSelectedIds = displayedColleges
+      .filter(college => selectedCollegeIds.includes(String(college.id)))
+      .map(college => String(college.id));
+    
+    // Check if we have the required number of colleges
+    const requiredCount = category === 'Finals' ? 3 : 5;
+    if (displayedSelectedIds.length !== requiredCount) {
+      return `You must select exactly ${requiredCount} colleges from the current display for ${category} mode leaderboard.`;
+    }
+    
+    // Check if all selected colleges have ranks
+    const unrankedColleges = displayedSelectedIds.filter(id => !collegeRankings[id]);
+    
+    if (unrankedColleges.length > 0) {
+      return `All selected colleges must have a rank assigned.`;
+    }
+    
+    // Check if all required ranks are used
+    const maxRank = category === 'Finals' ? 3 : 5;
+    const usedRanks = new Set();
+    
+    // Collect all used ranks from currently displayed and selected colleges
+    displayedSelectedIds.forEach(id => {
+      const rank = collegeRankings[id];
+      if (rank) usedRanks.add(rank);
+    });
+    
+    for (let i = 1; i <= maxRank; i++) {
+      const rankValue = i === 1 ? '1st' : i === 2 ? '2nd' : i === 3 ? '3rd' : i === 4 ? '4th' : '5th';
+      if (!usedRanks.has(rankValue)) {
+        return `Rank "${rankValue}" must be assigned to a college.`;
       }
+    }
+    
+    if (usedRanks.size !== maxRank) {
+      return `All ranks from 1st to ${maxRank === 3 ? '3rd' : '5th'} must be used exactly once.`;
+    }
+    
+    return ''; // No error
+  }
 
-      const result = await window.ipcRenderer.invoke('sync-category', category);
-      console.log('Category changed to:', category, 'Result:', result);
-    };
-    changeCategory();
-  }, [category]);
+  const toggleLeaderboard = async () => {
+    if (showLeaderboard) {
+      setShowLeaderboard(false);
+      setLeaderboardError('');
+      await window.ipcRenderer.invoke('close-top-five');
+      console.log('Leaderboard closed.');
+    } else {
+      // Validate leaderboard requirements
+      const error = validateLeaderboardRequirements();
+      
+      if (error) {
+        setLeaderboardError(error);
+        alert(error);
+        return;
+      }
+      
+      // Clear any previous errors
+      setLeaderboardError('');
+      
+      // Get selected colleges from the currently displayed colleges
+      const selectedCollegeIds = Object.keys(selectedColleges).filter(id => selectedColleges[id]);
+      
+      // Only use colleges that are currently displayed
+      const selectedCollegesList = displayedColleges.filter(college => 
+        selectedCollegeIds.includes(String(college.id))
+      );
+      
+      // Sort by their manual rankings
+      const sortedSelectedColleges = [...selectedCollegesList].sort((a, b) => {
+        const rankA = collegeRankings[String(a.id)] || '';
+        const rankB = collegeRankings[String(b.id)] || '';
+        
+        // Map ranks to numeric values for sorting
+        const getRankValue = (rank) => {
+          switch (rank) {
+            case '1st': return 1;
+            case '2nd': return 2;
+            case '3rd': return 3;
+            case '4th': return 4;
+            case '5th': return 5;
+            default: return 999;
+          }
+        };
+        
+        return getRankValue(rankA) - getRankValue(rankB);
+      });
+      
+      setShowLeaderboard(true);
+      
+      console.log('Showing leaderboard for:', sortedSelectedColleges);
+      
+      if (category !== 'Finals') {
+        await window.ipcRenderer.invoke('show-top-five', sortedSelectedColleges);
+      } else {
+        await window.ipcRenderer.invoke('show-top-three', sortedSelectedColleges);
+      }
+      
+      // Log in the control view console
+      console.log('DISPLAYING LEADERBOARD:');
+      sortedSelectedColleges.forEach((college) => {
+        const rank = collegeRankings[String(college.id)];
+        console.log(`${rank}: ${college.shorthand} (${college.name})`);
+      });
+    }
+  };
+
+  // Inside the useEffect hook that watches for category changes
+// Inside the useEffect hook that watches for category changes
+useEffect(() => {
+  const changeCategory = async () => {
+    // Get the latest data from main process
+    const allColleges = await fetchColleges();
+    
+    // Special handling for Finals mode
+    if (category === 'Finals') {
+      // Validate we have at least one college selected
+      const selectedCollegeIds = Object.keys(selectedColleges).filter(id => selectedColleges[id]);
+      
+      if (selectedCollegeIds.length === 0) {
+        setCategoryError('You must select colleges using the checkboxes before switching to Finals mode.');
+        setCategory('Eliminations');
+        
+        // Show all colleges in Eliminations mode
+        setDisplayedColleges(allColleges);
+        console.log('Switched back to Eliminations mode - no colleges selected for Finals');
+        
+        // Notify the main process about the category change
+        await window.ipcRenderer.invoke('sync-category', 'Eliminations');
+        return;
+      }
+      
+      // Get the selected colleges
+      const selectedCollegesList = allColleges.filter((college: College) => 
+        selectedCollegeIds.includes(String(college.id))
+      );
+      
+      // Use the selected colleges for Finals
+      setDisplayedColleges(selectedCollegesList);
+      console.log(`Switched to Finals mode with selected colleges:`, 
+        selectedCollegesList.map((c: College) => c.shorthand).join(', '));
+      
+      // Important: Don't clear the selections when switching to Finals mode
+      // This allows users to keep their selections for the leaderboard
+      
+      // Notify the main process about the category change and colleges
+      await window.ipcRenderer.invoke('sync-category', 'Finals', selectedCollegesList);
+      return;
+    }
+    
+    // For Eliminations mode - show all colleges
+    if (category === 'Eliminations') {
+      // Clear any category errors
+      setCategoryError('');
+      
+      // Important: Don't clear the selections when switching back to Eliminations
+      // This allows users to keep their selections when switching between modes
+      
+      // Show all colleges
+      setDisplayedColleges(allColleges);
+      console.log(`Switched to ${category} mode, showing all colleges`);
+      
+      // Notify the main process about category change
+      await window.ipcRenderer.invoke('sync-category', category);
+    }
+  };
+  
+  changeCategory();
+}, [category]);
+
 
   useEffect(() => {
     const changeDifficulty = async () => {
@@ -204,189 +434,100 @@ export default function ControlView() {
     if (category === 'Eliminations') {
       await window.ipcRenderer.invoke('sync-category', 'Eliminations');
     }
+    
+    // Close leaderboard when scores are reset
+    if (showLeaderboard) {
+      setShowLeaderboard(false);
+      await window.ipcRenderer.invoke('close-top-five');
+    }
+    
+    setCollegeRankings({});
+    setSelectedColleges({});
   }
+  
   async function performRefresh() {
     // Get fresh data
     const allColleges = await fetchColleges();
-
-    // Update displayed colleges based on current mode
-    if (category === 'Eliminations') {
-      setDisplayedColleges(allColleges);
-    } else {
-      // In Finals mode, show only top 5 colleges
-      const topFiveColleges = allColleges
-        .sort((a: College, b: College) => b.score - a.score)
-        .slice(0, 5)
-        .filter((college: College) => college.score > 0);
-
-      if (topFiveColleges.length === 5) {
-        setDisplayedColleges(topFiveColleges);
-      }
-    }
+    
+    // Always display all colleges after refresh
+    setDisplayedColleges(allColleges);
 
     await window.ipcRenderer.invoke('refresh');
     console.log('Application refreshed');
   }
 
-  async function toggleLeaderboard() {
-    if (showLeaderboard) {
-      setShowLeaderboard(false);
-      // Invoke the main process to close the leaderboard
-      await window.ipcRenderer.invoke('close-top-five');
-      console.log('Leaderboard closed.');
-    } else {
-      // Get top colleges based on score
-      const sortedColleges = [...colleges].sort((a: College, b: College) => b.score - a.score);
-      
-      // Check if we're already in a clincher round
-      if (inClincherRound) {
-        // In clincher round, just take the current highest scoring colleges
-        const topColleges = sortedColleges.slice(0, 5).filter(college => college.score > 0);
-        
-        if (topColleges.length < 3 && category === 'Finals') {
-          alert('There are fewer than 3 colleges with scores. Please ensure at least 3 colleges have scores before showing the leaderboard.');
-          return;
-        }
-        
-        setShowLeaderboard(true);
-        
-        if (category !== 'Finals') {
-          await window.ipcRenderer.invoke('show-top-five', topColleges);
-        } else {
-          await window.ipcRenderer.invoke('show-top-three', topColleges);
-        }
-        
-        return;
-      }
-      
-      // Regular flow (not in clincher round)
-      const topColleges = sortedColleges.filter(college => college.score > 0);
-      
-      // Check for ties only if we have enough colleges with scores
-      // For scenario where multiple colleges are tied for last place(s)
-      if (category !== 'Finals' && topColleges.length >= 5) {
-        // Get the score of the college at position 5 (index 4)
-        const lastPositionScore = topColleges[4].score;
-        
-        // Find all colleges with the same score as the last position
-        const collegesWithLastPositionScore = topColleges.filter(
-          college => college.score === lastPositionScore
-        );
-        
-        // If there are THREE OR MORE colleges with the last position score, there's a tie that needs clincher
-        if (collegesWithLastPositionScore.length >= 3 && lastPositionScore > 0) {
-          setTiedColleges(collegesWithLastPositionScore);
-          setShowTiePrompt(true);
-          return; // Don't proceed with showing leaderboard yet
-        }
-      } else if (category === 'Finals' && topColleges.length >= 3) {
-        // For Finals mode, check for ties at the 3rd position
-        const thirdPlaceScore = topColleges[2].score;
-        
-        // Find all colleges with the same score as the 3rd place
-        const collegesWithThirdPlaceScore = topColleges.filter(
-          college => college.score === thirdPlaceScore
-        );
-        
-        // If there are THREE OR MORE colleges with the 3rd place score, there's a tie that needs clincher
-        if (collegesWithThirdPlaceScore.length >= 3 && thirdPlaceScore > 0) {
-          setTiedColleges(collegesWithThirdPlaceScore);
-          setShowTiePrompt(true);
-          return; // Don't proceed with showing leaderboard yet
-        }
-      }
-      
-      // Normal case - no tie or only two colleges tied
-      const topFiveColleges = topColleges.slice(0, 5);
-  
-      // Check if there are fewer than 5 colleges with scores in eliminations
-      // or fewer than 3 colleges with scores in finals
-      if (topFiveColleges.length < 5 && category !== 'Finals') {
-        alert(
-          'There are fewer than 5 colleges with scores. Please ensure at least 5 colleges have scores before showing the leaderboard.'
-        );
-        return;
-      } else if (topFiveColleges.length < 3 && category === 'Finals') {
-        alert(
-          'There are fewer than 3 colleges with scores. Please ensure at least 3 colleges have scores before showing the leaderboard.'
-        );
-        return;
-      }
-  
-      setShowLeaderboard(true);
-  
-      // Send the top colleges to main process for leaderboard display
-      if (category !== 'Finals') {
-        await window.ipcRenderer.invoke('show-top-five', topFiveColleges);
-      } else {
-        await window.ipcRenderer.invoke('show-top-three', topFiveColleges);
-      }
-  
-      // Log in the control view console
-      console.log('TOP 5 COLLEGES:');
-      topFiveColleges.forEach((college, index) => {
-        console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
-      });
+  // Function to confirm clincher college selection
+  async function confirmClincherCollegeSelection() {
+    // Get all selected colleges
+    const selectedCollegeIds = Object.keys(selectedColleges).filter(id => selectedColleges[id]);
+    
+    if (selectedCollegeIds.length === 0) {
+      alert('Please select at least one college for the clincher round.');
+      return;
     }
+    
+    // Filter displayed colleges to only show the selected ones
+    const selectedClincherColleges = displayedColleges.filter(college => 
+      selectedCollegeIds.includes(String(college.id))
+    );
+    
+    // Exit selection mode
+    setInCollegeSelectionMode(false);
+    
+    // Enter clincher mode with selected colleges
+    setInClincherRound(true);
+    
+    // Update displayed colleges to only show selected ones
+    setDisplayedColleges(selectedClincherColleges);
+    
+    // Pass the selected difficulty and colleges to the main process
+    await window.ipcRenderer.invoke('sync-difficulty', difficulty, selectedClincherColleges);
+    
+    console.log(
+      `Started ${difficulty} round with selected colleges:`,
+      selectedClincherColleges.map((c) => c.shorthand).join(', ')
+    );
   }
+
+  // Function to go back to college selection for clincher/sudden death
+  const reSelectColleges = async () => {
+    // Clear current selections
+    setSelectedColleges({});
+    
+    // Enable college selection mode
+    setInCollegeSelectionMode(true);
+    
+    // Reset clincher mode
+    setInClincherRound(false);
+    
+    // Refresh the college list to show all colleges
+    const allColleges = await fetchColleges();
+    setDisplayedColleges(allColleges);
+    
+    console.log(`Re-entered college selection mode for ${difficulty} round`);
+  };
 
   // Modified handleSwitchToClincher function to accept a difficulty parameter
   async function handleSwitchToClincher(selectedDifficulty = 'Clincher') {
-    // Close the tie prompt
-    setShowTiePrompt(false);
-  
-    const sortedColleges = [...colleges].sort(
-      (a: College, b: College) => b.score - a.score
-    );
-    
-    let tiedCollegesToReset: College[] = [];
-    
-    if (category !== 'Finals' && sortedColleges.length >= 5) {
-      const fifthPlace = sortedColleges[4].score;
-    
-      const collegesWithFifthPlaceScore = sortedColleges.filter(
-        (college) => college.score === fifthPlace
-      );
-    
-      if (collegesWithFifthPlaceScore.length > 1 && fifthPlace > 0) {
-        setTiedColleges(collegesWithFifthPlaceScore);
-        tiedCollegesToReset = collegesWithFifthPlaceScore;
-        await new Promise((resolve) => setTimeout(resolve, 0));
-      }
-    } else {
-      const thirdPlace = sortedColleges[2].score;
-    
-      const collegesWithThirdPlaceScore = sortedColleges.filter(
-        (college) => college.score === thirdPlace
-      );
-    
-      if (collegesWithThirdPlaceScore.length > 1 && thirdPlace > 0) {
-        setTiedColleges(collegesWithThirdPlaceScore);
-        tiedCollegesToReset = collegesWithThirdPlaceScore;
-        await new Promise((resolve) => setTimeout(resolve, 0));
-      }
-    }
-    
-    // Filter displayed colleges to only show the tied ones
-    setDisplayedColleges(tiedCollegesToReset);
-    
-    // Mark that we're in clincher mode
-    setInClincherRound(true);
-    
-    // Set difficulty to the selected value (Clincher or Sudden Death)
+    // Set difficulty to the selected value
     setDifficulty(selectedDifficulty);
     
-    // Pass the selected difficulty and tiedColleges along with the sync
-    await window.ipcRenderer.invoke('sync-difficulty', selectedDifficulty, tiedCollegesToReset);
+    // Enable college selection mode
+    setInCollegeSelectionMode(true);
     
-    console.log(
-      `Switched to ${selectedDifficulty} round for tied colleges:`,
-      tiedCollegesToReset.map((c) => c.shorthand).join(', ')
-    );
+    // Clear previous selections
+    setSelectedColleges({});
+    
+    // Refresh the college list to show all colleges
+    const allColleges = await fetchColleges();
+    setDisplayedColleges(allColleges);
+    
+    console.log(`Entered college selection mode for ${selectedDifficulty} round`);
   }
   
   async function exitClincherRound(difficulty = 'Easy') {
     setInClincherRound(false);
+    setInCollegeSelectionMode(false);
     
     // Refresh the college list
     const allColleges = await fetchColleges();
@@ -415,6 +556,27 @@ export default function ControlView() {
       window.ipcRenderer.removeAllListeners('scores-reset');
     };
   }, [category]); // Re-apply when category changes
+
+  // Get the appropriate rank options based on the current category
+  const getRankOptions = () => {
+    if (category === 'Finals') {
+      return [
+        { value: '', label: 'Rank' },
+        { value: '1st', label: '1st' },
+        { value: '2nd', label: '2nd' },
+        { value: '3rd', label: '3rd' }
+      ];
+    } else {
+      return [
+        { value: '', label: 'Rank' },
+        { value: '1st', label: '1st' },
+        { value: '2nd', label: '2nd' },
+        { value: '3rd', label: '3rd' },
+        { value: '4th', label: '4th' },
+        { value: '5th', label: '5th' }
+      ];
+    }
+  };
 
   return (
     <div
@@ -475,38 +637,6 @@ export default function ControlView() {
         </div>
       )}
 
-      {/* Tie Detection Prompt */}
-      {showTiePrompt && (
-        <div className='fixed inset-0 bg-transparent z-50 flex items-center justify-center'>
-          <div className='absolute inset-0 bg-gray-900 opacity-40'></div>
-          <div className='bg-white p-6 rounded-xl shadow-lg max-w-md z-10'>
-            <h2 className='text-xl font-bold mb-4'>College Score Tie Detected</h2>
-            <p className='mb-4'>
-              The following colleges have tied scores for the 5th place:
-            </p>
-            <ul className='mb-6 list-disc pl-6'>
-              {tiedColleges.map(college => (
-                <li key={college.id}>{college.name} ({college.shorthand}): {college.score}</li>
-              ))}
-            </ul>
-            <div className='flex justify-center space-x-4'>
-              <button
-                className='px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400'
-                onClick={() => setShowTiePrompt(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className='px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600'
-                onClick={() => handleSwitchToClincher('Clincher')}
-              >
-                Switch to Clincher
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className='w-full flex flex-col p-[1%] bg-red-400'>
         <h1 className='text-6xl font-bold text-center text-white font-[Nitro-Nova] drop-shadow-[0_0_0.05em_white]'>
           PAUTAKAN 2025
@@ -519,9 +649,24 @@ export default function ControlView() {
             <Dropdown
               options={[
                 { value: 'Eliminations' },
-                { value: 'Finals', disabled: getTopFiveColleges().length < 5 },
+                { value: 'Finals' },
               ]}
               onChange={(selected) => {
+                if (selected === 'Finals') {
+                  const selectedCollegeIds = Object.keys(selectedColleges).filter(id => selectedColleges[id]);
+                  
+                  if (selectedCollegeIds.length === 0) {
+                    // No colleges selected, show notification
+                    setCategoryError('You must select colleges using the checkboxes before switching to Finals mode.');
+                    alert('You must select colleges using the checkboxes before switching to Finals mode.');
+                    return; // Don't change category
+                  }
+                }
+                
+                // Clear any previous errors
+                setCategoryError('');
+                
+                // If validation passes or going to Eliminations, set the category
                 setCategory(selected);
                 setDifficulty('Easy');
               }}
@@ -559,7 +704,7 @@ export default function ControlView() {
               initialValue={division}
             />
           </div>
-          <div className='grid grid-cols-2 w-4/9 mr-4 gap-2'>
+          <div className='grid grid-cols-3 w-4/9 mr-4 gap-2'>
             <button className={buttonStyles} onClick={handleResetClick}>
               Reset Scores
             </button>
@@ -567,14 +712,10 @@ export default function ControlView() {
               Refresh
             </button>
             <button
-              className={buttonStyles + ' col-span-2'}
+              className={buttonStyles}
               onClick={toggleLeaderboard}
-              disabled={
-                (category !== 'Finals' && getTopFiveColleges().length < 5) ||
-                (category === 'Finals' && getTopFiveColleges().length < 3)
-              }
             >
-              Toggle Leaderboard
+              {showLeaderboard ? 'Close Leaderboard' : 'Toggle Leaderboard'}
             </button>
           </div>
         </div>
@@ -588,14 +729,51 @@ export default function ControlView() {
           </span>
         </div>
 
-        {/* Single Column Layout - No Scrolling */}
+        {/* Display category error message if any */}
+        {categoryError && (
+          <div className="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 mb-4 rounded">
+            <p>{categoryError}</p>
+          </div>
+        )}
+
+        {/* Display leaderboard error message if any */}
+        {leaderboardError && (
+          <div className="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 mb-4 rounded">
+            <p>{leaderboardError}</p>
+          </div>
+        )}
+
+        {/* Single Column Layout with college list */}
         <div className='w-full flex flex-col gap-1'>
           {displayedColleges.map((college: College) => (
             <div
-              className='bg-white border-2 border-gray-300 w-full px-2 py-1 rounded-xl flex flex-row items-center justify-between'
+              className="bg-white border-2 border-gray-300 w-full px-2 py-1 rounded-xl flex flex-row items-center justify-between"
               key={college.id}
             >
               <div className='flex flex-row items-center'>
+                {/* Checkbox for selecting college for leaderboard */}
+                <input
+                  type="checkbox"
+                  className="mr-2 h-5 w-5 rounded border-gray-300 cursor-pointer"
+                  checked={selectedColleges[String(college.id)] || false}
+                  onChange={(e) => handleCollegeSelection(String(college.id), e.target.checked)}
+                />
+                
+                {/* Ranking dropdown on left side of college name */}
+                <select
+                  className={`border border-gray-300 rounded px-2 py-1 text-sm mr-3 ${
+                    !selectedColleges[String(college.id)] 
+                      ? 'opacity-50 cursor-not-allowed' 
+                      : 'cursor-pointer'
+                  }`}
+                  value={collegeRankings[String(college.id)] || ''}
+                  onChange={(e) => handleRankChange(String(college.id), e.target.value)}
+                  disabled={!selectedColleges[String(college.id)]}
+                >
+                  {getRankOptions().map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
                 <h2 className='font-bold text-sm'>{college.name}</h2>
               </div>
               <div className='flex flex-row items-center'>
@@ -615,6 +793,30 @@ export default function ControlView() {
               </div>
             </div>
           ))}
+          
+          {/* Confirmation button for college selection mode */}
+          {inCollegeSelectionMode && (
+            <div className="w-full mt-4 mb-4">
+              <button
+                className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg w-full"
+                onClick={confirmClincherCollegeSelection}
+              >
+                Confirm Selected Colleges for {difficulty} Round
+              </button>
+            </div>
+          )}
+          
+          {/* Re-select button for clincher/sudden death mode */}
+          {inClincherRound && !inCollegeSelectionMode && (
+            <div className="w-full mt-4 mb-4">
+              <button
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg w-full"
+                onClick={reSelectColleges}
+              >
+                Go Back
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -709,7 +911,6 @@ function Dropdown({
           ▼
         </span>
       </button>
-
       {/* Dropdown menu */}
       {isOpen && (
         <div className='overflow-visible absolute z-50 w-full mt-1 bg-white border rounded shadow'>
