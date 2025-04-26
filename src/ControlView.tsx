@@ -1,7 +1,6 @@
 import './App.css';
 import { useEffect, useState } from 'react';
 import { College } from './types';
-import { pre } from 'framer-motion/client';
 
 const buttonStyles = `shrink p-[1%] bg-white hover:bg-gray-200 cursor-pointer m-[1%] rounded-xl border-2 border-gray-300 font-semibold text-gray-700 shadow-sm disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:bg-white h-14 flex items-center justify-center`;
 export default function ControlView() {
@@ -214,8 +213,9 @@ useEffect(() => {
 
     // Get the latest data from main process
     const allColleges = await fetchColleges();
-    
+    // clear previously selected colleges and other states
     setSelectedColleges({});
+    setInCollegeSelectionMode(false);
 
     // Special handling for Finals mode
     if (category === 'Finals') {
