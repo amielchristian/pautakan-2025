@@ -909,7 +909,7 @@ function Score({ college, clincherColleges }: { college: College; clincherColleg
         {college.score.toString().padStart(3, '0')}
       </div>
       <span
-        className={`text-4xl font-[DS-Digital] text-transparent bg-clip-text font-bold bg-white drop-shadow-[0px_0px_0.1em_rgba(255,255,255,1)] ${
+        className={`text-4xl font-[DS-Digital] text-transparent bg-clip-text font-bold bg-white drop-shadow-[0px_0px_0.0em_rgba(255,255,255,1)] ${
           showGlow ? 'text-glow' : ''
         }`}
       >

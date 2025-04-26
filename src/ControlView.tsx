@@ -211,6 +211,9 @@ useEffect(() => {
     
     // Special handling for Finals mode
     if (category === 'Finals') {
+      // remove rankings for all colleges
+      setCollegeRankings({});
+
       // Validate we have at least one college selected
       const selectedCollegeIds = Object.keys(selectedColleges).filter(id => selectedColleges[id]);
       
@@ -712,7 +715,7 @@ useEffect(() => {
                 <input
                   type="checkbox"
                   className="mr-2 h-5 w-5 rounded border-gray-300 cursor-pointer"
-                  checked={selectedColleges[String(college.id)] || false}
+                  checked={category !== 'Finals' && selectedColleges[String(college.id)] || false}
                   onChange={(e) => handleCollegeSelection(String(college.id), e.target.checked)}
                 />
                 
