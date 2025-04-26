@@ -65,17 +65,6 @@ export default function ControlView() {
     console.log(`College ID ${collegeId} selection: ${isSelected}`);
   };
 
-  // Helper function to validate Finals requirements
-  function validateFinalsRequirements() {
-    const selectedCollegeIds = Object.keys(selectedColleges).filter(id => selectedColleges[id]);
-    
-    if (selectedCollegeIds.length === 0) {
-      return 'You must select colleges using the checkboxes before switching to Finals mode.';
-    }
-    
-    return ''; // No error
-  }
-
   // Load colleges - fetch fresh data from main process
   const fetchColleges = async () => {
     const allColleges = await window.ipcRenderer.invoke('get-colleges');
@@ -100,65 +89,6 @@ export default function ControlView() {
     }
   };
 
-  function getSelectedCollegesWithRanking() {
-    // Get all selected colleges
-    const selectedCollegeIds = Object.keys(selectedColleges).filter(id => selectedColleges[id]);
-    
-    // Debug log to check selected IDs
-    console.log('Selected college IDs:', selectedCollegeIds);
-    
-    // Filter displayed colleges to get only the selected ones
-    const selectedCollegesList = displayedColleges.filter(college => 
-      selectedCollegeIds.includes(String(college.id))
-    );
-    
-    // Debug log to check what colleges were found
-    console.log('Selected colleges before ranking:', selectedCollegesList);
-    
-    // If no selected colleges were found in displayed colleges, find them in the full colleges list
-    if (selectedCollegesList.length === 0 && selectedCollegeIds.length > 0) {
-      console.log('No colleges found in displayed colleges, searching in full colleges list');
-      const selectedFromAllColleges = colleges.filter(college => 
-        selectedCollegeIds.includes(String(college.id))
-      );
-      if (selectedFromAllColleges.length > 0) {
-        console.log('Found colleges in full list:', selectedFromAllColleges);
-        return selectedFromAllColleges;
-      }
-    }
-    
-    // Sort by their manual rankings (1st, 2nd, 3rd, etc.)
-    type RankType = '1st' | '2nd' | '3rd' | '4th' | '5th';
-  
-    const rankOrderMap: Record<RankType, number> = {
-      '1st': 1,
-      '2nd': 2,
-      '3rd': 3,
-      '4th': 4,
-      '5th': 5
-    };
-    
-    const sortedSelectedColleges = [...selectedCollegesList].sort((a, b) => {
-      const rankA = collegeRankings[String(a.id)] || '';
-      const rankB = collegeRankings[String(b.id)] || '';
-      
-      // If both have ranks, sort by rank
-      if (rankA && rankB) {
-        // Type assertion to tell TypeScript these are valid ranks
-        return rankOrderMap[rankA as RankType] - rankOrderMap[rankB as RankType];
-      }
-      // If only one has rank, prioritize the one with rank
-      else if (rankA) return -1;
-      else if (rankB) return 1;
-      // If neither has rank, keep original order
-      else return 0;
-    });
-    
-    // Final debug log
-    console.log('Final sorted selected colleges:', sortedSelectedColleges);
-    
-    return sortedSelectedColleges;
-  }
 
   // Function to validate leaderboard requirements
   function validateLeaderboardRequirements() {
@@ -240,7 +170,7 @@ export default function ControlView() {
         const rankB = collegeRankings[String(b.id)] || '';
         
         // Map ranks to numeric values for sorting
-        const getRankValue = (rank) => {
+        const getRankValue = (rank: string) => {
           switch (rank) {
             case '1st': return 1;
             case '2nd': return 2;
@@ -273,7 +203,6 @@ export default function ControlView() {
     }
   };
 
-  // Inside the useEffect hook that watches for category changes
 // Inside the useEffect hook that watches for category changes
 useEffect(() => {
   const changeCategory = async () => {
@@ -303,16 +232,33 @@ useEffect(() => {
         selectedCollegeIds.includes(String(college.id))
       );
       
-      // Use the selected colleges for Finals
-      setDisplayedColleges(selectedCollegesList);
-      console.log(`Switched to Finals mode with selected colleges:`, 
-        selectedCollegesList.map((c: College) => c.shorthand).join(', '));
+      // Reset scores to 0 for selected colleges when switching to Finals
+      const resetCollegesList = selectedCollegesList.map((college: College) => ({
+        ...college,
+        score: 0
+      }));
       
-      // Important: Don't clear the selections when switching to Finals mode
-      // This allows users to keep their selections for the leaderboard
+      // Update both college arrays with reset scores
+      setColleges(
+        colleges.map((college: College) => 
+          selectedCollegeIds.includes(String(college.id)) 
+          ? { ...college, score: 0 } 
+          : college
+        )
+      );
       
-      // Notify the main process about the category change and colleges
-      await window.ipcRenderer.invoke('sync-category', 'Finals', selectedCollegesList);
+      // Use the selected colleges with reset scores for Finals
+      setDisplayedColleges(resetCollegesList);
+      
+      console.log(`Switched to Finals mode with selected colleges, scores reset to 0:`, 
+        resetCollegesList.map((c: College) => c.shorthand).join(', '));
+      
+      // Notify the main process about the category change and colleges with reset scores
+      await window.ipcRenderer.invoke('sync-category', 'Finals', resetCollegesList);
+      
+      // Reset scores in the database
+      await window.ipcRenderer.invoke('reset-selected-scores', selectedCollegeIds);
+      
       return;
     }
     
@@ -321,12 +267,13 @@ useEffect(() => {
       // Clear any category errors
       setCategoryError('');
       
-      // Important: Don't clear the selections when switching back to Eliminations
-      // This allows users to keep their selections when switching between modes
+      // IMPORTANT: Clear all selections when switching back to Eliminations
+      setSelectedColleges({});
+      setCollegeRankings({});
       
-      // Show all colleges
+      // Show all colleges - this is critical to display all 16 original colleges
       setDisplayedColleges(allColleges);
-      console.log(`Switched to ${category} mode, showing all colleges`);
+      console.log(`Switched to ${category} mode, showing all colleges and cleared all selections`);
       
       // Notify the main process about category change
       await window.ipcRenderer.invoke('sync-category', category);
@@ -335,7 +282,6 @@ useEffect(() => {
   
   changeCategory();
 }, [category]);
-
 
   useEffect(() => {
     const changeDifficulty = async () => {
@@ -409,7 +355,6 @@ useEffect(() => {
     setShowRefreshConfirm(false);
   };
 
-  // Actual operations after confirmation
   async function performResetScores() {
     // Reset scores in both college arrays
     setColleges(colleges.map((x: College) => ({ ...x, score: 0 })));
@@ -441,8 +386,10 @@ useEffect(() => {
       await window.ipcRenderer.invoke('close-top-five');
     }
     
+    // Explicitly clear all selections and rankings
     setCollegeRankings({});
     setSelectedColleges({});
+    console.log('Cleared all college selections and rankings');
   }
   
   async function performRefresh() {
@@ -653,6 +600,7 @@ useEffect(() => {
               ]}
               onChange={(selected) => {
                 if (selected === 'Finals') {
+                  // When changing TO Finals mode
                   const selectedCollegeIds = Object.keys(selectedColleges).filter(id => selectedColleges[id]);
                   
                   if (selectedCollegeIds.length === 0) {
@@ -661,14 +609,23 @@ useEffect(() => {
                     alert('You must select colleges using the checkboxes before switching to Finals mode.');
                     return; // Don't change category
                   }
+                  
+                  // Clear any previous errors
+                  setCategoryError('');
+                  
+                  // Set the category (we'll handle the college filtering in the useEffect)
+                  setCategory(selected);
+                  setDifficulty('Easy');
+                } 
+                else if (selected === 'Eliminations') {
+                  // When changing FROM Finals TO Eliminations mode
+                  // Set the category first (the useEffect will handle displaying all colleges)
+                  setCategory(selected);
+                  setDifficulty('Easy');
+                  
+                  // Clear any previous errors
+                  setCategoryError('');
                 }
-                
-                // Clear any previous errors
-                setCategoryError('');
-                
-                // If validation passes or going to Eliminations, set the category
-                setCategory(selected);
-                setDifficulty('Easy');
               }}
               key={category}
               initialValue={category}
