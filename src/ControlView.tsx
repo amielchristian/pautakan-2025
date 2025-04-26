@@ -718,6 +718,7 @@ useEffect(() => {
                   type="checkbox"
                   className="mr-2 h-5 w-5 rounded border-gray-300 cursor-pointer"
                   checked={selectedColleges[String(college.id)] || false}
+                  disabled={college.score === 0}
                   onChange={(e) => handleCollegeSelection(String(college.id), e.target.checked)}
                 />
                 
