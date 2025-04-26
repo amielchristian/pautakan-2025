@@ -207,18 +207,15 @@ const toggleLeaderboard = async () => {
 
 // Inside the useEffect hook that watches for category changes
 useEffect(() => {
-  const changeCategory = async () => {
-    // Sync category
-    await window.ipcRenderer.invoke('sync-category', category);
-
-    // Get the latest data from main process
-    const allColleges = await fetchColleges();
+  const changeCategory = async () => {    
     // clear previously selected colleges and other states
-    setSelectedColleges({});
     setInCollegeSelectionMode(false);
 
     // Special handling for Finals mode
     if (category === 'Finals') {
+      // Get the latest data from main process
+      const allColleges = await fetchColleges();
+
       // remove rankings for all colleges
       setCollegeRankings({});
 
@@ -254,6 +251,9 @@ useEffect(() => {
           : college
         )
       );
+
+      // clear selected colleges
+      setSelectedColleges({});
       
       // Use the selected colleges with reset scores for Finals
       setDisplayedColleges(resetCollegesList);
@@ -261,14 +261,16 @@ useEffect(() => {
       console.log(`Switched to Finals mode with selected colleges, scores reset to 0:`, 
         resetCollegesList.map((c: College) => c.shorthand).join(', '));
       
-      // Reset scores in the database
-      await window.ipcRenderer.invoke('reset-selected-scores', selectedCollegeIds);
+      await window.ipcRenderer.invoke('sync-category', 'Finals', resetCollegesList);
       
       return;
     }
     
     // For Eliminations mode - show all colleges
     if (category === 'Eliminations') {
+      await window.ipcRenderer.invoke('sync-category', 'Eliminations');
+      const allColleges = await fetchColleges();
+
       // Clear any category errors
       setCategoryError('');
       
