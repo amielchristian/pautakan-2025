@@ -209,6 +209,8 @@ useEffect(() => {
     // Get the latest data from main process
     const allColleges = await fetchColleges();
     
+    setSelectedColleges({});
+
     // Special handling for Finals mode
     if (category === 'Finals') {
       // remove rankings for all colleges
@@ -715,7 +717,7 @@ useEffect(() => {
                 <input
                   type="checkbox"
                   className="mr-2 h-5 w-5 rounded border-gray-300 cursor-pointer"
-                  checked={category !== 'Finals' && selectedColleges[String(college.id)] || false}
+                  checked={selectedColleges[String(college.id)] || false}
                   onChange={(e) => handleCollegeSelection(String(college.id), e.target.checked)}
                 />
                 
