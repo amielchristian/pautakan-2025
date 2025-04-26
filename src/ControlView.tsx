@@ -206,6 +206,9 @@ export default function ControlView() {
 // Inside the useEffect hook that watches for category changes
 useEffect(() => {
   const changeCategory = async () => {
+    // Sync category
+    await window.ipcRenderer.invoke('sync-category', category);
+
     // Get the latest data from main process
     const allColleges = await fetchColleges();
     
@@ -226,9 +229,6 @@ useEffect(() => {
         // Show all colleges in Eliminations mode
         setDisplayedColleges(allColleges);
         console.log('Switched back to Eliminations mode - no colleges selected for Finals');
-        
-        // Notify the main process about the category change
-        await window.ipcRenderer.invoke('sync-category', 'Eliminations');
         return;
       }
       
@@ -257,9 +257,6 @@ useEffect(() => {
       
       console.log(`Switched to Finals mode with selected colleges, scores reset to 0:`, 
         resetCollegesList.map((c: College) => c.shorthand).join(', '));
-      
-      // Notify the main process about the category change and colleges with reset scores
-      await window.ipcRenderer.invoke('sync-category', 'Finals', resetCollegesList);
       
       // Reset scores in the database
       await window.ipcRenderer.invoke('reset-selected-scores', selectedCollegeIds);
