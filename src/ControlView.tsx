@@ -137,13 +137,29 @@ export default function ControlView() {
   return ''; // No error
 }
 
-  const toggleLeaderboard = async () => {
+const toggleLeaderboard = async () => {
   if (showLeaderboard) {
+    // When CLOSING the leaderboard
     setShowLeaderboard(false);
     setLeaderboardError('');
     await window.ipcRenderer.invoke('close-top-five');
     console.log('Leaderboard closed.');
   } else {
+    // When OPENING the leaderboard
+    
+    // Check if we're in clincher/sudden death mode and set difficulty back to Difficult BEFORE validation
+    if (difficulty === 'Clincher' || difficulty === 'Sudden Death') {
+      setDifficulty('Difficult');
+      await window.ipcRenderer.invoke('sync-difficulty', 'Difficult');
+      console.log(`Changed difficulty from ${difficulty} to Difficult when opening leaderboard`);
+      
+      // Also reset inClincherRound if we're in clincher mode
+      if (inClincherRound) {
+        setInClincherRound(false);
+        console.log('Exited Clincher round when opening leaderboard');
+      }
+    }
+    
     // Validate leaderboard requirements
     const error = validateLeaderboardRequirements();
     
