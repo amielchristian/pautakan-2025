@@ -402,6 +402,7 @@ function MainView() {
       topColleges: College[]
     ) => {
       setIsPopupVisible(true);
+      setTopFiveColleges(topColleges);
       topColleges.forEach((college: College, index: number) => {
         console.log(`${index + 1}. ${college.shorthand} (${college.name})`);
       });
@@ -553,9 +554,6 @@ function MainView() {
               <div className='w-full mt-8 relative overflow-visible py-9'>
               <div className='flex justify-center gap-6'>
                   {topFiveColleges
-                    .sort((a, b) => {
-                      return b.score - a.score;
-                    })
                     .slice(0, 3)
                     .map((college, index) => {
                       const fileName = college.imagePath.replace('.png', '_norings.png');

@@ -92,116 +92,116 @@ export default function ControlView() {
 
   // Function to validate leaderboard requirements
   function validateLeaderboardRequirements() {
+  // Get selected colleges from the currently displayed colleges
+  const selectedCollegeIds = Object.keys(selectedColleges).filter(id => selectedColleges[id]);
+  
+  // Filter to only include colleges that are currently displayed
+  const displayedSelectedIds = displayedColleges
+    .filter(college => selectedCollegeIds.includes(String(college.id)))
+    .map(college => String(college.id));
+  
+  // Check if we have the required number of colleges
+  const requiredCount = category === 'Finals' ? 3 : 5;
+  if (displayedSelectedIds.length !== requiredCount) {
+    return `You must select exactly ${requiredCount} colleges from the current display for ${category} mode leaderboard.`;
+  }
+  
+  // Check if all selected colleges have ranks
+  const unrankedColleges = displayedSelectedIds.filter(id => !collegeRankings[id]);
+  
+  if (unrankedColleges.length > 0) {
+    return `All selected colleges must have a rank assigned.`;
+  }
+  
+  // Check if all required ranks are used
+  const maxRank = category === 'Finals' ? 3 : 5;
+  const usedRanks = new Set();
+  
+  // Collect all used ranks from currently displayed and selected colleges
+  displayedSelectedIds.forEach(id => {
+    const rank = collegeRankings[id];
+    if (rank) usedRanks.add(rank);
+  });
+  
+  for (let i = 1; i <= maxRank; i++) {
+    const rankValue = i === 1 ? '1st' : i === 2 ? '2nd' : i === 3 ? '3rd' : i === 4 ? '4th' : '5th';
+    if (!usedRanks.has(rankValue)) {
+      return `Rank "${rankValue}" must be assigned to a college.`;
+    }
+  }
+  
+  if (usedRanks.size !== maxRank) {
+    return `All ranks from 1st to ${maxRank === 3 ? '3rd' : '5th'} must be used exactly once.`;
+  }
+  
+  return ''; // No error
+}
+
+  const toggleLeaderboard = async () => {
+  if (showLeaderboard) {
+    setShowLeaderboard(false);
+    setLeaderboardError('');
+    await window.ipcRenderer.invoke('close-top-five');
+    console.log('Leaderboard closed.');
+  } else {
+    // Validate leaderboard requirements
+    const error = validateLeaderboardRequirements();
+    
+    if (error) {
+      setLeaderboardError(error);
+      alert(error);
+      return;
+    }
+    
+    // Clear any previous errors
+    setLeaderboardError('');
+    
     // Get selected colleges from the currently displayed colleges
     const selectedCollegeIds = Object.keys(selectedColleges).filter(id => selectedColleges[id]);
     
-    // Filter to only include colleges that are currently displayed
-    const displayedSelectedIds = displayedColleges
-      .filter(college => selectedCollegeIds.includes(String(college.id)))
-      .map(college => String(college.id));
+    // Only use colleges that are currently displayed
+    const selectedCollegesList = displayedColleges.filter(college => 
+      selectedCollegeIds.includes(String(college.id))
+    );
     
-    // Check if we have the required number of colleges
-    const requiredCount = category === 'Finals' ? 3 : 5;
-    if (displayedSelectedIds.length !== requiredCount) {
-      return `You must select exactly ${requiredCount} colleges from the current display for ${category} mode leaderboard.`;
-    }
-    
-    // Check if all selected colleges have ranks
-    const unrankedColleges = displayedSelectedIds.filter(id => !collegeRankings[id]);
-    
-    if (unrankedColleges.length > 0) {
-      return `All selected colleges must have a rank assigned.`;
-    }
-    
-    // Check if all required ranks are used
-    const maxRank = category === 'Finals' ? 3 : 5;
-    const usedRanks = new Set();
-    
-    // Collect all used ranks from currently displayed and selected colleges
-    displayedSelectedIds.forEach(id => {
-      const rank = collegeRankings[id];
-      if (rank) usedRanks.add(rank);
+    // Sort by their manual rankings
+    const sortedSelectedColleges = [...selectedCollegesList].sort((a, b) => {
+      const rankA = collegeRankings[String(a.id)] || '';
+      const rankB = collegeRankings[String(b.id)] || '';
+      
+      // Map ranks to numeric values for sorting
+      const getRankValue = (rank: string) => {
+        switch (rank) {
+          case '1st': return 1;
+          case '2nd': return 2;
+          case '3rd': return 3;
+          case '4th': return 4;
+          case '5th': return 5;
+          default: return 999;
+        }
+      };
+      
+      return getRankValue(rankA) - getRankValue(rankB);
     });
     
-    for (let i = 1; i <= maxRank; i++) {
-      const rankValue = i === 1 ? '1st' : i === 2 ? '2nd' : i === 3 ? '3rd' : i === 4 ? '4th' : '5th';
-      if (!usedRanks.has(rankValue)) {
-        return `Rank "${rankValue}" must be assigned to a college.`;
-      }
-    }
+    setShowLeaderboard(true);
     
-    if (usedRanks.size !== maxRank) {
-      return `All ranks from 1st to ${maxRank === 3 ? '3rd' : '5th'} must be used exactly once.`;
-    }
+    console.log('Showing leaderboard for:', sortedSelectedColleges);
     
-    return ''; // No error
-  }
-
-  const toggleLeaderboard = async () => {
-    if (showLeaderboard) {
-      setShowLeaderboard(false);
-      setLeaderboardError('');
-      await window.ipcRenderer.invoke('close-top-five');
-      console.log('Leaderboard closed.');
+    if (category !== 'Finals') {
+      await window.ipcRenderer.invoke('show-top-five', sortedSelectedColleges);
     } else {
-      // Validate leaderboard requirements
-      const error = validateLeaderboardRequirements();
-      
-      if (error) {
-        setLeaderboardError(error);
-        alert(error);
-        return;
-      }
-      
-      // Clear any previous errors
-      setLeaderboardError('');
-      
-      // Get selected colleges from the currently displayed colleges
-      const selectedCollegeIds = Object.keys(selectedColleges).filter(id => selectedColleges[id]);
-      
-      // Only use colleges that are currently displayed
-      const selectedCollegesList = displayedColleges.filter(college => 
-        selectedCollegeIds.includes(String(college.id))
-      );
-      
-      // Sort by their manual rankings
-      const sortedSelectedColleges = [...selectedCollegesList].sort((a, b) => {
-        const rankA = collegeRankings[String(a.id)] || '';
-        const rankB = collegeRankings[String(b.id)] || '';
-        
-        // Map ranks to numeric values for sorting
-        const getRankValue = (rank: string) => {
-          switch (rank) {
-            case '1st': return 1;
-            case '2nd': return 2;
-            case '3rd': return 3;
-            case '4th': return 4;
-            case '5th': return 5;
-            default: return 999;
-          }
-        };
-        
-        return getRankValue(rankA) - getRankValue(rankB);
-      });
-      
-      setShowLeaderboard(true);
-      
-      console.log('Showing leaderboard for:', sortedSelectedColleges);
-      
-      if (category !== 'Finals') {
-        await window.ipcRenderer.invoke('show-top-five', sortedSelectedColleges);
-      } else {
-        await window.ipcRenderer.invoke('show-top-three', sortedSelectedColleges);
-      }
-      
-      // Log in the control view console
-      console.log('DISPLAYING LEADERBOARD:');
-      sortedSelectedColleges.forEach((college) => {
-        const rank = collegeRankings[String(college.id)];
-        console.log(`${rank}: ${college.shorthand} (${college.name})`);
-      });
+      await window.ipcRenderer.invoke('show-top-three', sortedSelectedColleges);
     }
-  };
+    
+    // Log in the control view console
+    console.log('DISPLAYING LEADERBOARD:');
+    sortedSelectedColleges.forEach((college) => {
+      const rank = collegeRankings[String(college.id)];
+      console.log(`${rank}: ${college.shorthand} (${college.name})`);
+    });
+  }
+};
 
 // Inside the useEffect hook that watches for category changes
 useEffect(() => {
