@@ -1,6 +1,7 @@
 import './App.css';
 import { useEffect, useState } from 'react';
 import { College } from './types';
+import { pre } from 'framer-motion/client';
 
 const buttonStyles = `shrink p-[1%] bg-white hover:bg-gray-200 cursor-pointer m-[1%] rounded-xl border-2 border-gray-300 font-semibold text-gray-700 shadow-sm disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:bg-white h-14 flex items-center justify-center`;
 export default function ControlView() {
@@ -602,6 +603,7 @@ useEffect(() => {
                 { value: 'Eliminations' },
                 { value: 'Finals' },
               ]}
+              preventChange={Object.keys(selectedColleges).length === 0}
               onChange={(selected) => {
                 if (selected === 'Finals') {
                   // When changing TO Finals mode
@@ -611,6 +613,7 @@ useEffect(() => {
                     // No colleges selected, show notification
                     setCategoryError('You must select colleges using the checkboxes before switching to Finals mode.');
                     alert('You must select colleges using the checkboxes before switching to Finals mode.');
+
                     return; // Don't change category
                   }
                   
@@ -840,10 +843,12 @@ function Dropdown({
   options,
   onChange,
   initialValue,
+  preventChange
 }: {
   options: DropdownOption[];
   onChange?: (value: string) => void;
   initialValue?: string;
+  preventChange?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<string>(
@@ -852,7 +857,9 @@ function Dropdown({
 
   const handleSelect = (option: DropdownOption) => {
     if (option.disabled) return; // Do nothing if the option is disabled
-    setSelected(option.value);
+    if (!preventChange) {
+      setSelected(option.value);
+    }
     setIsOpen(false);
     if (onChange) onChange(option.value);
   };
