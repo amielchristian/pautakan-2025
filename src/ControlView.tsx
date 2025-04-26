@@ -208,7 +208,7 @@ const toggleLeaderboard = async () => {
 // Inside the useEffect hook that watches for category changes
 useEffect(() => {
   const changeCategory = async () => {    
-    // clear previously selected colleges and other states
+    // clear college selection mode
     setInCollegeSelectionMode(false);
 
     // Special handling for Finals mode
@@ -252,7 +252,8 @@ useEffect(() => {
         )
       );
 
-      // clear selected colleges
+      // clear selected colleges (important to do this after getting the selected colleges)
+      // this clears the checkboxes in the UI
       setSelectedColleges({});
       
       // Use the selected colleges with reset scores for Finals

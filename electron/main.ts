@@ -33,9 +33,11 @@ function initializeIPC() {
   // File: electron/main.ts
   // Function: ipcMain.handle('sync-category')
 
-  ipcMain.handle('sync-category', (_, data?) => {
+  ipcMain.handle('sync-category', (_, data?, topFiveColleges?) => {
     const oldCategory = category;
     if (data) category = data;
+
+    console.log(data)
 
     // If changing from Eliminations to Finals, ensure we have top five colleges
     if (oldCategory === 'Eliminations' && category === 'Finals') {
