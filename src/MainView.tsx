@@ -28,6 +28,8 @@ function FrameCollegeLogos({ colleges, clincherColleges }: { colleges: College[]
     }
   }, [colleges.length]);
 
+  
+
   // Helper function to determine if a college is in clincher mode
   const isInClincherMode = (college: College) => {
     if (!isClincherMode) return true; // If not in clincher mode, all colleges are shown normally
@@ -180,6 +182,7 @@ function MainView() {
   const [prevScores, setPrevScores] = useState<Record<string, number>>({});
   const radialGridContainerRef = useRef<HTMLDivElement>(null);
   const [booted, setBooted] = useState(false);
+  const [showGlow, setShowGlow] = useState(false);
 
   const getColleges = async () => {
     return await window.ipcRenderer.invoke('get-colleges');
@@ -187,6 +190,20 @@ function MainView() {
   function handleBoot(booted: boolean) {
     setBooted(booted);
   }
+
+  useEffect(() => {
+    if (difficulty === 'Clincher' || difficulty === 'Sudden Death') {
+      setShowGlow(true); // Turn ON glow
+    } else {
+      setShowGlow(false); // Turn OFF glow if difficulty changes
+    }
+  }, [difficulty]);
+
+  useEffect(() => {
+    if (isPopupVisible) {
+      setShowGlow(false); // Turn OFF glow permanently once popup is shown
+    }
+  }, [isPopupVisible]);
 
   useEffect(() => {
     if (colleges.length > 0 && radialGridContainerRef.current) {
@@ -226,6 +243,8 @@ function MainView() {
         );
       });
     };
+
+    
 
     const handleScoresReset = () => {
       getColleges().then((updatedColleges) => {
@@ -466,6 +485,8 @@ function MainView() {
     if (!booted) {
       return;
     }
+
+    
 
     setIsDifficultyBannerVisible(true);
     const timeout = setTimeout(() => {
@@ -745,27 +766,34 @@ function MainView() {
           </AnimatePresence>
 
           {/* Red Glow for Clincher and Sudden Death difficulties */}
-         <AnimatePresence>
-          {(difficulty === 'Clincher' || difficulty === 'Sudden Death') && (
-         <div className='fixed w-full inset-0 z-10 flex flex-col items-center justify-center z-150'>
-         
-  <style>
-    {`
-      @keyframes pulseGlow {
-        0%, 100% { opacity: 0.7; }
-        50% { opacity: 1; }
-      }
-    `}
-  </style>
-  <img
-    src='./images/GLOW.png'
-    alt='RED GLOW'
-    className="fixed top-0 left-0 w-screen h-screen"
-    style={{ animation: 'pulseGlow 2s ease-in-out infinite' }}
-  />
-
-</div>)}
-         </AnimatePresence>
+          <AnimatePresence>
+      {showGlow && (
+        <motion.div
+          className='fixed w-full inset-0 flex flex-col items-center justify-center z-150'
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <style>
+            {`
+              @keyframes pulseGlow {
+                0%, 100% { opacity: 0.7; }
+                50% { opacity: 1; }
+              }
+            `}
+          </style>
+          <motion.img
+            src='./images/GLOW.png'
+            alt='RED GLOW'
+            className="fixed top-0 left-0 w-screen h-screen"
+            style={{ animation: 'pulseGlow 2s ease-in-out infinite' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          />
+        </motion.div>
+      )}
+    </AnimatePresence>
        
           <div
             className='sharp-edge-box w-[100%] p-3
