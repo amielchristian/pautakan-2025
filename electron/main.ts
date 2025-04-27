@@ -52,13 +52,13 @@ function initializeIPC() {
       // Only proceed if we have exactly 5 colleges with scores
       if (topFiveColleges.length === 5) {
         // Reset scores for the top five colleges
-        topFiveColleges = topFiveColleges.map((college) => ({
+        topFiveColleges = topFiveColleges.map((college: College) => ({
           ...college,
           score: 0,
         }));
 
         // Update the scores in the main colleges array
-        topFiveColleges.forEach((college) => {
+        topFiveColleges.forEach((college: College) => {
           const index = colleges.findIndex((c) => c.id === college.id);
           if (index !== -1) {
             colleges[index].score = 0;
